@@ -1,0 +1,30 @@
+version: '3.5'
+
+networks:
+  recruitment_selection:
+    driver: bridge
+    name: recruitment_selection_network
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    networks:
+      - recruitment_selection
+    environment:
+      POSTGRES_DB: recruitment_selection
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    command: redis-server
+    networks:
+      - recruitment_selection
+    ports:
+      - "6379:6379"
