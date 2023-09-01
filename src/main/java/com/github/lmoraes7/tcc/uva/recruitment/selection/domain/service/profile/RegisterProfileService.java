@@ -5,6 +5,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.Busine
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Profile;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.dto.ProfileDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public final class RegisterProfileService {
     private final ProfileRepository profileRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    @Autowired
     public RegisterProfileService(
             final ProfileRepository profileRepository,
             final ApplicationEventPublisher applicationEventPublisher

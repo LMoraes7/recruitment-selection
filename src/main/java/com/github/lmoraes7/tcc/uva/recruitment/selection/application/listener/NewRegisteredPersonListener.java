@@ -1,6 +1,7 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.application.listener;
 
-import com.github.lmoraes7.tcc.uva.recruitment.selection.application.listener.event.NewRegisteredPerson;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.application.listener.event.NewRegisteredCandidate;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.application.listener.event.NewRegisteredEmployee;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.publisher.EmailPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -16,7 +17,13 @@ public class NewRegisteredPersonListener {
 
     @Async
     @EventListener
-    public void newRegisteredPerson(final NewRegisteredPerson event) {
+    public void newRegisteredEmployee(final NewRegisteredEmployee event) {
+
+    }
+
+    @Async
+    @EventListener
+    public void newRegisteredCandidate(final NewRegisteredCandidate event) {
 
     }
 

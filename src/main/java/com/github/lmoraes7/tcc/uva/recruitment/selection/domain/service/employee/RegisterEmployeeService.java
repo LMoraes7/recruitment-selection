@@ -1,13 +1,14 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorResetPasswordCode;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.application.listener.event.NewRegisteredPerson;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.application.listener.event.NewRegisteredEmployee;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.dto.EmployeeDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.commons.CommonRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.employee.EmployeeRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.service.PasswordEncryptorService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public final class RegisterEmployeeService {
     private final PasswordEncryptorService passwordEncryptorService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    @Autowired
     public RegisterEmployeeService(
             final CommonRepository commonRepository,
             final EmployeeRepository employeeRepository,
@@ -42,7 +44,7 @@ public final class RegisterEmployeeService {
         } catch (final DataIntegrityViolationException ex) {
             throw new BusinessException(
                     APIX_003,
-                    List.of(dto.getPersonalData().getEmail(), dto.getPersonalData().getEmail())
+                    List.of(dto.getPersonalData().getEmail(), dto.getPersonalData().getCpf())
             );
         }
 
@@ -52,7 +54,7 @@ public final class RegisterEmployeeService {
         this.commonRepository.savePasswordChangeRequest(employee, code);
 
         this.applicationEventPublisher.publishEvent(
-                new NewRegisteredPerson(
+                new NewRegisteredEmployee(
                         employee.getIdentifier(),
                         employee.getPersonalData().getEmail(),
                         employee.getPersonalData().getCpf()

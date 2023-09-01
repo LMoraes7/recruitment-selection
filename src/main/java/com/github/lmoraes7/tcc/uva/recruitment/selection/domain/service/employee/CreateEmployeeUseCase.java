@@ -3,6 +3,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employe
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.dto.EmployeeDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -10,6 +11,7 @@ public final class CreateEmployeeUseCase {
     private final ProfileRepository profileRepository;
     private final RegisterEmployeeService registerEmployeeService;
 
+    @Autowired
     public CreateEmployeeUseCase(
             final ProfileRepository profileRepository,
             final RegisterEmployeeService registerEmployeeService

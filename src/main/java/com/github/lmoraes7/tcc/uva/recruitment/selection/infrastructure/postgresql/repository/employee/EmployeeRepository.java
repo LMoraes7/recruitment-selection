@@ -3,6 +3,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.employee.entity.EmployeeEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.EmployeeProfileRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -15,6 +16,7 @@ public class EmployeeRepository {
     private final EmployeeProfileRepository employeeProfileRepository;
 
 
+    @Autowired
     public EmployeeRepository(
             final JdbcTemplate jdbcTemplate,
             final EmployeeProfileRepository employeeProfileRepository

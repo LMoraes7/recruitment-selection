@@ -1,6 +1,7 @@
-package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.dto;
+package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.common.dto;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public final class PersonalDataDto {
     private final String name;
@@ -48,6 +49,19 @@ public final class PersonalDataDto {
 
     public AddressDto getAddress() {
         return address;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        PersonalDataDto that = (PersonalDataDto) object;
+        return Objects.equals(name, that.name) && Objects.equals(cpf, that.cpf) && Objects.equals(email, that.email) && Objects.equals(dateOfBirth, that.dateOfBirth) && Objects.equals(phone, that.phone) && Objects.equals(address, that.address);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, cpf, email, dateOfBirth, phone, address);
     }
 
 }

@@ -1,5 +1,7 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.dto;
 
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.common.dto.PersonalDataDto;
+
 import java.util.Collections;
 import java.util.Set;
 

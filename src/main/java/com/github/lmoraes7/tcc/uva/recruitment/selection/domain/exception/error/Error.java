@@ -8,7 +8,9 @@ public enum Error {
 //  CPF ou email informado já foram cadastrados
     APIX_003("apix-003.error"),
 //  Perfis informados não existem
-    APIX_004("apix-004.error");
+    APIX_004("apix-004.error"),
+//  Erro ao buscar o perfil de candidato
+    INTG_001("intg-001.error");
 
     public final String code;
 

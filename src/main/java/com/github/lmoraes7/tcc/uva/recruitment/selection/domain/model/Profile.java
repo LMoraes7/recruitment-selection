@@ -13,6 +13,11 @@ public final class Profile {
         this.identifier = identifier;
     }
 
+    public Profile(final String identifier, final String name) {
+        this.identifier = identifier;
+        this.name = name;
+    }
+
     public Profile(final String identifier, final String name, final Set<Function> functions) {
         this.identifier = identifier;
         this.name = name;

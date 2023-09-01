@@ -12,6 +12,10 @@ public final class GeneratorIdentifier {
         return "EMP-".concat(generateHash());
     }
 
+    public static String forCandidate() {
+        return "CAN-".concat(generateHash());
+    }
+
     private static String generateHash() {
         final var split = UUID.randomUUID().toString().split("-");
         return split[1].concat(split[2]);

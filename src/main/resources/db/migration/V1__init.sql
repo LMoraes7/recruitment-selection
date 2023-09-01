@@ -24,7 +24,7 @@ create table employees(
 	phones text not null,
 	adresses text not null,
 	username varchar(255) not null unique,
-	password varchar(255) not null
+	password text not null
 );
 
 create table employees_profiles(
@@ -43,7 +43,7 @@ create table candidates(
     adresses text not null,
     date_of_birth date not null,
 	username varchar(255) not null unique,
-    password varchar(10) not null
+    password text not null
 );
 
 create table candidates_profiles(

@@ -1,9 +1,9 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.employee.converter;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.commons.entity.vo.AccessCredentialsEntity;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.commons.entity.vo.PersonalDataEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.employee.entity.EmployeeEntity;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.employee.entity.vo.AccessCredentialsEntity;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.employee.entity.vo.PersonalDataEntity;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.application.serialiazer.JsonUtils.toJson;
 

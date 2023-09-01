@@ -2,7 +2,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Profile;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.batch.SaveProfileFunctionBatch;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.batch.SaveEmployeeProfileBatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -21,7 +21,7 @@ public class EmployeeProfileRepository {
     public void saveRelationship(final Employee employee) {
         this.jdbcTemplate.batchUpdate(
                 SAVE.sql,
-                new SaveProfileFunctionBatch(
+                new SaveEmployeeProfileBatch(
                         employee.getIdentifier(),
                         employee.getAccessCredentials().getProfiles().stream().map(Profile::getIdentifier).toList()
                 )

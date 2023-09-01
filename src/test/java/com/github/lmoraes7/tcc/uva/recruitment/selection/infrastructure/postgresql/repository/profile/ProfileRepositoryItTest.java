@@ -9,19 +9,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.Functionality.FUNC_CREATE_EMPLOYEE;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.Functionality.FUNC_CREATE_PROFILE;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.query.ProfileCommands.FIND_BY_ID;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestItUtils.saveFunctions;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestItUtils.saveProfiles;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @Tag("integration")
 @SpringBootTest
@@ -71,7 +73,7 @@ final class ProfileRepositoryItTest {
                 DataIntegrityViolationException.class,
                 () -> this.profileRepository.save(new Profile(GeneratorIdentifier.forProfile(), this.profile.getName(), this.functions))
         );
-//        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
     }
 
     @Test
@@ -98,6 +100,42 @@ final class ProfileRepositoryItTest {
                 }
         );
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
+    }
+
+    @Test
+    @Transactional
+    void when_prompted_must_successfully_fetch_a_profile_by_id() {
+        assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
+
+        saveProfiles(this.jdbcTemplate, List.of(this.profile));
+
+        assertDoesNotThrow(() -> {
+            final Optional<Profile> optionalProfile = this.profileRepository.findById(
+                    this.profile.getIdentifier()
+            );
+
+            assertNotNull(optionalProfile);
+            assertTrue(optionalProfile.isPresent());
+        });
+
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
+    }
+
+    @Test
+    @Transactional
+    void when_prompted_must_fetch_a_profile_by_the_failed_id() {
+        assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
+
+        assertDoesNotThrow(() -> {
+            final Optional<Profile> optionalProfile = this.profileRepository.findById(
+                    this.profile.getIdentifier()
+            );
+
+            assertNotNull(optionalProfile);
+            assertTrue(optionalProfile.isEmpty());
+        });
+
+        assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
     }
 
 }

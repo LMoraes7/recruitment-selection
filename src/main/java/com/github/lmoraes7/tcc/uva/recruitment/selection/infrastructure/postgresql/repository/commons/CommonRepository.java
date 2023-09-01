@@ -3,6 +3,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.commons.entity.vo.TypeEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.properties.ConfigPasswordChangeRequestProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +15,7 @@ public class CommonRepository {
     private final JdbcTemplate jdbcTemplate;
     private final ConfigPasswordChangeRequestProperties configPasswordChangeRequestProperties;
 
+    @Autowired
     public CommonRepository(
             final JdbcTemplate jdbcTemplate,
             final ConfigPasswordChangeRequestProperties configPasswordChangeRequestProperties
