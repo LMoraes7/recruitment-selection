@@ -12,6 +12,28 @@ public final class Question {
     private TypeQuestion type;
     private Set<Answer> answers;
 
+    public Question(
+            final String identifier,
+            final String description,
+            final TypeQuestion type
+    ) {
+        this.identifier = identifier;
+        this.description = description;
+        this.type = type;
+    }
+
+    public Question(
+            final String identifier,
+            final String description,
+            final TypeQuestion type,
+            final Set<Answer> answers
+    ) {
+        this.identifier = identifier;
+        this.description = description;
+        this.type = type;
+        this.answers = answers;
+    }
+
     public String getIdentifier() {
         return identifier;
     }

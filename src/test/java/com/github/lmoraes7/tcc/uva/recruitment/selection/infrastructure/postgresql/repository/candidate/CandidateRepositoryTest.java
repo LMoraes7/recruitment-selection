@@ -1,5 +1,6 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate;
 
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Candidate;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate.entity.CandidateEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.CandidateProfileRepository;
@@ -9,8 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate.converter.ConverterHelper.toEntity;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate.query.CandidateCommands.CHANGE_PASSWORD_BY_USERNAME;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate.query.CandidateCommands.SAVE;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 final class CandidateRepositoryTest {
@@ -60,6 +62,60 @@ final class CandidateRepositoryTest {
                 candidateEntity.getAccessCredentials().getPassword()
         );
         verify(this.candidateProfileRepository, only()).saveRelationship(this.candidate);
+    }
+
+    @Test
+    void when_prompted_should_update_password_successfully() {
+        when(this.jdbcTemplate.update(
+                CHANGE_PASSWORD_BY_USERNAME.sql,
+                this.candidate.getAccessCredentials().getPassword(),
+                this.candidate.getAccessCredentials().getUsername()
+        )).thenReturn(1);
+
+        assertDoesNotThrow(() -> this.candidateRepository.changePassword(
+                this.candidate.getAccessCredentials().getUsername(),
+                this.candidate.getAccessCredentials().getPassword()
+        ));
+
+        verify(this.jdbcTemplate, only()).update(
+                CHANGE_PASSWORD_BY_USERNAME.sql,
+                this.candidate.getAccessCredentials().getPassword(),
+                this.candidate.getAccessCredentials().getUsername()
+        );
+        verifyNoInteractions(this.candidateProfileRepository);
+    }
+
+    @Test
+    void when_prompted_should_update_password_failed() {
+        when(this.jdbcTemplate.update(
+                CHANGE_PASSWORD_BY_USERNAME.sql,
+                this.candidate.getAccessCredentials().getPassword(),
+                this.candidate.getAccessCredentials().getUsername()
+        )).thenReturn(0);
+
+        final NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> this.candidateRepository.changePassword(
+                        this.candidate.getAccessCredentials().getUsername(),
+                        this.candidate.getAccessCredentials().getPassword()
+                ));
+
+        assertNotNull(exception);
+        assertEquals(
+                this.candidate.getAccessCredentials().getUsername(),
+                exception.getCode()
+        );
+        assertEquals(
+                Candidate.class,
+                exception.getClassType()
+        );
+
+        verify(this.jdbcTemplate, only()).update(
+                CHANGE_PASSWORD_BY_USERNAME.sql,
+                this.candidate.getAccessCredentials().getPassword(),
+                this.candidate.getAccessCredentials().getUsername()
+        );
+        verifyNoInteractions(this.candidateProfileRepository);
     }
 
 }

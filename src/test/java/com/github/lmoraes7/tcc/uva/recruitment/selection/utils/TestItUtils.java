@@ -1,11 +1,9 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.utils;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Candidate;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Function;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Profile;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.*;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.Functionality;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeQuestion;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.AccessCredentials;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.Address;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.PersonalData;
@@ -15,6 +13,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgres
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate.query.CandidateCommands;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.employee.entity.EmployeeEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.employee.query.EmployeeCommands;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.entity.QuestionEntity;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.query.QuestionCommands;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.LocalDate;
@@ -146,6 +146,19 @@ public final class TestItUtils {
         );
     }
 
+    public static Question generateQuestion() {
+        return new Question(
+                GeneratorIdentifier.forQuestion(),
+                "Descrição qualquer para a questão",
+                TypeQuestion.MULTIPLE_CHOICE,
+                Set.of(new Answer(
+                        GeneratorIdentifier.forAnswer(),
+                        "Descrição qualquer para a resposta",
+                        true
+                ))
+        );
+    }
+
     public static void saveFunctions(
             final JdbcTemplate jdbcTemplate,
             final Collection<Function> functions
@@ -228,6 +241,20 @@ public final class TestItUtils {
                 candidateEntity.getPersonalData().getAddress(),
                 candidateEntity.getAccessCredentials().getUsername(),
                 candidateEntity.getAccessCredentials().getPassword()
+        );
+    }
+
+    public static void saveQuestion(
+            final JdbcTemplate jdbcTemplate,
+            final Question question
+    ) {
+        final QuestionEntity questionEntity = com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.converter.ConverterHelper.toEntity(question);
+
+        jdbcTemplate.update(
+                QuestionCommands.SAVE.sql,
+                questionEntity.getIdentifier(),
+                questionEntity.getDescription(),
+                questionEntity.getType()
         );
     }
 

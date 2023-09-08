@@ -1,6 +1,5 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile;
 
-import com.github.lmoraes7.tcc.uva.recruitment.selection.application.listener.event.NewRegisteredProfile;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Function;
@@ -11,7 +10,6 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.utils.ProfileArgMatcher
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.stream.Collectors;
@@ -23,8 +21,7 @@ import static org.mockito.Mockito.*;
 
 final class RegisterProfileServiceTest {
     private final ProfileRepository profileRepository = Mockito.mock(ProfileRepository.class);
-    private final ApplicationEventPublisher applicationEventPublisher = Mockito.mock(ApplicationEventPublisher.class);
-    private final RegisterProfileService registerProfileService = new RegisterProfileService(this.profileRepository, this.applicationEventPublisher);
+    private final RegisterProfileService registerProfileService = new RegisterProfileService(this.profileRepository);
 
     private ProfileDto profileDto;
 
@@ -53,7 +50,6 @@ final class RegisterProfileServiceTest {
         assertTrue(businessException.getArgs().contains(this.profileDto.getName()));
 
         verify(this.profileRepository, only()).save(argThat(new ProfileArgMatchers(profile)));
-        verifyNoInteractions(this.applicationEventPublisher);
     }
 
     @Test
@@ -78,8 +74,6 @@ final class RegisterProfileServiceTest {
                     );
 
                     verify(this.profileRepository, only()).save(argThat(new ProfileArgMatchers(profile)));
-                    verify(this.applicationEventPublisher, only())
-                            .publishEvent(new NewRegisteredProfile(profileCreated.getIdentifier(), profileCreated.getName()));
                 }
         );
     }

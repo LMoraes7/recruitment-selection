@@ -7,6 +7,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.dto.EmployeeDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.RegisterProfileService;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.dto.ProfileDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.dto.QuestionDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.strategy.CreateQuestionStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
 
@@ -74,6 +76,13 @@ public final class Employee {
             throw new BusinessException(APIX_004, invalidIdentifiers);
 
         return registerEmployeeService.save(dto);
+    }
+
+    public Question createQuestion(
+            final QuestionDto dto,
+            final CreateQuestionStrategy strategy
+    ) {
+        return strategy.execute(dto);
     }
 
     @Override

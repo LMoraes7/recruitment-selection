@@ -1,0 +1,1 @@
+insert into questions (id, description, type) values ('QUE-123456789', 'Any description', 'MULTIPLE_CHOICE');

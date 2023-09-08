@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_003;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.INTG_001;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.INTG_002;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidate.converter.ConverterHelper.toModel;
 
 @Service
@@ -59,7 +59,7 @@ public final class CreateCandidateUseCase {
         }
 
         final Profile profile = this.profileRepository.findById(this.configCandidateProfileProperties.getIdentifier())
-                .orElseThrow(() -> new InternalErrorException(INTG_001));
+                .orElseThrow(() -> new InternalErrorException(INTG_002));
 
         final Candidate candidate = this.candidateRepository.save(
                 toModel(dto, profile, this.passwordEncryptorService)

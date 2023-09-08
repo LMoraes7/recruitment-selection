@@ -1,11 +1,13 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.commons.entity.vo;
 
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Candidate;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
 
 import java.util.Arrays;
 
 public enum TypeEntity {
-    EMP(Employee.class);
+    EMP(Employee.class),
+    CAN(Candidate.class);
 
     private final Class<?> classType;
 

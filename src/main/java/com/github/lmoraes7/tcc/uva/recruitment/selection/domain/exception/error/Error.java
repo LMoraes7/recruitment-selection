@@ -9,8 +9,16 @@ public enum Error {
     APIX_003("apix-003.error"),
 //  Perfis informados não existem
     APIX_004("apix-004.error"),
+//  Código de reset de senha já utilizado
+    APIX_005("apix-005.error"),
+//  Código de reset de senha já expirado
+    APIX_006("apix-006.error"),
+//  Email informado para reset de senha não existe
+    APIX_007("apix-007.error"),
 //  Erro ao buscar o perfil de candidato
-    INTG_001("intg-001.error");
+    INTG_001("intg-001.error"),
+//  Erro interno genérico
+    INTG_002("intg-002.error");
 
     public final String code;
 

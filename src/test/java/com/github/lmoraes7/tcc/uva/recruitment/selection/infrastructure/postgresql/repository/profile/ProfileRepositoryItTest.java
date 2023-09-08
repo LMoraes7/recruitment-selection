@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +18,7 @@ import java.util.*;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.Functionality.FUNC_CREATE_EMPLOYEE;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.Functionality.FUNC_CREATE_PROFILE;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.query.ProfileCommands.FIND_BY_ID;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestItUtils.saveFunctions;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestItUtils.saveProfiles;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoInteractions;
 
 @Tag("integration")
 @SpringBootTest
@@ -41,8 +36,8 @@ final class ProfileRepositoryItTest {
     @BeforeEach
     void setUp() {
         this.functions = Set.of(
-          new Function(GeneratorIdentifier.forEmployee(), FUNC_CREATE_PROFILE),
-          new Function(GeneratorIdentifier.forEmployee(), FUNC_CREATE_EMPLOYEE)
+          new Function("FUN-123456789", FUNC_CREATE_PROFILE),
+          new Function("FUN-987654321", FUNC_CREATE_EMPLOYEE)
         );
 
         this.profile = new Profile(GeneratorIdentifier.forProfile(), "ADM_PROFILE", this.functions);
@@ -50,53 +45,45 @@ final class ProfileRepositoryItTest {
 
     @Test
     @Transactional
+    @Sql(scripts = {"/script/profile_repository_test.sql"})
     void when_prompted_should_save_a_profile_successfully() {
-        assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
-
-        saveFunctions(this.jdbcTemplate, this.functions);
-        this.profileRepository.save(this.profile);
-
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
+
+        assertDoesNotThrow(() -> this.profileRepository.save(this.profile));
+
+        assertEquals(2, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
     }
 
     @Test
     @Transactional
+    @Sql(scripts = {"/script/profile_repository_test.sql"})
     void when_saving_a_profile_with_a_name_already_registered_it_must_throw_a_DataIntegrityViolationException() {
-        assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
-
-        saveFunctions(this.jdbcTemplate, this.functions);
-        this.profileRepository.save(this.profile);
-
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
-
         assertThrows(
                 DataIntegrityViolationException.class,
-                () -> this.profileRepository.save(new Profile(GeneratorIdentifier.forProfile(), this.profile.getName(), this.functions))
+                () -> this.profileRepository.save(new Profile(GeneratorIdentifier.forProfile(), "PROFILE_TEST", this.functions))
         );
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
     }
 
     @Test
     @Transactional
+    @Sql(scripts = {"/script/profile_repository_test.sql"})
     void when_requested_should_return_a_collection_of_profile_identifiers_found() {
-        assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
+        final List<String> identifiers = List.of(
+                UUID.randomUUID().toString(),
+                "PRO-123456789",
+                UUID.randomUUID().toString()
+        );
 
-        saveFunctions(this.jdbcTemplate, this.functions);
-        this.profileRepository.save(this.profile);
-
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
         assertDoesNotThrow(
                 () -> {
-                    final Collection<String> fetchIdentifiers = this.profileRepository.fetchIdentifiers(
-                            List.of(
-                                    UUID.randomUUID().toString(),
-                                    this.profile.getIdentifier(),
-                                    UUID.randomUUID().toString()
-                            )
-                    );
+                    final Collection<String> fetchIdentifiers = this.profileRepository.fetchIdentifiers(identifiers);
 
                     assertNotNull(fetchIdentifiers);
                     assertEquals(1, fetchIdentifiers.size());
-                    assertTrue(fetchIdentifiers.contains(this.profile.getIdentifier()));
+                    assertTrue(fetchIdentifiers.contains(identifiers.get(1)));
                 }
         );
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
@@ -104,38 +91,30 @@ final class ProfileRepositoryItTest {
 
     @Test
     @Transactional
+    @Sql(scripts = {"/script/profile_repository_test.sql"})
     void when_prompted_must_successfully_fetch_a_profile_by_id() {
-        assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
-
-        saveProfiles(this.jdbcTemplate, List.of(this.profile));
-
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
         assertDoesNotThrow(() -> {
-            final Optional<Profile> optionalProfile = this.profileRepository.findById(
-                    this.profile.getIdentifier()
-            );
+            final Optional<Profile> optionalProfile = this.profileRepository.findById("PRO-123456789");
 
             assertNotNull(optionalProfile);
             assertTrue(optionalProfile.isPresent());
         });
-
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
     }
 
     @Test
     @Transactional
+    @Sql(scripts = {"/script/profile_repository_test.sql"})
     void when_prompted_must_fetch_a_profile_by_the_failed_id() {
-        assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
-
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
         assertDoesNotThrow(() -> {
-            final Optional<Profile> optionalProfile = this.profileRepository.findById(
-                    this.profile.getIdentifier()
-            );
+            final Optional<Profile> optionalProfile = this.profileRepository.findById(GeneratorIdentifier.forProfile());
 
             assertNotNull(optionalProfile);
             assertTrue(optionalProfile.isEmpty());
         });
-
-        assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "profiles"));
     }
 
 }

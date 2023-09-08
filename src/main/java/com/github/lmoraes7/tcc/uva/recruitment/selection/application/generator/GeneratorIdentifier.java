@@ -16,6 +16,14 @@ public final class GeneratorIdentifier {
         return "CAN-".concat(generateHash());
     }
 
+    public static String forQuestion() {
+        return "QUE-".concat(generateHash());
+    }
+
+    public static String forAnswer() {
+        return "ANS-".concat(generateHash());
+    }
+
     private static String generateHash() {
         final var split = UUID.randomUUID().toString().split("-");
         return split[1].concat(split[2]);

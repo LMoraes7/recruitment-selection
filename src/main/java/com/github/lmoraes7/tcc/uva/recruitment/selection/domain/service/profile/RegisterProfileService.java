@@ -1,12 +1,10 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile;
 
-import com.github.lmoraes7.tcc.uva.recruitment.selection.application.listener.event.NewRegisteredProfile;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Profile;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.dto.ProfileDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -18,15 +16,10 @@ import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.p
 @Service
 public final class RegisterProfileService {
     private final ProfileRepository profileRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
-    public RegisterProfileService(
-            final ProfileRepository profileRepository,
-            final ApplicationEventPublisher applicationEventPublisher
-    ) {
+    public RegisterProfileService(final ProfileRepository profileRepository) {
         this.profileRepository = profileRepository;
-        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     public Profile save(final ProfileDto dto) {
@@ -37,13 +30,6 @@ public final class RegisterProfileService {
         } catch (final DataIntegrityViolationException ex) {
             throw new BusinessException(APIX_001, List.of(dto.getName()));
         }
-
-        this.applicationEventPublisher.publishEvent(
-                new NewRegisteredProfile(
-                        profile.getIdentifier(),
-                        profile.getName()
-                )
-        );
 
         return profile;
     }

@@ -7,6 +7,12 @@ public final class Answer {
     private String description;
     private Boolean isCorrect;
 
+    public Answer(final String identifier, final String description, final Boolean isCorrect) {
+        this.identifier = identifier;
+        this.description = description;
+        this.isCorrect = isCorrect;
+    }
+
     public String getIdentifier() {
         return identifier;
     }

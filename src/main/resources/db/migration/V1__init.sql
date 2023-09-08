@@ -132,7 +132,7 @@ create table answers(
     id varchar(13) not null primary key,
     description text not null,
     correct boolean not null,
-    id_question varchar(100) not null,
+    id_question varchar(13) not null,
     constraint fk_question_answer foreign key (id_question) references questions (id)
 );
 
@@ -154,7 +154,8 @@ create table password_change_requests(
     code varchar(13) not null primary key,
     email_entity varchar(255) not null, -- email do funcionario ou do candidato
     type_entity varchar(13) not null, -- se o identificador_entidade pertence a um funcionario ou a um candidato
-    limit_time bigint not null, -- tempo limite para trocar password
+    requested_in timestamp not null, -- instante que foi solicitada a troca de senha
+    expired_in timestamp not null, -- tempo limite para trocar password
     is_used boolean not null -- se o código já foi utilizado
 );
 

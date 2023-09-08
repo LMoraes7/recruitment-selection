@@ -5,6 +5,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.dto.EmployeeDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.RegisterProfileService;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.dto.ProfileDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.dto.QuestionDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.strategy.CreateQuestionStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,16 +30,19 @@ final class EmployeeTest {
     private final RegisterProfileService registerProfileService = mock(RegisterProfileService.class);
     private final ProfileRepository profileRepository = mock(ProfileRepository.class);
     private final RegisterEmployeeService registerEmployeeService = mock(RegisterEmployeeService.class);
+    private final CreateQuestionStrategy strategy = mock(CreateQuestionStrategy.class);
 
     private Employee employee;
     private ProfileDto profileDto;
     private EmployeeDto employeeDto;
+    private QuestionDto questionDto;
 
     @BeforeEach
     void setUp() {
         this.employee = dummyObject(Employee.class);
         this.profileDto = dummyObject(ProfileDto.class);
         this.employeeDto = dummyObject(EmployeeDto.class);
+        this.questionDto = dummyObject(QuestionDto.class);
     }
 
     @Test
@@ -148,6 +153,15 @@ final class EmployeeTest {
 
         verify(this.profileRepository, only()).fetchIdentifiers(this.employeeDto.getProfilesIdentifiers());
         verifyNoInteractions(this.registerEmployeeService);
+    }
+
+    @Test
+    void when_prompted_to_create_a_question_it_should_run_successfully() {
+        when(this.strategy.execute(questionDto)).thenReturn(dummyObject(Question.class));
+
+        assertDoesNotThrow(() -> this.employee.createQuestion(this.questionDto, this.strategy));
+
+        verify(this.strategy, only()).execute(questionDto);
     }
 
 }

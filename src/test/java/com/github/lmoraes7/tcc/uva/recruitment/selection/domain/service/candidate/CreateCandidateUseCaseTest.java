@@ -20,7 +20,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.INTG_001;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.INTG_002;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidate.converter.ConverterHelper.toModel;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils.dummyObject;
 import static org.junit.jupiter.api.Assertions.*;
@@ -124,7 +124,7 @@ final class CreateCandidateUseCaseTest {
         );
 
         assertNotNull(exception.getError());
-        assertEquals(INTG_001, exception.getError());
+        assertEquals(INTG_002, exception.getError());
 
         verify(this.commonRepository, only()).saveRecords(
                 this.dto.getPersonalData().getEmail(),

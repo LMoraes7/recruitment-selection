@@ -1,6 +1,5 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee;
 
-import com.github.lmoraes7.tcc.uva.recruitment.selection.application.listener.event.NewRegisteredEmployee;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
@@ -10,7 +9,6 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgres
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.service.PasswordEncryptorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
@@ -24,12 +22,10 @@ final class RegisterEmployeeServiceTest {
     private final CommonRepository commonRepository = mock(CommonRepository.class);
     private final EmployeeRepository employeeRepository = mock(EmployeeRepository.class);
     private final PasswordEncryptorService passwordEncryptorService = mock(PasswordEncryptorService.class);
-    private final ApplicationEventPublisher applicationEventPublisher = mock(ApplicationEventPublisher.class);
     private final RegisterEmployeeService registerEmployeeService = new RegisterEmployeeService(
             this.commonRepository,
             this.employeeRepository,
-            this.passwordEncryptorService,
-            this.applicationEventPublisher
+            this.passwordEncryptorService
     );
 
     private EmployeeDto employeeDto;
@@ -69,7 +65,7 @@ final class RegisterEmployeeServiceTest {
                 this.employeeDto.getPersonalData().getEmail(),
                 this.employeeDto.getPersonalData().getCpf()
         );
-        verifyNoInteractions(this.employeeRepository, this.passwordEncryptorService, this.applicationEventPublisher);
+        verifyNoInteractions(this.employeeRepository, this.passwordEncryptorService);
     }
 
     @Test
@@ -84,7 +80,6 @@ final class RegisterEmployeeServiceTest {
         );
         verify(this.employeeRepository, only()).save(any());
         verify(this.commonRepository, times(1)).savePasswordChangeRequest(any(), any());
-        verify(this.applicationEventPublisher, only()).publishEvent(any(NewRegisteredEmployee.class));
         verifyNoMoreInteractions(this.commonRepository);
     }
 

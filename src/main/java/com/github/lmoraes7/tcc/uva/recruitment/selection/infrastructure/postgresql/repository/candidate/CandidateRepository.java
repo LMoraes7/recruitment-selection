@@ -1,5 +1,6 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate;
 
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Candidate;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate.entity.CandidateEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.CandidateProfileRepository;
@@ -8,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate.converter.ConverterHelper.toEntity;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate.query.CandidateCommands.CHANGE_PASSWORD_BY_USERNAME;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate.query.CandidateCommands.SAVE;
 
 @Repository
@@ -41,6 +43,17 @@ public class CandidateRepository {
         );
         this.candidateProfileRepository.saveRelationship(candidate);
         return candidate;
+    }
+
+    public void changePassword(final String username, final String password) {
+        int update = this.jdbcTemplate.update(
+                CHANGE_PASSWORD_BY_USERNAME.sql,
+                password,
+                username
+        );
+
+        if (update == 0)
+            throw new NotFoundException(username, Candidate.class);
     }
 
 }
