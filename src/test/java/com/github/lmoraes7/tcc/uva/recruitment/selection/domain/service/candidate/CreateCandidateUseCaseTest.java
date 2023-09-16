@@ -6,6 +6,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.Intern
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Candidate;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Profile;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidate.dto.CandidateDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate.CandidateRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.commons.CommonRepository;
@@ -66,9 +67,8 @@ final class CreateCandidateUseCaseTest {
 
         assertDoesNotThrow(() -> this.createCandidateUseCase.execute(this.dto));
 
-        verify(this.commonRepository, only()).saveRecords(
-                dto.getPersonalData().getEmail(), dto.getPersonalData().getCpf()
-        );
+        verify(this.commonRepository, only())
+                .saveRecords(dto.getPersonalData().getEmail(), dto.getPersonalData().getCpf(), TypeEntity.CAN);
         verify(this.configCandidateProfileProperties, only()).getIdentifier();
         verify(this.profileRepository, only()).findById(this.profile.getIdentifier());
         verify(this.candidateRepository, only()).save(any(Candidate.class));
@@ -81,7 +81,8 @@ final class CreateCandidateUseCaseTest {
                 .when(this.commonRepository)
                 .saveRecords(
                         this.dto.getPersonalData().getEmail(),
-                        this.dto.getPersonalData().getCpf()
+                        this.dto.getPersonalData().getCpf(),
+                        TypeEntity.CAN
                 );
 
         final BusinessException businessException = assertThrows(
@@ -101,7 +102,8 @@ final class CreateCandidateUseCaseTest {
 
         verify(this.commonRepository, only()).saveRecords(
                 this.dto.getPersonalData().getEmail(),
-                this.dto.getPersonalData().getCpf()
+                this.dto.getPersonalData().getCpf(),
+                TypeEntity.CAN
         );
         verifyNoInteractions(
                 this.profileRepository,
@@ -128,7 +130,8 @@ final class CreateCandidateUseCaseTest {
 
         verify(this.commonRepository, only()).saveRecords(
                 this.dto.getPersonalData().getEmail(),
-                this.dto.getPersonalData().getCpf()
+                this.dto.getPersonalData().getCpf(),
+                TypeEntity.CAN
         );
         verify(this.configCandidateProfileProperties, only()).getIdentifier();
         verify(this.profileRepository, only()).findById(this.profile.getIdentifier());

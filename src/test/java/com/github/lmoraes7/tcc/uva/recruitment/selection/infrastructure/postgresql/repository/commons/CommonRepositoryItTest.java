@@ -2,11 +2,9 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorResetPasswordCode;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Function;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.PasswordChangeRequest;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Profile;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.*;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.Functionality;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.AccessCredentials;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.Address;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.PersonalData;
@@ -98,7 +96,8 @@ final class CommonRepositoryItTest {
         assertDoesNotThrow(
                 () -> this.commonRepository.saveRecords(
                         UUID.randomUUID().toString(),
-                        UUID.randomUUID().toString().substring(0, 11)
+                        UUID.randomUUID().toString().substring(0, 11),
+                        TypeEntity.EMP
                 )
         );
         assertEquals(2, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "registered_emails_documents"));
@@ -113,7 +112,8 @@ final class CommonRepositoryItTest {
                 DataIntegrityViolationException.class,
                 () -> this.commonRepository.saveRecords(
                         "email_test@email.com.br",
-                        UUID.randomUUID().toString().substring(0, 11)
+                        UUID.randomUUID().toString().substring(0, 11),
+                        TypeEntity.EMP
                 )
         );
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "registered_emails_documents"));
@@ -128,7 +128,8 @@ final class CommonRepositoryItTest {
                 DataIntegrityViolationException.class,
                 () -> this.commonRepository.saveRecords(
                         UUID.randomUUID().toString(),
-                        "27005990048"
+                        "27005990048",
+                        TypeEntity.EMP
                 )
         );
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "registered_emails_documents"));
@@ -140,7 +141,8 @@ final class CommonRepositoryItTest {
     void when_prompted_should_save_password_reset_request_successfully() {
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "password_change_requests"));
         assertDoesNotThrow(() -> this.commonRepository.savePasswordChangeRequest(
-                this.employee,
+                this.employee.getPersonalData().getEmail(),
+                TypeEntity.EMP,
                 this.code
         ));
         assertEquals(2, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "password_change_requests"));
@@ -180,6 +182,34 @@ final class CommonRepositoryItTest {
     void when_prompted_must_update_the_use_of_the_password_reset_request() {
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "password_change_requests"));
         assertDoesNotThrow(() -> this.commonRepository.closePasswordChangeRequest("RST-123456789"));
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "password_change_requests"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/commom_repository_test.sql"})
+    void when_prompted_should_fetch_a_successful_personal_records_entity() {
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "registered_emails_documents"));
+        assertDoesNotThrow(() -> {
+            final Optional<PersonalRecordsEntity> optional = this.commonRepository.findPersonalRecordsEntityByEmail("email_test@email.com.br");
+
+            assertNotNull(optional);
+            assertTrue(optional.isPresent());
+        });
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "registered_emails_documents"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/commom_repository_test.sql"})
+    void when_prompted_should_fetch_a_failed_personal_records_entity() {
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "password_change_requests"));
+        assertDoesNotThrow(() -> {
+            final Optional<PersonalRecordsEntity> optional = this.commonRepository.findPersonalRecordsEntityByEmail(UUID.randomUUID().toString());
+
+            assertNotNull(optional);
+            assertTrue(optional.isEmpty());
+        });
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "password_change_requests"));
     }
 

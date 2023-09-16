@@ -5,6 +5,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.Busine
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.InternalErrorException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Candidate;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Profile;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidate.dto.CandidateDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidate.CandidateRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.commons.CommonRepository;
@@ -50,7 +51,7 @@ public final class CreateCandidateUseCase {
 
     public Candidate execute(final CandidateDto dto) {
         try {
-            this.commonRepository.saveRecords(dto.getPersonalData().getEmail(), dto.getPersonalData().getCpf());
+            this.commonRepository.saveRecords(dto.getPersonalData().getEmail(), dto.getPersonalData().getCpf(), TypeEntity.CAN);
         } catch (final DataIntegrityViolationException ex) {
             throw new BusinessException(
                     APIX_003,

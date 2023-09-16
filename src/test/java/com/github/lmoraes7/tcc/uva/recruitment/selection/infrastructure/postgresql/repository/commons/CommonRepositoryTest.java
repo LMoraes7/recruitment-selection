@@ -3,8 +3,10 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorResetPasswordCode;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.PasswordChangeRequest;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.PersonalRecordsEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.commons.entity.vo.TypeEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.commons.rowmapper.PasswordChangeRequestRowMapper;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.commons.rowmapper.PersonalRecordsEntityRowMapper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.properties.ConfigPasswordChangeRequestProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,10 +26,12 @@ final class CommonRepositoryTest {
     private final JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
     private final ConfigPasswordChangeRequestProperties configPasswordChangeRequestProperties = mock(ConfigPasswordChangeRequestProperties.class);
     private final PasswordChangeRequestRowMapper passwordChangeRequestRowMapper = mock(PasswordChangeRequestRowMapper.class);
+    public final PersonalRecordsEntityRowMapper personalRecordsEntityRowMapper = mock(PersonalRecordsEntityRowMapper.class);
     private final CommonRepository commonRepository = new CommonRepository(
             this.jdbcTemplate,
             this.configPasswordChangeRequestProperties,
-            this.passwordChangeRequestRowMapper
+            this.passwordChangeRequestRowMapper,
+            this.personalRecordsEntityRowMapper
     );
 
     private Employee employee;
@@ -46,20 +50,23 @@ final class CommonRepositoryTest {
         when(this.jdbcTemplate.update(
                 SAVE_RECORDS.sql,
                 employee.getPersonalData().getEmail(),
-                employee.getPersonalData().getCpf()
+                employee.getPersonalData().getCpf(),
+                TypeEntity.fromValue(com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeEntity.EMP).name()
         )).thenReturn(1);
 
         assertDoesNotThrow(
                 () -> this.commonRepository.saveRecords(
                         this.employee.getPersonalData().getEmail(),
-                        this.employee.getPersonalData().getCpf()
+                        this.employee.getPersonalData().getCpf(),
+                        com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeEntity.EMP
                 )
         );
 
         verify(this.jdbcTemplate, only()).update(
                 SAVE_RECORDS.sql,
                 employee.getPersonalData().getEmail(),
-                employee.getPersonalData().getCpf()
+                employee.getPersonalData().getCpf(),
+                TypeEntity.fromValue(com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeEntity.EMP).name()
         );
         verifyNoInteractions(this.configPasswordChangeRequestProperties, this.passwordChangeRequestRowMapper);
     }
@@ -70,21 +77,27 @@ final class CommonRepositoryTest {
         when(this.jdbcTemplate.update(
                 eq(SAVE_PASSWORD_CHANGE_REQUEST.sql),
                 eq(code),
-                eq(employee.getPersonalData().getEmail()),
-                eq(TypeEntity.fromValue(employee.getClass()).name()),
+                eq(this.employee.getPersonalData().getEmail()),
+                eq(TypeEntity.fromValue(com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeEntity.EMP).name()),
                 any(LocalDateTime.class),
                 any(LocalDateTime.class),
                 eq(false)
         )).thenReturn(1);
 
-        assertDoesNotThrow(() -> this.commonRepository.savePasswordChangeRequest(this.employee, this.code));
+        assertDoesNotThrow(
+                () -> this.commonRepository.savePasswordChangeRequest(
+                        this.employee.getPersonalData().getEmail(),
+                        com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeEntity.EMP,
+                        this.code
+                )
+        );
 
         verify(this.configPasswordChangeRequestProperties, only()).getLimitTime();
         verify(this.jdbcTemplate, only()).update(
                 eq(SAVE_PASSWORD_CHANGE_REQUEST.sql),
                 eq(code),
-                eq(employee.getPersonalData().getEmail()),
-                eq(TypeEntity.fromValue(employee.getClass()).name()),
+                eq(this.employee.getPersonalData().getEmail()),
+                eq(TypeEntity.fromValue(com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeEntity.EMP).name()),
                 any(LocalDateTime.class),
                 any(LocalDateTime.class),
                 eq(false)
@@ -95,7 +108,7 @@ final class CommonRepositoryTest {
     @Test
     void when_prompted_should_fetch_a_successful_password_reset_request() {
         when(this.jdbcTemplate.queryForObject(
-                FIND_BY_CODE.sql,
+                FIND_REQUEST_CHANGE_BY_CODE.sql,
                 this.passwordChangeRequestRowMapper,
                 this.code
         )).thenReturn(dummyObject(PasswordChangeRequest.class));
@@ -108,7 +121,7 @@ final class CommonRepositoryTest {
         });
 
         verify(this.jdbcTemplate, only()).queryForObject(
-                FIND_BY_CODE.sql,
+                FIND_REQUEST_CHANGE_BY_CODE.sql,
                 this.passwordChangeRequestRowMapper,
                 this.code
         );
@@ -118,7 +131,7 @@ final class CommonRepositoryTest {
     @Test
     void when_prompted_should_fetch_a_failed_password_reset_request() {
         when(this.jdbcTemplate.queryForObject(
-                FIND_BY_CODE.sql,
+                FIND_REQUEST_CHANGE_BY_CODE.sql,
                 this.passwordChangeRequestRowMapper,
                 this.code
         )).thenThrow(EmptyResultDataAccessException.class);
@@ -131,7 +144,7 @@ final class CommonRepositoryTest {
         });
 
         verify(this.jdbcTemplate, only()).queryForObject(
-                FIND_BY_CODE.sql,
+                FIND_REQUEST_CHANGE_BY_CODE.sql,
                 this.passwordChangeRequestRowMapper,
                 this.code
         );
@@ -150,6 +163,53 @@ final class CommonRepositoryTest {
         verify(this.jdbcTemplate, only()).update(
                 CLOSE_BY_CODE.sql,
                 this.code
+        );
+        verifyNoInteractions(this.configPasswordChangeRequestProperties, this.passwordChangeRequestRowMapper);
+    }
+
+
+    @Test
+    void when_prompted_should_fetch_a_successful_personal_records_entity() {
+        when(this.jdbcTemplate.queryForObject(
+                FIND_REGISTER_ENTITY_BY_EMAIL.sql,
+                this.personalRecordsEntityRowMapper,
+                this.employee.getPersonalData().getEmail()
+        )).thenReturn(dummyObject(PersonalRecordsEntity.class));
+
+        assertDoesNotThrow(() -> {
+            final Optional<PersonalRecordsEntity> optional = this.commonRepository.findPersonalRecordsEntityByEmail(this.employee.getPersonalData().getEmail());
+
+            assertNotNull(optional);
+            assertTrue(optional.isPresent());
+        });
+
+        verify(this.jdbcTemplate, only()).queryForObject(
+                FIND_REGISTER_ENTITY_BY_EMAIL.sql,
+                this.personalRecordsEntityRowMapper,
+                this.employee.getPersonalData().getEmail()
+        );
+        verifyNoInteractions(this.configPasswordChangeRequestProperties, this.passwordChangeRequestRowMapper);
+    }
+
+    @Test
+    void when_prompted_should_fetch_a_failed_personal_records_entity() {
+        when(this.jdbcTemplate.queryForObject(
+                FIND_REGISTER_ENTITY_BY_EMAIL.sql,
+                this.personalRecordsEntityRowMapper,
+                this.employee.getPersonalData().getEmail()
+        )).thenThrow(EmptyResultDataAccessException.class);
+
+        assertDoesNotThrow(() -> {
+            final Optional<PersonalRecordsEntity> optional = this.commonRepository.findPersonalRecordsEntityByEmail(this.employee.getPersonalData().getEmail());
+
+            assertNotNull(optional);
+            assertTrue(optional.isEmpty());
+        });
+
+        verify(this.jdbcTemplate, only()).queryForObject(
+                FIND_REGISTER_ENTITY_BY_EMAIL.sql,
+                this.personalRecordsEntityRowMapper,
+                this.employee.getPersonalData().getEmail()
         );
         verifyNoInteractions(this.configPasswordChangeRequestProperties, this.passwordChangeRequestRowMapper);
     }

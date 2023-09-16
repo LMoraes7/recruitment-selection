@@ -160,8 +160,9 @@ create table password_change_requests(
 );
 
 create table registered_emails_documents(
-    recorded_email varchar(255) not null unique,
-    recorded_document varchar(11) not null unique
+    recorded_email varchar(255) not null primary key, -- colocar um index ao invés de chave primária
+    recorded_document varchar(11) not null unique,
+    type_entity varchar(13) not null
 );
 
 -- Essa tabela vai armazenar as respostas do candidato para um etapa de envio de arquivos

@@ -3,6 +3,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employe
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorResetPasswordCode;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.dto.EmployeeDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.commons.CommonRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.employee.EmployeeRepository;
@@ -35,7 +36,7 @@ public final class RegisterEmployeeService {
 
     public Employee save(final EmployeeDto dto) {
         try {
-            this.commonRepository.saveRecords(dto.getPersonalData().getEmail(), dto.getPersonalData().getCpf());
+            this.commonRepository.saveRecords(dto.getPersonalData().getEmail(), dto.getPersonalData().getCpf(), TypeEntity.EMP);
         } catch (final DataIntegrityViolationException ex) {
             throw new BusinessException(
                     APIX_003,
@@ -46,7 +47,7 @@ public final class RegisterEmployeeService {
         final Employee employee = this.employeeRepository.save(toModel(dto, passwordEncryptorService));
 
         final String code = GeneratorResetPasswordCode.execute();
-        this.commonRepository.savePasswordChangeRequest(employee, code);
+        this.commonRepository.savePasswordChangeRequest(employee.getPersonalData().getEmail(), TypeEntity.EMP, code);
 
         return employee;
     }
