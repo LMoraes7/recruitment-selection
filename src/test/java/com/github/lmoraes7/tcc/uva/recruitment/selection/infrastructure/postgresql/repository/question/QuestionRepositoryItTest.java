@@ -10,13 +10,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.query.QuestionCommands.SELECT_IDENTIFIERS_IN;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @Tag("integration")
 @SpringBootTest
@@ -64,6 +71,19 @@ class QuestionRepositoryItTest {
     void when_prompted_should_successfully_save_a_question_without_answers() {
         assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "questions"));
         assertDoesNotThrow(() -> this.questionRepository.saveWithoutAnswers(this.questionWithoutAnswers));
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "questions"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/question_repository_test.sql"})
+    void when_requested_you_must_successfully_search_for_questions() {
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "questions"));
+        assertDoesNotThrow(() -> {
+            final Collection<Question> questions = this.questionRepository.fetchQuestion(List.of("QUE-123456789"));
+
+            assertEquals(1, questions.size());
+        });
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "questions"));
     }
 

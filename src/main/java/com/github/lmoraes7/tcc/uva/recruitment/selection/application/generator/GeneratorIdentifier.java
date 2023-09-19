@@ -24,6 +24,10 @@ public final class GeneratorIdentifier {
         return "ANS-".concat(generateHash());
     }
 
+    public static String forStep() {
+        return "STE-".concat(generateHash());
+    }
+
     private static String generateHash() {
         final var split = UUID.randomUUID().toString().split("-");
         return split[1].concat(split[2]);

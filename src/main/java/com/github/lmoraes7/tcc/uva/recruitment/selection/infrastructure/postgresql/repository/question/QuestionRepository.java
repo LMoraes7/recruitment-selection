@@ -3,22 +3,42 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Question;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.answer.AnswerRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.entity.QuestionEntity;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.rowmapper.QuestionWithTitleAndTypeRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.converter.ConverterHelper.toEntity;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.query.QuestionCommands.SAVE;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.query.QuestionCommands.SELECT_IDENTIFIERS_IN;
 
 @Repository
 public class QuestionRepository {
     private final JdbcTemplate jdbcTemplate;
     private final AnswerRepository answerRepository;
+    private final QuestionWithTitleAndTypeRowMapper questionWithTitleAndTypeRowMapper;
 
     @Autowired
-    public QuestionRepository(final JdbcTemplate jdbcTemplate, final AnswerRepository answerRepository) {
+    public QuestionRepository(
+            final JdbcTemplate jdbcTemplate,
+            final AnswerRepository answerRepository,
+            final QuestionWithTitleAndTypeRowMapper questionWithTitleAndTypeRowMapper
+    ) {
         this.jdbcTemplate = jdbcTemplate;
         this.answerRepository = answerRepository;
+        this.questionWithTitleAndTypeRowMapper = questionWithTitleAndTypeRowMapper;
+    }
+
+    public Collection<Question> fetchQuestion(final Collection<String> identifiers) {
+        final String inSql = String.join(",", Collections.nCopies(identifiers.size(), "?"));
+        return this.jdbcTemplate.query(
+                String.format(SELECT_IDENTIFIERS_IN.sql, inSql),
+                this.questionWithTitleAndTypeRowMapper,
+                identifiers.toArray()
+        );
     }
 
     public Question saveWithoutAnswers(final Question question) {

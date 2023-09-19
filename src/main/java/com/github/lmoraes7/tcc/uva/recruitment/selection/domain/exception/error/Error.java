@@ -15,6 +15,10 @@ public enum Error {
     APIX_006("apix-006.error"),
 //  Email informado para reset de senha não existe
     APIX_007("apix-007.error"),
+//  Questões informadas não existem
+    APIX_008("apix-008.error"),
+//  Questões informadas não são do mesmo tipo
+    APIX_009("apix-009.error"),
 //  Erro ao buscar o perfil de candidato
     INTG_001("intg-001.error"),
 //  Erro interno genérico

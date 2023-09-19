@@ -9,6 +9,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.dto.ProfileDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.dto.QuestionDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.strategy.CreateQuestionStrategy;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.CreateStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
 
@@ -81,6 +83,13 @@ public final class Employee {
     public Question createQuestion(
             final QuestionDto dto,
             final CreateQuestionStrategy strategy
+    ) {
+        return strategy.execute(dto);
+    }
+
+    public Step createStep(
+            final StepDto dto,
+            final CreateStepStrategy strategy
     ) {
         return strategy.execute(dto);
     }

@@ -7,6 +7,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.dto.ProfileDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.dto.QuestionDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.strategy.CreateQuestionStrategy;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.CreateStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,12 +32,14 @@ final class EmployeeTest {
     private final RegisterProfileService registerProfileService = mock(RegisterProfileService.class);
     private final ProfileRepository profileRepository = mock(ProfileRepository.class);
     private final RegisterEmployeeService registerEmployeeService = mock(RegisterEmployeeService.class);
-    private final CreateQuestionStrategy strategy = mock(CreateQuestionStrategy.class);
+    private final CreateQuestionStrategy questionStrategy = mock(CreateQuestionStrategy.class);
+    private final CreateStepStrategy stepStrategy = mock(CreateStepStrategy.class);
 
     private Employee employee;
     private ProfileDto profileDto;
     private EmployeeDto employeeDto;
     private QuestionDto questionDto;
+    private StepDto stepDto;
 
     @BeforeEach
     void setUp() {
@@ -43,6 +47,7 @@ final class EmployeeTest {
         this.profileDto = dummyObject(ProfileDto.class);
         this.employeeDto = dummyObject(EmployeeDto.class);
         this.questionDto = dummyObject(QuestionDto.class);
+        this.stepDto = dummyObject(StepDto.class);
     }
 
     @Test
@@ -157,11 +162,20 @@ final class EmployeeTest {
 
     @Test
     void when_prompted_to_create_a_question_it_should_run_successfully() {
-        when(this.strategy.execute(questionDto)).thenReturn(dummyObject(Question.class));
+        when(this.questionStrategy.execute(questionDto)).thenReturn(dummyObject(Question.class));
 
-        assertDoesNotThrow(() -> this.employee.createQuestion(this.questionDto, this.strategy));
+        assertDoesNotThrow(() -> this.employee.createQuestion(this.questionDto, this.questionStrategy));
 
-        verify(this.strategy, only()).execute(questionDto);
+        verify(this.questionStrategy, only()).execute(questionDto);
+    }
+
+    @Test
+    void when_prompted_to_create_a_step_it_should_run_successfully() {
+        when(this.stepStrategy.execute(this.stepDto)).thenReturn(dummyObject(ExternalStep.class));
+
+        assertDoesNotThrow(() -> this.employee.createStep(this.stepDto, this.stepStrategy));
+
+        verify(this.stepStrategy, only()).execute(this.stepDto);
     }
 
 }
