@@ -28,6 +28,10 @@ public final class GeneratorIdentifier {
         return "STE-".concat(generateHash());
     }
 
+    public static String forSelectiveProcess() {
+        return "SEL-".concat(generateHash());
+    }
+
     private static String generateHash() {
         final var split = UUID.randomUUID().toString().split("-");
         return split[1].concat(split[2]);

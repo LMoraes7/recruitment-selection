@@ -1,6 +1,7 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.AccessCredentials;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.PersonalData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.RegisterEmployeeService;
@@ -9,16 +10,23 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.dto.ProfileDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.dto.QuestionDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.strategy.CreateQuestionStrategy;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.converter.ConverterHelper;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessStepDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.CreateStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.StepRepository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_002;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_004;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.*;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_011;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.utils.CommonFunctions.validateIdentifiers;
 
 public final class Employee {
@@ -92,6 +100,44 @@ public final class Employee {
             final CreateStepStrategy strategy
     ) {
         return strategy.execute(dto);
+    }
+
+    public SelectiveProcess createSelectiveProcess(
+            final StepRepository stepRepository,
+            final SelectiveProcessRepository selectiveProcessRepository,
+            final SelectiveProcessDto dto
+    ) {
+        final List<String> stepsIdentifiersToValidate = dto.getSteps()
+                .stream()
+                .map(SelectiveProcessStepDto::getIdentifier)
+                .toList();
+        final Collection<Step> validSteps = stepRepository.fetchSteps(stepsIdentifiersToValidate);
+
+        final Set<String> invalidIdentifiers = validateIdentifiers(
+                validSteps.stream().map(it -> it.getData().getIdentifier()).toList(),
+                stepsIdentifiersToValidate
+        );
+
+        if (!invalidIdentifiers.isEmpty())
+            throw new BusinessException(APIX_010, invalidIdentifiers);
+
+        final List<String> externalStepsIdentifiers = validSteps
+                .stream()
+                .filter(it -> it.getData().getType() == TypeStep.EXTERNAL)
+                .map(it -> it.getData().getIdentifier())
+                .toList();
+
+        if (!externalStepsIdentifiers.isEmpty()) {
+            final List<SelectiveProcessStepDto> invalidExternalSteps = dto.getSteps()
+                    .stream()
+                    .filter(it -> externalStepsIdentifiers.contains(it.getIdentifier()) && it.getLimitTime() != null)
+                    .toList();
+
+            if (!invalidExternalSteps.isEmpty())
+                throw new BusinessException(APIX_011, invalidExternalSteps);
+        }
+
+        return selectiveProcessRepository.save(ConverterHelper.toModel(dto));
     }
 
     @Override

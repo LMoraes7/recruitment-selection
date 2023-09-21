@@ -3,7 +3,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Question;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.answer.AnswerRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.entity.QuestionEntity;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.rowmapper.QuestionWithTitleAndTypeRowMapper;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.rowmapper.QuestionWithIdAndTypeRowMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,11 +23,11 @@ final class QuestionRepositoryTest {
 
     private final JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
     private final AnswerRepository answerRepository = mock(AnswerRepository.class);
-    private final QuestionWithTitleAndTypeRowMapper questionWithTitleAndTypeRowMapper = mock(QuestionWithTitleAndTypeRowMapper.class);
+    private final QuestionWithIdAndTypeRowMapper questionWithIdAndTypeRowMapper = mock(QuestionWithIdAndTypeRowMapper.class);
     private final QuestionRepository questionRepository = new QuestionRepository(
             this.jdbcTemplate,
             this.answerRepository,
-            this.questionWithTitleAndTypeRowMapper
+            this.questionWithIdAndTypeRowMapper
     );
 
     private Question question;
@@ -93,7 +93,7 @@ final class QuestionRepositoryTest {
 
         when(this.jdbcTemplate.query(
                 String.format(SELECT_IDENTIFIERS_IN.sql, inSql),
-                this.questionWithTitleAndTypeRowMapper,
+                this.questionWithIdAndTypeRowMapper,
                 this.identifiers.toArray()
         )).thenReturn(List.of(this.question));
 
@@ -101,7 +101,7 @@ final class QuestionRepositoryTest {
 
         verify(this.jdbcTemplate, only()).query(
                 String.format(SELECT_IDENTIFIERS_IN.sql, inSql),
-                this.questionWithTitleAndTypeRowMapper,
+                this.questionWithIdAndTypeRowMapper,
                 this.identifiers.toArray()
         );
         verifyNoInteractions(this.answerRepository);

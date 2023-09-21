@@ -1,26 +1,31 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model;
 
+import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.RegisterEmployeeService;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.dto.EmployeeDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.RegisterProfileService;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.dto.ProfileDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.dto.QuestionDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.strategy.CreateQuestionStrategy;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.converter.ConverterHelper;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessStepDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.CreateStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.StepRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_002;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_004;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.*;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.converter.ConverterHelper.toModel;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils.dummyObject;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,12 +39,17 @@ final class EmployeeTest {
     private final RegisterEmployeeService registerEmployeeService = mock(RegisterEmployeeService.class);
     private final CreateQuestionStrategy questionStrategy = mock(CreateQuestionStrategy.class);
     private final CreateStepStrategy stepStrategy = mock(CreateStepStrategy.class);
+    private final StepRepository stepRepository = mock(StepRepository.class);
+    private final SelectiveProcessRepository selectiveProcessRepository = mock(SelectiveProcessRepository.class);
 
     private Employee employee;
     private ProfileDto profileDto;
     private EmployeeDto employeeDto;
     private QuestionDto questionDto;
     private StepDto stepDto;
+    private SelectiveProcessDto selectiveProcessDto;
+    private List<Step> steps;
+    private SelectiveProcess selectiveProcess;
 
     @BeforeEach
     void setUp() {
@@ -48,6 +58,34 @@ final class EmployeeTest {
         this.employeeDto = dummyObject(EmployeeDto.class);
         this.questionDto = dummyObject(QuestionDto.class);
         this.stepDto = dummyObject(StepDto.class);
+        this.selectiveProcessDto = new SelectiveProcessDto(
+                dummyObject(String.class),
+                dummyObject(String.class),
+                dummyObject(String.class),
+                Set.of(dummyObject(String.class)),
+                Set.of(dummyObject(String.class)),
+                Set.of(dummyObject(String.class)),
+                List.of(
+                        new SelectiveProcessStepDto(
+                                GeneratorIdentifier.forStep(),
+                                5767L
+                        ),
+                        new SelectiveProcessStepDto(
+                                GeneratorIdentifier.forStep(),
+                                345645L
+                        ),
+                        new SelectiveProcessStepDto(
+                                GeneratorIdentifier.forStep(),
+                                null
+                        ),
+                        new SelectiveProcessStepDto(
+                                GeneratorIdentifier.forStep(),
+                                65767L
+                        )
+                )
+        );
+        this.steps = this.selectiveProcessDto.getSteps().stream().map(it -> new ExternalStep(new StepData(it.getIdentifier(), TypeStep.UPLOAD_FILES))).collect(Collectors.toList());
+        this.selectiveProcess = ConverterHelper.toModel(this.selectiveProcessDto);
     }
 
     @Test
@@ -176,6 +214,85 @@ final class EmployeeTest {
         assertDoesNotThrow(() -> this.employee.createStep(this.stepDto, this.stepStrategy));
 
         verify(this.stepStrategy, only()).execute(this.stepDto);
+    }
+
+    @Test
+    void when_requested_you_must_save_a_successful_selection_process() {
+        final List<String> stepsIdentifiersToValidate = this.selectiveProcessDto.getSteps()
+                .stream()
+                .map(SelectiveProcessStepDto::getIdentifier)
+                .toList();
+
+        when(this.stepRepository.fetchSteps(stepsIdentifiersToValidate)).thenReturn(this.steps);
+        when(this.selectiveProcessRepository.save(any(SelectiveProcess.class))).thenReturn(this.selectiveProcess);
+
+        assertDoesNotThrow(() -> this.employee.createSelectiveProcess(this.stepRepository, this.selectiveProcessRepository, this.selectiveProcessDto));
+
+        verify(this.stepRepository, only()).fetchSteps(stepsIdentifiersToValidate);
+        verify(this.selectiveProcessRepository, only()).save(any(SelectiveProcess.class));
+    }
+
+    @Test
+    void when_requested_you_must_save_a_successful_selection_process_2() {
+        this.steps.set(2, new ExternalStep(new StepData(this.steps.get(2).getData().getIdentifier(), TypeStep.EXTERNAL)));
+
+        final List<String> stepsIdentifiersToValidate = this.selectiveProcessDto.getSteps()
+                .stream()
+                .map(SelectiveProcessStepDto::getIdentifier)
+                .toList();
+
+        when(this.stepRepository.fetchSteps(stepsIdentifiersToValidate)).thenReturn(this.steps);
+        when(this.selectiveProcessRepository.save(any(SelectiveProcess.class))).thenReturn(this.selectiveProcess);
+
+        assertDoesNotThrow(() -> this.employee.createSelectiveProcess(this.stepRepository, this.selectiveProcessRepository, this.selectiveProcessDto));
+
+        verify(this.stepRepository, only()).fetchSteps(stepsIdentifiersToValidate);
+        verify(this.selectiveProcessRepository, only()).save(any(SelectiveProcess.class));
+    }
+
+    @Test
+    void when_requested_it_must_throw_a_BusinessException_when_saving_a_selective_process_with_invalid_step_identifiers() {
+        final List<String> stepsIdentifiersToValidate = this.selectiveProcessDto.getSteps()
+                .stream()
+                .map(SelectiveProcessStepDto::getIdentifier)
+                .toList();
+        this.steps.remove(0);
+
+        when(this.stepRepository.fetchSteps(stepsIdentifiersToValidate)).thenReturn(this.steps);
+
+        final BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> this.employee.createSelectiveProcess(this.stepRepository, this.selectiveProcessRepository, this.selectiveProcessDto)
+        );
+
+        assertNotNull(exception.getError());
+        assertEquals(exception.getError(), APIX_010);
+
+        verify(this.stepRepository, only()).fetchSteps(stepsIdentifiersToValidate);
+        verifyNoInteractions(this.selectiveProcessRepository);
+    }
+
+    @Test
+    void when_requested_it_must_throw_a_BusinessException_when_saving_a_selection_process_with_an_external_step_passing_a_time_limit() {
+        this.steps.set(0, new ExternalStep(new StepData(this.steps.get(0).getData().getIdentifier(), TypeStep.EXTERNAL)));
+
+        final List<String> stepsIdentifiersToValidate = this.selectiveProcessDto.getSteps()
+                .stream()
+                .map(SelectiveProcessStepDto::getIdentifier)
+                .toList();
+
+        when(this.stepRepository.fetchSteps(stepsIdentifiersToValidate)).thenReturn(this.steps);
+
+        final BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> this.employee.createSelectiveProcess(this.stepRepository, this.selectiveProcessRepository, this.selectiveProcessDto)
+        );
+
+        assertNotNull(exception.getError());
+        assertEquals(exception.getError(), APIX_011);
+
+        verify(this.stepRepository, only()).fetchSteps(stepsIdentifiersToValidate);
+        verifyNoInteractions(this.selectiveProcessRepository);
     }
 
 }

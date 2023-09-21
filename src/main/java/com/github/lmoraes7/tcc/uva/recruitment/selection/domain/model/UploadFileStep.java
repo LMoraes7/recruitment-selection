@@ -7,9 +7,10 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-public final class UploadFileStep implements Step {
+public final class UploadFileStep implements StepSelectiveProcess {
     private StepData data;
     private Set<FileVo> files;
+    private Long limitTime;
 
     public UploadFileStep(final StepData data, final Set<FileVo> files) {
         this.data = data;
@@ -26,16 +27,21 @@ public final class UploadFileStep implements Step {
     }
 
     @Override
+    public Long getLimitTime() {
+        return limitTime;
+    }
+
+    @Override
     public boolean equals(Object object) {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         UploadFileStep that = (UploadFileStep) object;
-        return Objects.equals(data, that.data) && Objects.equals(files, that.files);
+        return Objects.equals(data, that.data) && Objects.equals(files, that.files) && Objects.equals(limitTime, that.limitTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(data, files);
+        return Objects.hash(data, files, limitTime);
     }
 
 }

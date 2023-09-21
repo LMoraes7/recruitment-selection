@@ -3,7 +3,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Question;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.answer.AnswerRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.entity.QuestionEntity;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.rowmapper.QuestionWithTitleAndTypeRowMapper;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.rowmapper.QuestionWithIdAndTypeRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -19,24 +19,24 @@ import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.p
 public class QuestionRepository {
     private final JdbcTemplate jdbcTemplate;
     private final AnswerRepository answerRepository;
-    private final QuestionWithTitleAndTypeRowMapper questionWithTitleAndTypeRowMapper;
+    private final QuestionWithIdAndTypeRowMapper questionWithIdAndTypeRowMapper;
 
     @Autowired
     public QuestionRepository(
             final JdbcTemplate jdbcTemplate,
             final AnswerRepository answerRepository,
-            final QuestionWithTitleAndTypeRowMapper questionWithTitleAndTypeRowMapper
+            final QuestionWithIdAndTypeRowMapper questionWithIdAndTypeRowMapper
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.answerRepository = answerRepository;
-        this.questionWithTitleAndTypeRowMapper = questionWithTitleAndTypeRowMapper;
+        this.questionWithIdAndTypeRowMapper = questionWithIdAndTypeRowMapper;
     }
 
     public Collection<Question> fetchQuestion(final Collection<String> identifiers) {
         final String inSql = String.join(",", Collections.nCopies(identifiers.size(), "?"));
         return this.jdbcTemplate.query(
                 String.format(SELECT_IDENTIFIERS_IN.sql, inSql),
-                this.questionWithTitleAndTypeRowMapper,
+                this.questionWithIdAndTypeRowMapper,
                 identifiers.toArray()
         );
     }

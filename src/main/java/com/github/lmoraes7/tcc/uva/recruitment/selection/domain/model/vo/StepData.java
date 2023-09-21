@@ -10,6 +10,15 @@ public final class StepData {
     private String description;
     private TypeStep type;
 
+    public StepData(final String identifier) {
+        this.identifier = identifier;
+    }
+
+    public StepData(final String identifier, final TypeStep type) {
+        this.identifier = identifier;
+        this.type = type;
+    }
+
     public StepData(
             final String identifier,
             final String title,

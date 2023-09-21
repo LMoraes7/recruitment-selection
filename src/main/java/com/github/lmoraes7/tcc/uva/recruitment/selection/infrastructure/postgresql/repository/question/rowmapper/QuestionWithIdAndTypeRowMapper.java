@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Component
-public final class QuestionWithTitleAndTypeRowMapper implements RowMapper<Question> {
+public final class QuestionWithIdAndTypeRowMapper implements RowMapper<Question> {
 
     @Override
     public Question mapRow(final ResultSet rs, final int rowNum) throws SQLException {

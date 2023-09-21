@@ -19,6 +19,10 @@ public enum Error {
     APIX_008("apix-008.error"),
 //  Questões informadas não são do mesmo tipo
     APIX_009("apix-009.error"),
+//  Etapas informadas não existem
+    APIX_010("apix-010.error"),
+//  Etapas externas informadas não podem receber deadline
+    APIX_011("apix-011.error"),
 //  Erro ao buscar o perfil de candidato
     INTG_001("intg-001.error"),
 //  Erro interno genérico

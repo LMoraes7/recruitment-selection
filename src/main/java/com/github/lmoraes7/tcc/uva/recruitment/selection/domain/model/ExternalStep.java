@@ -5,13 +5,19 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepDat
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public final class ExternalStep implements Step {
+public final class ExternalStep implements StepSelectiveProcess {
     private StepData data;
     private String activityLink;
     private LocalDateTime dateTime;
+    private Long limitTime;
 
     public ExternalStep(final StepData data) {
         this.data = data;
+    }
+
+    public ExternalStep(final StepData data, final Long limitTime) {
+        this.data = data;
+        this.limitTime = limitTime;
     }
 
     @Override
@@ -25,6 +31,11 @@ public final class ExternalStep implements Step {
 
     public LocalDateTime getDateTime() {
         return dateTime;
+    }
+
+    @Override
+    public Long getLimitTime() {
+        return limitTime;
     }
 
     @Override
