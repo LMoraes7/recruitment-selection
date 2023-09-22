@@ -26,6 +26,26 @@ public final class SelectiveProcess {
             final StatusSelectiveProcess status,
             final Set<String> responsibilities,
             final Set<String> requirements,
+            final Set<String> additionalInfos
+    ) {
+        this.identifier = identifier;
+        this.title = title;
+        this.description = description;
+        this.desiredPosition = desiredPosition;
+        this.status = status;
+        this.responsibilities = responsibilities;
+        this.requirements = requirements;
+        this.additionalInfos = additionalInfos;
+    }
+
+    public SelectiveProcess(
+            final String identifier,
+            final String title,
+            final String description,
+            final String desiredPosition,
+            final StatusSelectiveProcess status,
+            final Set<String> responsibilities,
+            final Set<String> requirements,
             final Set<String> additionalInfos,
             final List<StepSelectiveProcess> steps
     ) {

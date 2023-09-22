@@ -34,6 +34,10 @@ public final class ArraySqlValue<T> implements SqlValue {
         this.dbTypeName = dbTypeName;
     }
 
+    public T[] getArray() {
+        return array;
+    }
+
     @Override
     public void setValue(final PreparedStatement ps, final int paramIndex) throws SQLException {
         final Array arrayOf = ps.getConnection().createArrayOf(this.dbTypeName, this.array);
