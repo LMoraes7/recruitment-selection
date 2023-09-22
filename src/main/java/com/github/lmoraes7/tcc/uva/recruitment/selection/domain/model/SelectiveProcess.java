@@ -18,6 +18,11 @@ public final class SelectiveProcess {
     private Set<String> additionalInfos;
     private List<StepSelectiveProcess> steps;
 
+    public SelectiveProcess(final String identifier, final String title) {
+        this.identifier = identifier;
+        this.title = title;
+    }
+
     public SelectiveProcess(
             final String identifier,
             final String title,

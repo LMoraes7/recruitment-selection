@@ -5,6 +5,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.ExternalSt
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.SelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusSelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.PaginationQuery;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessoPaginated;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -65,18 +67,18 @@ final class SelectiveProcessRepositoryItTest {
     @Transactional
     @Sql(scripts = {"/script/selective_process_repository_test.sql"})
     void when_prompted_it_should_save_successfully() {
-        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
 
         assertDoesNotThrow(() -> this.selectiveProcessRepository.save(this.selectiveProcess));
 
-        assertEquals(2, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+        assertEquals(10, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
     }
 
     @Test
     @Transactional
     @Sql(scripts = {"/script/selective_process_repository_test.sql"})
     void when_requested_to_search_by_id_the_entity_must_be_returned_successfully() {
-        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
 
         assertDoesNotThrow(() -> {
             final Optional<SelectiveProcess> optional = this.selectiveProcessRepository.findById("SEL-123456789");
@@ -85,7 +87,7 @@ final class SelectiveProcessRepositoryItTest {
             assertTrue(optional.isPresent());
         });
 
-        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
     }
 
     @Test
@@ -101,6 +103,50 @@ final class SelectiveProcessRepositoryItTest {
         });
 
         assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/selective_process_repository_test.sql"})
+    void when_requested_you_must_perform_a_paged_query_successfully() {
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+
+        final PaginationQuery paginationQuery = new PaginationQuery(5, 0);
+
+        assertDoesNotThrow(() -> {
+            final SelectiveProcessoPaginated selectiveProcessoPaginated = this.selectiveProcessRepository.findAll(paginationQuery);
+
+            assertEquals(selectiveProcessoPaginated.getSelectiveProcesses().size(), 5);
+            assertEquals(selectiveProcessoPaginated.getPageNumber(), 0);
+            assertEquals(selectiveProcessoPaginated.getPageSize(), 5);
+            assertEquals(selectiveProcessoPaginated.getTotalPages(), 2);
+            assertEquals(selectiveProcessoPaginated.getTotalElements(), 5);
+            assertEquals(selectiveProcessoPaginated.getTotalResults(), 9);
+        });
+
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/selective_process_repository_test.sql"})
+    void when_requested_you_must_perform_a_paged_query_successfully_2() {
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+
+        final PaginationQuery paginationQuery = new PaginationQuery(5, 4);
+
+        assertDoesNotThrow(() -> {
+            final SelectiveProcessoPaginated selectiveProcessoPaginated = this.selectiveProcessRepository.findAll(paginationQuery);
+
+            assertEquals(selectiveProcessoPaginated.getSelectiveProcesses().size(), 0);
+            assertEquals(selectiveProcessoPaginated.getPageNumber(), 4);
+            assertEquals(selectiveProcessoPaginated.getPageSize(), 5);
+            assertEquals(selectiveProcessoPaginated.getTotalPages(), 2);
+            assertEquals(selectiveProcessoPaginated.getTotalElements(), 0);
+            assertEquals(selectiveProcessoPaginated.getTotalResults(), 9);
+        });
+
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
     }
 
 }
