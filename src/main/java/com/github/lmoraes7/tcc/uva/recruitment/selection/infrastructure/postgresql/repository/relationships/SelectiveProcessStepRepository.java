@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.query.SelectiveProcessCommands.SAVE;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.query.SelectiveProcessStepCommands.SAVE;
 
 @Repository
 public class SelectiveProcessStepRepository {

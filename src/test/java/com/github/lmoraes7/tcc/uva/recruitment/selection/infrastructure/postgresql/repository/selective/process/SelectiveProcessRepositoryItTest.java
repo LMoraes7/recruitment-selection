@@ -3,6 +3,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.ExternalStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.SelectiveProcess;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.StepSelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusSelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.PaginationQuery;
@@ -144,6 +145,48 @@ final class SelectiveProcessRepositoryItTest {
             assertEquals(selectiveProcessoPaginated.getTotalPages(), 2);
             assertEquals(selectiveProcessoPaginated.getTotalElements(), 0);
             assertEquals(selectiveProcessoPaginated.getTotalResults(), 9);
+        });
+
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/selective_process_repository_test.sql"})
+    void when_requested_you_must_successfully_complete_the_selection_process_with_the_steps() {
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+
+        assertDoesNotThrow(() -> {
+            final Optional<SelectiveProcess> optional = this.selectiveProcessRepository.findWithStepsById("SEL-123456789");
+
+            assertTrue(optional.isPresent());
+
+            final List<StepSelectiveProcess> steps = optional.get().getSteps();
+
+            assertNotNull(steps);
+            assertEquals(7, steps.size());
+            assertEquals("STE-987654321", steps.get(0).getData().getIdentifier());
+            assertEquals("STE-564326562", steps.get(1).getData().getIdentifier());
+            assertEquals("STE-564326563", steps.get(2).getData().getIdentifier());
+            assertEquals("STE-987654324", steps.get(3).getData().getIdentifier());
+            assertEquals("STE-564326567", steps.get(4).getData().getIdentifier());
+            assertEquals("STE-123456788", steps.get(5).getData().getIdentifier());
+            assertEquals("STE-123456789", steps.get(6).getData().getIdentifier());
+        });
+
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/selective_process_repository_test.sql"})
+    void when_requested_must_fail_to_pursue_the_selection_process_with_the_steps() {
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+
+        assertDoesNotThrow(() -> {
+            final Optional<SelectiveProcess> optional = this.selectiveProcessRepository.findWithStepsById(this.selectiveProcess.getIdentifier());
+
+            assertTrue(optional.isEmpty());
         });
 
         assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));

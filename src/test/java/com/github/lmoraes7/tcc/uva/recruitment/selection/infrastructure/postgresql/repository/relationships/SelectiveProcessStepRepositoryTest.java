@@ -5,7 +5,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.ExternalSt
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.SelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusSelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.batch.SaveSelectiveProcessStepBatch;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.query.SelectiveProcessCommands;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.query.SelectiveProcessStepCommands;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.entity.SelectiveProcessEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.entity.StepSelectiveProcessEntity;
@@ -51,7 +51,7 @@ final class SelectiveProcessStepRepositoryTest {
     @Test
     void when_prompted_it_should_save_successfully() {
         when(this.jdbcTemplate.batchUpdate(
-                SelectiveProcessCommands.SAVE.sql,
+                SelectiveProcessStepCommands.SAVE.sql,
                 new SaveSelectiveProcessStepBatch(
                         this.selectiveProcessIdentifier,
                         this.stepsEntity
@@ -61,7 +61,7 @@ final class SelectiveProcessStepRepositoryTest {
         assertDoesNotThrow(() -> this.selectiveProcessStepRepository.save(this.selectiveProcessIdentifier, this.stepsEntity));
 
         verify(this.jdbcTemplate, only()).batchUpdate(
-                SelectiveProcessCommands.SAVE.sql,
+                SelectiveProcessStepCommands.SAVE.sql,
                 new SaveSelectiveProcessStepBatch(
                         this.selectiveProcessIdentifier,
                         this.stepsEntity

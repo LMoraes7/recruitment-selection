@@ -23,6 +23,8 @@ public enum Error {
     APIX_010("apix-010.error"),
 //  Etapas externas informadas não podem receber deadline
     APIX_011("apix-011.error"),
+//  Processo seletivo informado não pode mais receber inscrições pq está fechado
+    APIX_012("apix-012.error"),
 //  Erro ao buscar o perfil de candidato
     INTG_001("intg-001.error"),
 //  Erro interno genérico

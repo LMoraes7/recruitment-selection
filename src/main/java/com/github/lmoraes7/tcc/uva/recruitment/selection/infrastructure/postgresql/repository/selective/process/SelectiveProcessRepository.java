@@ -7,6 +7,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgres
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.entity.SelectiveProcessEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.rowmapper.SelectiveProcessPageRowMapper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.rowmapper.SelectiveProcessRowMapper;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.rowmapper.SelectiveProcessWithStepsRowMapper;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.rowmapper.vo.SelectiveProcessStepsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageImpl;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.converter.ConverterHelper.toDomain;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.converter.ConverterHelper.toEntity;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.query.SelectiveProcessCommands.*;
 
@@ -27,18 +30,21 @@ public class SelectiveProcessRepository {
     private final SelectiveProcessStepRepository selectiveProcessStepRepository;
     private final SelectiveProcessRowMapper selectiveProcessRowMapper;
     private final SelectiveProcessPageRowMapper selectiveProcessPageRowMapper;
+    private final SelectiveProcessWithStepsRowMapper selectiveProcessWithStepsRowMapper;
 
     @Autowired
     public SelectiveProcessRepository(
             final JdbcTemplate jdbcTemplate,
             final SelectiveProcessStepRepository selectiveProcessStepRepository,
             final SelectiveProcessRowMapper selectiveProcessRowMapper,
-            final SelectiveProcessPageRowMapper selectiveProcessPageRowMapper
+            final SelectiveProcessPageRowMapper selectiveProcessPageRowMapper,
+            final SelectiveProcessWithStepsRowMapper selectiveProcessWithStepsRowMapper
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.selectiveProcessStepRepository = selectiveProcessStepRepository;
         this.selectiveProcessRowMapper = selectiveProcessRowMapper;
         this.selectiveProcessPageRowMapper = selectiveProcessPageRowMapper;
+        this.selectiveProcessWithStepsRowMapper = selectiveProcessWithStepsRowMapper;
     }
 
     public SelectiveProcess save(final SelectiveProcess selectiveProcess) {
@@ -72,6 +78,19 @@ public class SelectiveProcessRepository {
         }
 
         return Optional.ofNullable(selectiveProcess);
+    }
+
+    public Optional<SelectiveProcess> findWithStepsById(final String identifier) {
+        final List<SelectiveProcessStepsVo> result = this.jdbcTemplate.query(
+                FIND_WITH_STEPS_BY_ID.sql,
+                this.selectiveProcessWithStepsRowMapper,
+                identifier
+        );
+
+        if (result.isEmpty())
+            return Optional.empty();
+
+        return Optional.of(toDomain(result));
     }
 
     public SelectiveProcessoPaginated findAll(final PaginationQuery paginationQuery) {

@@ -32,6 +32,10 @@ public final class GeneratorIdentifier {
         return "SEL-".concat(generateHash());
     }
 
+    public static String forCandidacy() {
+        return "APP-".concat(generateHash());
+    }
+
     private static String generateHash() {
         final var split = UUID.randomUUID().toString().split("-");
         return split[1].concat(split[2]);

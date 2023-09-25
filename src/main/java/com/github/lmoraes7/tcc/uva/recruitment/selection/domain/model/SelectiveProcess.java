@@ -23,6 +23,21 @@ public final class SelectiveProcess {
         this.title = title;
     }
 
+    public SelectiveProcess(final String identifier, final StatusSelectiveProcess status) {
+        this.identifier = identifier;
+        this.status = status;
+    }
+
+    public SelectiveProcess(
+            final String identifier,
+            final StatusSelectiveProcess status,
+            final List<StepSelectiveProcess> steps
+    ) {
+        this.identifier = identifier;
+        this.status = status;
+        this.steps = steps;
+    }
+
     public SelectiveProcess(
             final String identifier,
             final String title,

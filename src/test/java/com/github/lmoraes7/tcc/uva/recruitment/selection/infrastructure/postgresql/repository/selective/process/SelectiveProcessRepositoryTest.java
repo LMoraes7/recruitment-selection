@@ -3,13 +3,17 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.ExternalStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.SelectiveProcess;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.StepSelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusSelectiveProcess;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.PaginationQuery;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessoPaginated;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.SelectiveProcessStepRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.entity.SelectiveProcessEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.rowmapper.SelectiveProcessPageRowMapper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.rowmapper.SelectiveProcessRowMapper;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.rowmapper.SelectiveProcessWithStepsRowMapper;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.rowmapper.vo.SelectiveProcessStepsVo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -33,15 +37,18 @@ final class SelectiveProcessRepositoryTest {
     private final SelectiveProcessStepRepository selectiveProcessStepRepository = mock(SelectiveProcessStepRepository.class);
     private final SelectiveProcessRowMapper selectiveProcessRowMapper = mock(SelectiveProcessRowMapper.class);
     private final SelectiveProcessPageRowMapper selectiveProcessPageRowMapper = mock(SelectiveProcessPageRowMapper.class);
+    private final SelectiveProcessWithStepsRowMapper selectiveProcessWithStepsRowMapper = mock(SelectiveProcessWithStepsRowMapper.class);
     private final SelectiveProcessRepository selectiveProcessRepository = new SelectiveProcessRepository(
             this.jdbcTemplate,
             this.selectiveProcessStepRepository,
             this.selectiveProcessRowMapper,
-            this.selectiveProcessPageRowMapper
+            this.selectiveProcessPageRowMapper,
+            this.selectiveProcessWithStepsRowMapper
     );
 
     private SelectiveProcess selectiveProcess;
     private PaginationQuery paginationQuery;
+    private List<SelectiveProcessStepsVo> selectiveProcessStepsVos;
 
     @BeforeEach
     void setUp() {
@@ -57,6 +64,48 @@ final class SelectiveProcessRepositoryTest {
                 List.of(dummyObject(ExternalStep.class), dummyObject(ExternalStep.class), dummyObject(ExternalStep.class), dummyObject(ExternalStep.class))
         );
         this.paginationQuery = new PaginationQuery(10, 20);
+        this.selectiveProcessStepsVos = List.of(
+                new SelectiveProcessStepsVo(
+                        this.selectiveProcess.getIdentifier(),
+                        this.selectiveProcess.getStatus(),
+                        "STE-123456784",
+                        "STE-123456785",
+                        null,
+                        TypeStep.EXTERNAL
+                ),
+                new SelectiveProcessStepsVo(
+                        this.selectiveProcess.getIdentifier(),
+                        this.selectiveProcess.getStatus(),
+                        "STE-123456785",
+                        null,
+                        589765L,
+                        TypeStep.UPLOAD_FILES
+                ),
+                new SelectiveProcessStepsVo(
+                        this.selectiveProcess.getIdentifier(),
+                        this.selectiveProcess.getStatus(),
+                        "STE-123456782",
+                        "STE-123456783",
+                        895765L,
+                        TypeStep.THEORETICAL_TEST
+                ),
+                new SelectiveProcessStepsVo(
+                        this.selectiveProcess.getIdentifier(),
+                        this.selectiveProcess.getStatus(),
+                        "STE-123456783",
+                        "STE-123456784",
+                        6789687L,
+                        TypeStep.THEORETICAL_TEST
+                ),
+                new SelectiveProcessStepsVo(
+                        this.selectiveProcess.getIdentifier(),
+                        this.selectiveProcess.getStatus(),
+                        "STE-123456781",
+                        "STE-123456782",
+                        1234324L,
+                        TypeStep.UPLOAD_FILES
+                )
+        );
     }
 
     @Test
@@ -167,6 +216,59 @@ final class SelectiveProcessRepositoryTest {
         );
         verify(this.jdbcTemplate, times(1)).queryForObject(COUNT_OPEN.sql, Integer.class);
         verifyNoMoreInteractions(this.jdbcTemplate);
+    }
+
+    @Test
+    void when_requested_you_must_successfully_complete_the_selection_process_with_the_steps() {
+        when(this.jdbcTemplate.query(
+                FIND_WITH_STEPS_BY_ID.sql,
+                this.selectiveProcessWithStepsRowMapper,
+                this.selectiveProcess.getIdentifier()
+        )).thenReturn(this.selectiveProcessStepsVos);
+
+        assertDoesNotThrow(() -> {
+            final Optional<SelectiveProcess> optional = this.selectiveProcessRepository.findWithStepsById(this.selectiveProcess.getIdentifier());
+
+            assertTrue(optional.isPresent());
+
+            final List<StepSelectiveProcess> steps = optional.get().getSteps();
+
+            assertNotNull(steps);
+            assertEquals(this.selectiveProcessStepsVos.size(), steps.size());
+            assertEquals(this.selectiveProcessStepsVos.get(4).getStepIdentifier(), steps.get(0).getData().getIdentifier());
+            assertEquals(this.selectiveProcessStepsVos.get(2).getStepIdentifier(), steps.get(1).getData().getIdentifier());
+            assertEquals(this.selectiveProcessStepsVos.get(3).getStepIdentifier(), steps.get(2).getData().getIdentifier());
+            assertEquals(this.selectiveProcessStepsVos.get(0).getStepIdentifier(), steps.get(3).getData().getIdentifier());
+            assertNull(steps.get(3).getLimitTime());
+            assertEquals(this.selectiveProcessStepsVos.get(1).getStepIdentifier(), steps.get(4).getData().getIdentifier());
+        });
+
+        verify(this.jdbcTemplate, only()).query(
+                FIND_WITH_STEPS_BY_ID.sql,
+                this.selectiveProcessWithStepsRowMapper,
+                this.selectiveProcess.getIdentifier()
+        );
+    }
+
+    @Test
+    void when_requested_must_fail_to_pursue_the_selection_process_with_the_steps() {
+        when(this.jdbcTemplate.query(
+                FIND_WITH_STEPS_BY_ID.sql,
+                this.selectiveProcessWithStepsRowMapper,
+                this.selectiveProcess.getIdentifier()
+        )).thenReturn(List.of());
+
+        assertDoesNotThrow(() -> {
+            final Optional<SelectiveProcess> optional = this.selectiveProcessRepository.findWithStepsById(this.selectiveProcess.getIdentifier());
+
+            assertTrue(optional.isEmpty());
+        });
+
+        verify(this.jdbcTemplate, only()).query(
+                FIND_WITH_STEPS_BY_ID.sql,
+                this.selectiveProcessWithStepsRowMapper,
+                this.selectiveProcess.getIdentifier()
+        );
     }
 
 }
