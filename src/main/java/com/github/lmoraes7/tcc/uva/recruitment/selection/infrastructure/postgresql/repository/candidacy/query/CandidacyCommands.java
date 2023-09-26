@@ -33,7 +33,9 @@ public enum CandidacyCommands {
                 "where a.id_candidate = ? " +
                 "limit ? offset ?"
     ),
-    COUNT_BY_CANDIDATE_ID("select count(*) from applications a where a.id_candidate = ?"),;
+    COUNT_BY_CANDIDATE_ID("select count(*) from applications a where a.id_candidate = ?"),
+    CLOSE_CANDIDACY("update applications a set a.status = 'CLOSED' where a.id = ? and a.id_candidate = ? and a.id_selective_process = ?"),
+    CLOSE_STEPS_CANDIDACY("update applications_steps set status = 'BLOCKED' where id_application = ? and status = 'WAITING_FOR_EXECUTION'");
 
     public final String sql;
 

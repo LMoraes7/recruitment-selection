@@ -1,6 +1,7 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Candidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.ExternalStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusCandidacy;
@@ -294,6 +295,59 @@ final class CandidacyRepositoryTest {
         );
         verify(this.jdbcTemplate, times(1)).queryForObject(COUNT_BY_CANDIDATE_ID.sql, Integer.class, this.candidateIdentifier);
         verifyNoMoreInteractions(this.jdbcTemplate);
+    }
+
+    @Test
+    void when_prompted_you_must_successfully_close_an_application() {
+        when(this.jdbcTemplate.update(
+                CLOSE_CANDIDACY.sql,
+                this.candidacy.getIdentifier(),
+                this.candidateIdentifier,
+                this.selectiveProcessIdentifier
+        )).thenReturn(1);
+        when(this.jdbcTemplate.update(
+                CLOSE_STEPS_CANDIDACY.sql,
+                this.candidacy.getIdentifier()
+        )).thenReturn(1);
+
+        assertDoesNotThrow(() -> this.candidacyRepository.closeCandidacy(this.candidateIdentifier, this.selectiveProcessIdentifier, this.candidacy.getIdentifier()));
+
+        verify(this.jdbcTemplate, times(1)).update(
+                CLOSE_CANDIDACY.sql,
+                this.candidacy.getIdentifier(),
+                this.candidateIdentifier,
+                this.selectiveProcessIdentifier
+        );
+        verify(this.jdbcTemplate, times(1)).update(
+                CLOSE_STEPS_CANDIDACY.sql,
+                this.candidacy.getIdentifier()
+        );
+        verifyNoMoreInteractions(this.jdbcTemplate);
+    }
+
+    @Test
+    void when_requested_it_must_throw_a_NotFoundException_when_closing_a_non_existent_application() {
+        when(this.jdbcTemplate.update(
+                CLOSE_CANDIDACY.sql,
+                this.candidacy.getIdentifier(),
+                this.candidateIdentifier,
+                this.selectiveProcessIdentifier
+        )).thenReturn(0);
+
+        final NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> this.candidacyRepository.closeCandidacy(this.candidateIdentifier, this.selectiveProcessIdentifier, this.candidacy.getIdentifier())
+        );
+
+        assertEquals(exception.getCode(), this.candidacy.getIdentifier());
+        assertEquals(exception.getClassType(), Candidacy.class);
+
+        verify(this.jdbcTemplate, only()).update(
+                CLOSE_CANDIDACY.sql,
+                this.candidacy.getIdentifier(),
+                this.candidateIdentifier,
+                this.selectiveProcessIdentifier
+        );
     }
 
 }

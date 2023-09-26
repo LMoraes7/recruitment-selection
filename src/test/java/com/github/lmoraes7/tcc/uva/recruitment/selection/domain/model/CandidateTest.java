@@ -7,10 +7,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.converter.ConverterHelper;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.CandidacyDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.CandidacyPaginated;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.PaginationQuery;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.SpecificCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.*;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +34,7 @@ final class CandidateTest {
     private SpecificCandidacyDto specificCandidacyDto;
     private PaginationQuery paginationQuery;
     private CandidacyPaginated candidacyPaginated;
+    private CloseCandidacyDto closeCandidacyDto;
 
     @BeforeEach
     void setUp() {
@@ -56,6 +54,7 @@ final class CandidateTest {
         this.specificCandidacyDto = dummyObject(SpecificCandidacyDto.class);
         this.paginationQuery = new PaginationQuery(10, 20);
         this.candidacyPaginated = dummyObject(CandidacyPaginated.class);
+        this.closeCandidacyDto = dummyObject(CloseCandidacyDto.class);
     }
 
     @Test
@@ -180,6 +179,17 @@ final class CandidateTest {
         assertDoesNotThrow(() -> this.candidate.findCandidacies(this.candidacyRepository, this.paginationQuery));
 
         verify(this.candidacyRepository, only()).findAll(this.candidate.getIdentifier(), this.paginationQuery);
+    }
+
+    @Test
+    void when_prompted_you_must_successfully_close_an_application() {
+        assertDoesNotThrow(() -> this.candidate.closeCandidacy(this.candidacyRepository, this.closeCandidacyDto));
+
+        verify(this.candidacyRepository, only()).closeCandidacy(
+                this.candidate.getIdentifier(),
+                this.closeCandidacyDto.getSelectiveProcessIdentifier(),
+                this.closeCandidacyDto.getCandidacyIdentifier()
+        );
     }
 
 }

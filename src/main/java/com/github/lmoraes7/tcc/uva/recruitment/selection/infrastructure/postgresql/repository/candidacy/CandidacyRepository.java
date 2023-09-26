@@ -1,5 +1,6 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy;
 
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Candidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.CandidacyPaginated;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.PaginationQuery;
@@ -108,6 +109,27 @@ public class CandidacyRepository {
                 page.getTotalPages(),
                 page.getNumberOfElements(),
                 page.getTotalElements()
+        );
+    }
+
+    public void closeCandidacy(
+            final String candidateIdentifier,
+            final String selectiveProcessIdentifier,
+            final String candidacyIdentifier
+    ) {
+        int update = this.jdbcTemplate.update(
+                CLOSE_CANDIDACY.sql,
+                candidacyIdentifier,
+                candidateIdentifier,
+                selectiveProcessIdentifier
+        );
+
+        if (update == 0)
+            throw new NotFoundException(candidacyIdentifier, Candidacy.class);
+
+        this.jdbcTemplate.update(
+                CLOSE_STEPS_CANDIDACY.sql,
+                candidacyIdentifier
         );
     }
 
