@@ -6,6 +6,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.ExternalSt
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusStepCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.CandidacyPaginated;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.PaginationQuery;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.SpecificCandidacyDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -91,7 +93,7 @@ class CandidacyRepositoryItTest {
     @Transactional
     @Sql(scripts = {"/script/candidacy_repository_test.sql"})
     void when_prompted_you_must_save_a_successful_application() {
-        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
 
         assertDoesNotThrow(
                 () -> this.candidacyRepository.save(
@@ -101,14 +103,14 @@ class CandidacyRepositoryItTest {
                 )
         );
 
-        assertEquals(2, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+        assertEquals(10, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
     }
 
     @Test
     @Transactional
     @Sql(scripts = {"/script/candidacy_repository_test.sql"})
     void when_requested_you_must_consult_an_application_by_ID_successfully() {
-        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
 
         assertDoesNotThrow(() -> {
             final Optional<SpecificCandidacyDto> optional = this.candidacyRepository.findById(
@@ -120,14 +122,14 @@ class CandidacyRepositoryItTest {
             assertTrue(optional.isPresent());
         });
 
-        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
     }
 
     @Test
     @Transactional
     @Sql(scripts = {"/script/candidacy_repository_test.sql"})
     void when_prompted_should_fail_to_search_for_an_application_by_id() {
-        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
 
         assertDoesNotThrow(() -> {
             final Optional<SpecificCandidacyDto> optional = this.candidacyRepository.findById(
@@ -139,14 +141,14 @@ class CandidacyRepositoryItTest {
             assertTrue(optional.isEmpty());
         });
 
-        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
     }
 
     @Test
     @Transactional
     @Sql(scripts = {"/script/candidacy_repository_test.sql"})
     void when_prompted_should_fail_to_search_for_an_application_by_id_2() {
-        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
 
         assertDoesNotThrow(() -> {
             final Optional<SpecificCandidacyDto> optional = this.candidacyRepository.findById(
@@ -158,7 +160,51 @@ class CandidacyRepositoryItTest {
             assertTrue(optional.isEmpty());
         });
 
-        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/candidacy_repository_test.sql"})
+    void when_requested_you_must_perform_a_paged_query_successfully() {
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+
+        final PaginationQuery paginationQuery = new PaginationQuery(5, 0);
+
+        assertDoesNotThrow(() -> {
+            final CandidacyPaginated candidacyPaginated = this.candidacyRepository.findAll(this.candidateIdentifier, paginationQuery);
+
+            assertEquals(candidacyPaginated.getCandidacies().size(), 5);
+            assertEquals(candidacyPaginated.getPageNumber(), 0);
+            assertEquals(candidacyPaginated.getPageSize(), 5);
+            assertEquals(candidacyPaginated.getTotalPages(), 2);
+            assertEquals(candidacyPaginated.getTotalElements(), 5);
+            assertEquals(candidacyPaginated.getTotalResults(), 9);
+        });
+
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/candidacy_repository_test.sql"})
+    void when_requested_you_must_perform_a_paged_query_successfully_2() {
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+
+        final PaginationQuery paginationQuery = new PaginationQuery(5, 4);
+
+        assertDoesNotThrow(() -> {
+            final CandidacyPaginated candidacyPaginated = this.candidacyRepository.findAll(this.candidateIdentifier, paginationQuery);
+
+            assertEquals(candidacyPaginated.getCandidacies().size(), 0);
+            assertEquals(candidacyPaginated.getPageNumber(), 4);
+            assertEquals(candidacyPaginated.getPageSize(), 5);
+            assertEquals(candidacyPaginated.getTotalPages(), 2);
+            assertEquals(candidacyPaginated.getTotalElements(), 0);
+            assertEquals(candidacyPaginated.getTotalResults(), 9);
+        });
+
+        assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
     }
 
 }

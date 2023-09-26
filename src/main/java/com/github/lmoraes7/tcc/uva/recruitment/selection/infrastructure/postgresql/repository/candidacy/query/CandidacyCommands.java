@@ -21,7 +21,19 @@ public enum CandidacyCommands {
                     "inner join steps s " +
                         "on ap.id_step = s.id " +
                 "where a.id = ? and a.id_candidate = ?"
-    );
+    ),
+    FIND_ALL_BY_CANDIDATE_ID(
+            "select " +
+                            "a.id, " +
+                            "a.status, " +
+                            "sp.title " +
+                "from applications a " +
+                    "inner join selection_processes sp " +
+                        "on a.id_selective_process = sp.id " +
+                "where a.id_candidate = ? " +
+                "limit ? offset ?"
+    ),
+    COUNT_BY_CANDIDATE_ID("select count(*) from applications a where a.id_candidate = ?"),;
 
     public final String sql;
 

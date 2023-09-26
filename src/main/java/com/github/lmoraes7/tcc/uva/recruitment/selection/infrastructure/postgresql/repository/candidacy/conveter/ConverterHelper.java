@@ -6,11 +6,14 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.StepCandid
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.SelectiveProcessSpecificCandidacyDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.SpecificCandidacyDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.StepSpecificCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.SummaryOfCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.entity.CandidacyEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.entity.StepCandidacyEntity;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.rowmapper.vo.CandidacyPageVo;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.rowmapper.vo.CandidacyVo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -107,6 +110,10 @@ public final class ConverterHelper {
                 ),
                 steps
         );
+    }
+
+    public static List<SummaryOfCandidacy> toDto(final Collection<CandidacyPageVo> candidacyPageVos) {
+        return candidacyPageVos.stream().map(it -> new SummaryOfCandidacy(it.getIdentifier(), it.getStatus(), it.getSelectiveProcessTitle())).toList();
     }
 
 }

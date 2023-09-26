@@ -8,6 +8,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.CandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.CandidacyPaginated;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.PaginationQuery;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.SpecificCandidacyDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
@@ -33,6 +35,8 @@ final class CandidateTest {
     private SelectiveProcess selectiveProcess;
     private Candidacy candidacy;
     private SpecificCandidacyDto specificCandidacyDto;
+    private PaginationQuery paginationQuery;
+    private CandidacyPaginated candidacyPaginated;
 
     @BeforeEach
     void setUp() {
@@ -50,6 +54,8 @@ final class CandidateTest {
         );
         this.candidacy = ConverterHelper.toModel(selectiveProcess);
         this.specificCandidacyDto = dummyObject(SpecificCandidacyDto.class);
+        this.paginationQuery = new PaginationQuery(10, 20);
+        this.candidacyPaginated = dummyObject(CandidacyPaginated.class);
     }
 
     @Test
@@ -164,6 +170,16 @@ final class CandidateTest {
                 this.candidate.getIdentifier(),
                 this.candidacy.getIdentifier()
         );
+    }
+
+    @Test
+    void when_requested_you_must_perform_a_paged_query_successfully() {
+        when(this.candidacyRepository.findAll(this.candidate.getIdentifier(), this.paginationQuery))
+                .thenReturn(this.candidacyPaginated);
+
+        assertDoesNotThrow(() -> this.candidate.findCandidacies(this.candidacyRepository, this.paginationQuery));
+
+        verify(this.candidacyRepository, only()).findAll(this.candidate.getIdentifier(), this.paginationQuery);
     }
 
 }

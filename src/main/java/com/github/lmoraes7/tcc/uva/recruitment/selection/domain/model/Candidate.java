@@ -6,6 +6,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.AccessC
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.PersonalData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.CandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.CandidacyPaginated;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.PaginationQuery;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.SpecificCandidacyDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
@@ -66,6 +68,13 @@ public final class Candidate {
     ) {
         return candidacyRepository.findById(this.identifier, candidacyIdentifier)
                 .orElseThrow(() -> new NotFoundException(candidacyIdentifier, Candidacy.class));
+    }
+
+    public CandidacyPaginated findCandidacies(
+            final CandidacyRepository candidacyRepository,
+            final PaginationQuery paginationQuery
+    ) {
+        return candidacyRepository.findAll(this.identifier, paginationQuery);
     }
 
 }

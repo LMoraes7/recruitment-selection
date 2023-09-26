@@ -7,14 +7,18 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusStepCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.SpecificCandidacyDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.StepSpecificCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.*;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.entity.CandidacyEntity;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.rowmapper.CandidacyPageRowMapper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.rowmapper.CandidacyRowMapper;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.rowmapper.vo.CandidacyPageVo;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.rowmapper.vo.CandidacyVo;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.CandidacyStepRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.time.LocalDate;
@@ -23,9 +27,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.conveter.ConverterHelper.toDto;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.conveter.ConverterHelper.toEntity;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.query.CandidacyCommands.FIND_BY_ID;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.query.CandidacyCommands.SAVE;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.query.CandidacyCommands.*;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils.dummyObject;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -34,16 +38,20 @@ final class CandidacyRepositoryTest {
     private final JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
     private final CandidacyStepRepository candidacyStepRepository = mock(CandidacyStepRepository.class);
     private final CandidacyRowMapper candidacyRowMapper = mock(CandidacyRowMapper.class);
+    private final CandidacyPageRowMapper candidacyPageRowMapper = mock(CandidacyPageRowMapper.class);
     private final CandidacyRepository candidacyRepository = new CandidacyRepository(
             this.jdbcTemplate,
             this.candidacyStepRepository,
-            this.candidacyRowMapper
+            this.candidacyRowMapper,
+            this.candidacyPageRowMapper
     );
 
     private String candidateIdentifier;
     private String selectiveProcessIdentifier;
     private Candidacy candidacy;
     private List<CandidacyVo> candidacyVos;
+    private List<CandidacyPageVo> candidacyPageVos;
+    private PaginationQuery paginationQuery;
 
     @BeforeEach
     void setUp() {
@@ -139,6 +147,13 @@ final class CandidacyRepositoryTest {
                         dummyObject(TypeStep.class)
                 )
         );
+        this.candidacyPageVos = List.of(
+                dummyObject(CandidacyPageVo.class),
+                dummyObject(CandidacyPageVo.class),
+                dummyObject(CandidacyPageVo.class),
+                dummyObject(CandidacyPageVo.class)
+        );
+        this.paginationQuery = new PaginationQuery(10, 20);
     }
 
     @Test
@@ -243,6 +258,42 @@ final class CandidacyRepositoryTest {
                 this.candidacy.getIdentifier(),
                 this.candidateIdentifier
         );
+    }
+
+    @Test
+    void when_requested_you_must_perform_a_paged_query_successfully() {
+        final Pageable pageable = PageRequest.of(this.paginationQuery.getPageNumber(), this.paginationQuery.getPageSize());
+        final PageImpl<SummaryOfCandidacy> page = new PageImpl<>(toDto(this.candidacyPageVos), pageable, 1);
+
+        when(this.jdbcTemplate.query(
+                FIND_ALL_BY_CANDIDATE_ID.sql,
+                this.candidacyPageRowMapper,
+                this.candidateIdentifier,
+                pageable.getPageSize(),
+                pageable.getOffset()
+        )).thenReturn(this.candidacyPageVos);
+        when(this.jdbcTemplate.queryForObject(COUNT_BY_CANDIDATE_ID.sql, Integer.class, this.candidateIdentifier)).thenReturn(1);
+
+        assertDoesNotThrow(() -> {
+            final CandidacyPaginated candidacyPaginated = this.candidacyRepository.findAll(this.candidateIdentifier, this.paginationQuery);
+
+            assertEquals(candidacyPaginated.getCandidacies().size(), this.candidacyPageVos.size());
+            assertEquals(candidacyPaginated.getPageNumber(), page.getNumber());
+            assertEquals(candidacyPaginated.getPageSize(), page.getSize());
+            assertEquals(candidacyPaginated.getTotalPages(), page.getTotalPages());
+            assertEquals(candidacyPaginated.getTotalElements(), page.getNumberOfElements());
+            assertEquals(candidacyPaginated.getTotalResults(), page.getTotalElements());
+        });
+
+        verify(this.jdbcTemplate, times(1)).query(
+                FIND_ALL_BY_CANDIDATE_ID.sql,
+                this.candidacyPageRowMapper,
+                this.candidateIdentifier,
+                pageable.getPageSize(),
+                pageable.getOffset()
+        );
+        verify(this.jdbcTemplate, times(1)).queryForObject(COUNT_BY_CANDIDATE_ID.sql, Integer.class, this.candidateIdentifier);
+        verifyNoMoreInteractions(this.jdbcTemplate);
     }
 
 }
