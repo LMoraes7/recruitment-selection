@@ -8,6 +8,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.CandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.SpecificCandidacyDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +32,7 @@ final class CandidateTest {
     private CandidacyDto candidacyDto;
     private SelectiveProcess selectiveProcess;
     private Candidacy candidacy;
+    private SpecificCandidacyDto specificCandidacyDto;
 
     @BeforeEach
     void setUp() {
@@ -47,6 +49,7 @@ final class CandidateTest {
                 )
         );
         this.candidacy = ConverterHelper.toModel(selectiveProcess);
+        this.specificCandidacyDto = dummyObject(SpecificCandidacyDto.class);
     }
 
     @Test
@@ -125,6 +128,42 @@ final class CandidateTest {
 
         verify(this.selectiveProcessRepository, only()).findWithStepsById(this.candidacyDto.getSelectiveProcessIdentifier());
         verifyNoInteractions(this.candidacyRepository);
+    }
+
+    @Test
+    void when_requested_you_must_consult_an_application_by_ID_successfully() {
+        when(this.candidacyRepository.findById(
+                this.candidate.getIdentifier(),
+                this.candidacy.getIdentifier()
+        )).thenReturn(Optional.of(this.specificCandidacyDto));
+
+        assertDoesNotThrow(() -> this.candidate.findSpecificCandidacy(this.candidacyRepository, this.candidacy.getIdentifier()));
+
+        verify(this.candidacyRepository, only()).findById(
+                this.candidate.getIdentifier(),
+                this.candidacy.getIdentifier()
+        );
+    }
+
+    @Test
+    void when_prompted_should_fail_to_search_for_an_application_by_id() {
+        when(this.candidacyRepository.findById(
+                this.candidate.getIdentifier(),
+                this.candidacy.getIdentifier()
+        )).thenReturn(Optional.empty());
+
+        final NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> this.candidate.findSpecificCandidacy(this.candidacyRepository, this.candidacy.getIdentifier())
+        );
+
+        assertEquals(exception.getCode(), this.candidacy.getIdentifier());
+        assertEquals(exception.getClassType(), Candidacy.class);
+
+        verify(this.candidacyRepository, only()).findById(
+                this.candidate.getIdentifier(),
+                this.candidacy.getIdentifier()
+        );
     }
 
 }

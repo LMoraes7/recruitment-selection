@@ -6,6 +6,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.AccessC
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.PersonalData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.CandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.SpecificCandidacyDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
 
@@ -57,6 +58,14 @@ public final class Candidate {
                 selectiveProcess.getIdentifier(),
                 ConverterHelper.toModel(selectiveProcess)
         );
+    }
+
+    public SpecificCandidacyDto findSpecificCandidacy(
+            final CandidacyRepository candidacyRepository,
+            final String candidacyIdentifier
+    ) {
+        return candidacyRepository.findById(this.identifier, candidacyIdentifier)
+                .orElseThrow(() -> new NotFoundException(candidacyIdentifier, Candidacy.class));
     }
 
 }

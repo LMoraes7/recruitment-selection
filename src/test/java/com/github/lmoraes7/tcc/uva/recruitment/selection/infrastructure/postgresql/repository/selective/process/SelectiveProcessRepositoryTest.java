@@ -22,9 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.converter.ConverterHelper.toEntity;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.query.SelectiveProcessCommands.*;
@@ -64,7 +62,7 @@ final class SelectiveProcessRepositoryTest {
                 List.of(dummyObject(ExternalStep.class), dummyObject(ExternalStep.class), dummyObject(ExternalStep.class), dummyObject(ExternalStep.class))
         );
         this.paginationQuery = new PaginationQuery(10, 20);
-        this.selectiveProcessStepsVos = List.of(
+        this.selectiveProcessStepsVos = Arrays.asList(
                 new SelectiveProcessStepsVo(
                         this.selectiveProcess.getIdentifier(),
                         this.selectiveProcess.getStatus(),
@@ -220,34 +218,39 @@ final class SelectiveProcessRepositoryTest {
 
     @Test
     void when_requested_you_must_successfully_complete_the_selection_process_with_the_steps() {
-        when(this.jdbcTemplate.query(
-                FIND_WITH_STEPS_BY_ID.sql,
-                this.selectiveProcessWithStepsRowMapper,
-                this.selectiveProcess.getIdentifier()
-        )).thenReturn(this.selectiveProcessStepsVos);
+        for (int i = 0; i < 10; i++) {
+            Collections.shuffle(this.selectiveProcessStepsVos);
 
-        assertDoesNotThrow(() -> {
-            final Optional<SelectiveProcess> optional = this.selectiveProcessRepository.findWithStepsById(this.selectiveProcess.getIdentifier());
+            when(this.jdbcTemplate.query(
+                    FIND_WITH_STEPS_BY_ID.sql,
+                    this.selectiveProcessWithStepsRowMapper,
+                    this.selectiveProcess.getIdentifier()
+            )).thenReturn(this.selectiveProcessStepsVos);
 
-            assertTrue(optional.isPresent());
+            assertDoesNotThrow(() -> {
+                final Optional<SelectiveProcess> optional = this.selectiveProcessRepository.findWithStepsById(this.selectiveProcess.getIdentifier());
 
-            final List<StepSelectiveProcess> steps = optional.get().getSteps();
+                assertTrue(optional.isPresent());
 
-            assertNotNull(steps);
-            assertEquals(this.selectiveProcessStepsVos.size(), steps.size());
-            assertEquals(this.selectiveProcessStepsVos.get(4).getStepIdentifier(), steps.get(0).getData().getIdentifier());
-            assertEquals(this.selectiveProcessStepsVos.get(2).getStepIdentifier(), steps.get(1).getData().getIdentifier());
-            assertEquals(this.selectiveProcessStepsVos.get(3).getStepIdentifier(), steps.get(2).getData().getIdentifier());
-            assertEquals(this.selectiveProcessStepsVos.get(0).getStepIdentifier(), steps.get(3).getData().getIdentifier());
-            assertNull(steps.get(3).getLimitTime());
-            assertEquals(this.selectiveProcessStepsVos.get(1).getStepIdentifier(), steps.get(4).getData().getIdentifier());
-        });
+                final List<StepSelectiveProcess> steps = optional.get().getSteps();
 
-        verify(this.jdbcTemplate, only()).query(
+                assertNotNull(steps);
+                assertEquals(this.selectiveProcessStepsVos.size(), steps.size());
+                assertEquals("STE-123456781", steps.get(0).getData().getIdentifier());
+                assertEquals("STE-123456782", steps.get(1).getData().getIdentifier());
+                assertEquals("STE-123456783", steps.get(2).getData().getIdentifier());
+                assertEquals("STE-123456784", steps.get(3).getData().getIdentifier());
+                assertNull(steps.get(3).getLimitTime());
+                assertEquals("STE-123456785", steps.get(4).getData().getIdentifier());
+            });
+        }
+
+        verify(this.jdbcTemplate, times(10)).query(
                 FIND_WITH_STEPS_BY_ID.sql,
                 this.selectiveProcessWithStepsRowMapper,
                 this.selectiveProcess.getIdentifier()
         );
+        verifyNoMoreInteractions(this.jdbcTemplate);
     }
 
     @Test

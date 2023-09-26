@@ -17,3 +17,13 @@ insert into selection_processes_steps(id_selective_process, id_step, id_next_ste
 insert into selection_processes_steps(id_selective_process, id_step, id_next_step, limit_time) values ('SEL-123456789', 'STE-564326563', 'STE-987654324', 7876576);
 
 insert into candidates (id, name, cpf, email, phones, adresses, date_of_birth, username, password) values ('CAN-123456789', 'Diego Fernandez Oliveira', '27005990048', 'email_test@email.com.br', '{"ddd":"21","number":"947884078"}', '{"place":"Avenida Atlântica","number":570,"complement":"APT 304","neighborhood":"Copacabana","locality":"Rio de Janeiro","uf":"RJ","cep":"10856894"}', '2023-09-07', 'email_test@email.com.br', 'hhKJ6hui3%8u&2$jgJhjbJugj');
+
+insert into applications (id, status, id_candidate, id_selective_process) values ('APP-123456789', 'IN_PROGRESS', 'CAN-123456789', 'SEL-123456789');
+
+insert into applications_steps (id_application, id_step, id_next_step, status, limit_time, release_date) values ('APP-123456789', 'STE-123456789', null, 'BLOCKED', null, null);
+insert into applications_steps (id_application, id_step, id_next_step, status, limit_time, release_date) values ('APP-123456789', 'STE-987654321', 'STE-564326562', 'BLOCKED', 4564576, null);
+insert into applications_steps (id_application, id_step, id_next_step, status, limit_time, release_date) values ('APP-123456789', 'STE-564326563', 'STE-987654324', 'COMPLETED', 7876576, '2023-09-21');
+insert into applications_steps (id_application, id_step, id_next_step, status, limit_time, release_date) values ('APP-123456789', 'STE-564326567', 'STE-123456788', 'BLOCKED', 7687, null);
+insert into applications_steps (id_application, id_step, id_next_step, status, limit_time, release_date) values ('APP-123456789', 'STE-123456788', 'STE-123456789', 'BLOCKED', null, null);
+insert into applications_steps (id_application, id_step, id_next_step, status, limit_time, release_date) values ('APP-123456789', 'STE-987654324', 'STE-564326567', 'WAITING_FOR_EXECUTION', 65768, '2023-09-25');
+insert into applications_steps (id_application, id_step, id_next_step, status, limit_time, release_date) values ('APP-123456789', 'STE-564326562', 'STE-564326563', 'COMPLETED', 798789, '2023-09-17');

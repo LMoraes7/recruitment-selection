@@ -6,6 +6,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.ExternalSt
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusStepCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.SpecificCandidacyDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -18,9 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
 @SpringBootTest
@@ -34,12 +35,14 @@ class CandidacyRepositoryItTest {
 
     private String candidateIdentifier;
     private String selectiveProcessIdentifier;
+    private String candidacyIdentifier;
     private Candidacy candidacy;
 
     @BeforeEach
     void setUp() {
         this.candidateIdentifier = "CAN-123456789";
         this.selectiveProcessIdentifier = "SEL-123456789";
+        this.candidacyIdentifier = "APP-123456789";
         this.candidacy = new Candidacy(
                 GeneratorIdentifier.forCandidacy(),
                 StatusCandidacy.IN_PROGRESS,
@@ -88,7 +91,7 @@ class CandidacyRepositoryItTest {
     @Transactional
     @Sql(scripts = {"/script/candidacy_repository_test.sql"})
     void when_prompted_you_must_save_a_successful_application() {
-        assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
 
         assertDoesNotThrow(
                 () -> this.candidacyRepository.save(
@@ -97,6 +100,63 @@ class CandidacyRepositoryItTest {
                         this.candidacy
                 )
         );
+
+        assertEquals(2, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/candidacy_repository_test.sql"})
+    void when_requested_you_must_consult_an_application_by_ID_successfully() {
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+
+        assertDoesNotThrow(() -> {
+            final Optional<SpecificCandidacyDto> optional = this.candidacyRepository.findById(
+                    this.candidateIdentifier,
+                    this.candidacyIdentifier
+            );
+
+            assertNotNull(optional);
+            assertTrue(optional.isPresent());
+        });
+
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/candidacy_repository_test.sql"})
+    void when_prompted_should_fail_to_search_for_an_application_by_id() {
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+
+        assertDoesNotThrow(() -> {
+            final Optional<SpecificCandidacyDto> optional = this.candidacyRepository.findById(
+                    GeneratorIdentifier.forCandidate(),
+                    this.candidacyIdentifier
+            );
+
+            assertNotNull(optional);
+            assertTrue(optional.isEmpty());
+        });
+
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/candidacy_repository_test.sql"})
+    void when_prompted_should_fail_to_search_for_an_application_by_id_2() {
+        assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
+
+        assertDoesNotThrow(() -> {
+            final Optional<SpecificCandidacyDto> optional = this.candidacyRepository.findById(
+                    this.candidateIdentifier,
+                    GeneratorIdentifier.forCandidacy()
+            );
+
+            assertNotNull(optional);
+            assertTrue(optional.isEmpty());
+        });
 
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
     }
