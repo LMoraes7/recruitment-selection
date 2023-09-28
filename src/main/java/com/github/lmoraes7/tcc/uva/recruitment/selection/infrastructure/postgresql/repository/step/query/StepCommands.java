@@ -4,7 +4,59 @@ public enum StepCommands {
     SELECT_IDENTIFIERS_IN("select s.id, s.type from steps s where s.id in (%s)"),
     SAVE("insert into steps (id, title, description, type) values (?, ?, ?, ?)"),
     SAVE_UPLOAD_DATA("insert into steps_upload_files (id_step, description, type) values (?, ?, ?)"),
-    SAVE_THEORICAL_DATA("insert into steps_theoretical_tests (id_step, id_question) values (?, ?)");
+    SAVE_THEORICAL_DATA("insert into steps_theoretical_tests (id_step, id_question) values (?, ?)"),
+    FIND_QUESTIONS_TO_BE_EXECUTED(
+            "select " +
+                    "ap.id as candidacy_id, " +
+                    "ap.id_selective_process as selective_process_id, " +
+                    "ap.id_candidate as candidate_id, " +
+                    "ast.id_step as step_id, " +
+                    "stt.id_question as question_id, " +
+                    "q.description as question_description, " +
+                    "q.type as question_type, " +
+                    "a.id as answer_id, " +
+                    "a.description as answer_description " +
+                "from applications ap " +
+                    "inner join applications_steps ast " +
+                        "on ap.id = ast.id_application " +
+                    "inner join steps_theoretical_tests stt " +
+                        "on ast.id_step = stt.id_step " +
+                    "inner join questions q " +
+                        "on stt.id_question = q.id " +
+                    "left join answers a " +
+                        "on q.id = a.id_question " +
+                "where ap.id = ? and ap.id_candidate = ? and ap.id_selective_process = ? and ast.id_step = ?"
+    ),
+    FIND_FILES_TO_BE_SENT(
+            "select " +
+                    "ap.id as candidacy_id, " +
+                    "ap.id_selective_process as selective_process_id, " +
+                    "ap.id_candidate as candidate_id, " +
+                    "ast.id_step as step_id, " +
+                    "suf.description as file_description, " +
+                    "suf.type as file_type " +
+                "from applications ap " +
+                    "inner join applications_steps ast " +
+                        "on ap.id = ast.id_application " +
+                    "inner join steps_upload_files suf " +
+                        "on ast.id_step = suf.id_step " +
+                "where ap.id = ? and ap.id_candidate = ? and ap.id_selective_process = ? and ast.id_step = ?"
+    ),
+    EXTERNAL_TO_BE_EXECUTED(
+            "select " +
+                    "ap.id as candidacy_id, " +
+                    "ap.id_selective_process as selective_process_id, " +
+                    "ap.id_candidate as candidate_id, " +
+                    "ast.id_step as step_id, " +
+                    "aps.link as external_link, " +
+                    "aps.date_and_time as external_date_and_time " +
+                "from applications ap " +
+                    "inner join applications_steps ast " +
+                        "on ap.id = ast.id_application " +
+                    "inner join applications_steps_external aps " +
+                        "on ast.id_step = aps.id_step " +
+                "where ap.id = ? and ap.id_candidate = ? and ap.id_selective_process = ? and ast.id_step = ?"
+    );
 
     public final String sql;
 

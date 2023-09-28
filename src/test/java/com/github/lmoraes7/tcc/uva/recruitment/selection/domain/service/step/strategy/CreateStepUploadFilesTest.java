@@ -5,6 +5,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.TypeUploadFileDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.create.CreateStepUploadFiles;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.UploadFilelStepRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

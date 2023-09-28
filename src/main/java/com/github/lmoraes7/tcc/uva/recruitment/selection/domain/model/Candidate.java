@@ -6,6 +6,9 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.AccessC
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.PersonalData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.*;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ConsultSpecificStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.SpecificExecutionStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.consult.ConsultSpecificExecutionStepCandidacyStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
 
@@ -83,6 +86,13 @@ public final class Candidate {
                 dto.getSelectiveProcessIdentifier(),
                 dto.getCandidacyIdentifier()
         );
+    }
+
+    public SpecificExecutionStepCandidacyDto findSpecificStepCandidacy(
+            final ConsultSpecificExecutionStepCandidacyStrategy strategy,
+            final ConsultSpecificStepCandidacyDto dto
+    ) {
+        return strategy.execute(this.identifier, dto);
     }
 
 }

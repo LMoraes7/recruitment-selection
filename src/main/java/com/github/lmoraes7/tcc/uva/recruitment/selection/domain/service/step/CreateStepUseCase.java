@@ -5,7 +5,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.Intern
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Employee;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Step;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.CreateStepStrategy;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.create.CreateStepStrategy;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 

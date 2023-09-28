@@ -8,6 +8,9 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.*;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ConsultSpecificStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.SpecificExecutionStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.consult.ConsultSpecificExecutionStepCandidacyStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +29,7 @@ import static org.mockito.Mockito.*;
 final class CandidateTest {
     private final SelectiveProcessRepository selectiveProcessRepository = mock(SelectiveProcessRepository.class);
     private final CandidacyRepository candidacyRepository = mock(CandidacyRepository.class);
+    private final ConsultSpecificExecutionStepCandidacyStrategy strategy = mock(ConsultSpecificExecutionStepCandidacyStrategy.class);
 
     private Candidate candidate;
     private CandidacyDto candidacyDto;
@@ -35,6 +39,8 @@ final class CandidateTest {
     private PaginationQuery paginationQuery;
     private CandidacyPaginated candidacyPaginated;
     private CloseCandidacyDto closeCandidacyDto;
+    private ConsultSpecificStepCandidacyDto consultSpecificStepCandidacyDto;
+    private SpecificExecutionStepCandidacyDto specificExecutionStepCandidacyDto;
 
     @BeforeEach
     void setUp() {
@@ -55,6 +61,8 @@ final class CandidateTest {
         this.paginationQuery = new PaginationQuery(10, 20);
         this.candidacyPaginated = dummyObject(CandidacyPaginated.class);
         this.closeCandidacyDto = dummyObject(CloseCandidacyDto.class);
+        this.consultSpecificStepCandidacyDto = dummyObject(ConsultSpecificStepCandidacyDto.class);
+        this.specificExecutionStepCandidacyDto = dummyObject(SpecificExecutionStepCandidacyDto.class);
     }
 
     @Test
@@ -190,6 +198,16 @@ final class CandidateTest {
                 this.closeCandidacyDto.getSelectiveProcessIdentifier(),
                 this.closeCandidacyDto.getCandidacyIdentifier()
         );
+    }
+
+    @Test
+    void when_requested_must_consult_a_theoretical_step_successfully() {
+        when(this.strategy.execute(this.candidate.getIdentifier(), this.consultSpecificStepCandidacyDto))
+                .thenReturn(this.specificExecutionStepCandidacyDto);
+
+        assertDoesNotThrow(() -> this.candidate.findSpecificStepCandidacy(this.strategy, this.consultSpecificStepCandidacyDto));
+
+        verify(this.strategy, only()).execute(this.candidate.getIdentifier(), this.consultSpecificStepCandidacyDto);
     }
 
 }

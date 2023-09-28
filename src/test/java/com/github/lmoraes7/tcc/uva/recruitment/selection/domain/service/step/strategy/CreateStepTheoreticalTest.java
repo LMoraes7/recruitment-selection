@@ -7,6 +7,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.TheoricalT
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeQuestion;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.create.CreateStepTheoretical;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.question.QuestionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.TheoricalTestlStepRepository;
 import org.junit.jupiter.api.BeforeEach;

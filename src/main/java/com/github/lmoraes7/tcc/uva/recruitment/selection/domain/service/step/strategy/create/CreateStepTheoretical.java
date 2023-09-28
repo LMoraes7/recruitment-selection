@@ -1,4 +1,4 @@
-package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy;
+package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.create;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Question;
