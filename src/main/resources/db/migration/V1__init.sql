@@ -104,7 +104,7 @@ create table applications_steps(
     id_step varchar(13) not null,
     id_next_step varchar(13) null,
     status varchar(100) not null,
-    limit_time bigint null,
+    limit_time bigint null, -- tempo expressado em dias
     release_date date null,
     constraint fk_candidatura_etapa foreign key (id_application) references applications (id),
     constraint fk_etapa_candidatura foreign key (id_step) references steps (id),

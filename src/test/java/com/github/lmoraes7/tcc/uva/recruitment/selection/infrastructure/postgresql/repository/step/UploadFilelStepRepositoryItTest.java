@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +65,17 @@ final class UploadFilelStepRepositoryItTest {
 
         assertEquals(1, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "steps"));
         assertEquals(this.step.getFiles().size(), JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "steps_upload_files"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/upload_file_step_repository_test.sql"})
+    void when_prompted_it_should_fetch_the_file_types_successfully() {
+        assertEquals(4, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "steps_upload_files"));
+
+        assertDoesNotThrow(() -> this.uploadFilelStepRepository.findTypeFiles("STE-987654321"));
+
+        assertEquals(4, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "steps_upload_files"));
     }
 
 }

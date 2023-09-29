@@ -2,9 +2,29 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 
 public enum StepCommands {
     SELECT_IDENTIFIERS_IN("select s.id, s.type from steps s where s.id in (%s)"),
+    FIND(
+            "select " +
+                    "ass.id_step as step_id, " +
+                    "ass.status as step_status, " +
+                    "ass.limit_time as step_limit_time, " +
+                    "ass.release_date as step_release_date " +
+                "from applications_steps ass " +
+                    "inner join selection_processes_steps sps " +
+                        "on ass.id_step = sps.id_step " +
+                    "inner join applications a " +
+                        "on ass.id_application = a.id " +
+                "where ass.id_step = ? and sps.id_selective_process = ? and ass.id_application = ? and a.id_candidate = ?"
+    ),
     SAVE("insert into steps (id, title, description, type) values (?, ?, ?, ?)"),
     SAVE_UPLOAD_DATA("insert into steps_upload_files (id_step, description, type) values (?, ?, ?)"),
+    FIND_FILES_TYPE_BY_STEP_ID("select suf.type from steps_upload_files suf where suf.id_step = ?"),
     SAVE_THEORICAL_DATA("insert into steps_theoretical_tests (id_step, id_question) values (?, ?)"),
+    SAVE_EXECUTION_QUESTION_MULTIPLE_CHOICE(
+            "insert into applications_steps_theoretical_tests (id_application, id_step, id_question, id_answer, type_question, discursive_answer) values (?, ?, ?, ?, ?, ?)"
+    ),
+    SAVE_EXECUTION_UPLOAD_FILES_STEP(
+            "insert into applications_steps_upload_files (id_application, id_step, file, type) values (?, ?, ?, ?)"
+    ),
     FIND_QUESTIONS_TO_BE_EXECUTED(
             "select " +
                     "ap.id as candidacy_id, " +

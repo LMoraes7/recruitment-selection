@@ -4,22 +4,31 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.G
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusSelectiveProcess;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusStepCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.*;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ConsultSpecificStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteStepCandidacyFindDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.SpecificExecutionStepCandidacyDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.consult.ConsultSpecificExecutionStepCandidacyStrategy;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.execute.ExecuteStepCandidacyStrategy;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.execute.ExecuteTheoricalTestStepCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.StepRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_012;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.*;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils.dummyObject;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +39,8 @@ final class CandidateTest {
     private final SelectiveProcessRepository selectiveProcessRepository = mock(SelectiveProcessRepository.class);
     private final CandidacyRepository candidacyRepository = mock(CandidacyRepository.class);
     private final ConsultSpecificExecutionStepCandidacyStrategy strategy = mock(ConsultSpecificExecutionStepCandidacyStrategy.class);
+    private final StepRepository stepRepository = mock(StepRepository.class);
+    private final ExecuteStepCandidacyStrategy executeStepCandidacyStrategy = mock(ExecuteTheoricalTestStepCandidacy.class);
 
     private Candidate candidate;
     private CandidacyDto candidacyDto;
@@ -41,6 +52,8 @@ final class CandidateTest {
     private CloseCandidacyDto closeCandidacyDto;
     private ConsultSpecificStepCandidacyDto consultSpecificStepCandidacyDto;
     private SpecificExecutionStepCandidacyDto specificExecutionStepCandidacyDto;
+    private ExecuteStepCandidacyDto executeStepCandidacyDto;
+    private ExecuteStepCandidacyFindDto executeStepCandidacyFind;
 
     @BeforeEach
     void setUp() {
@@ -63,6 +76,20 @@ final class CandidateTest {
         this.closeCandidacyDto = dummyObject(CloseCandidacyDto.class);
         this.consultSpecificStepCandidacyDto = dummyObject(ConsultSpecificStepCandidacyDto.class);
         this.specificExecutionStepCandidacyDto = dummyObject(SpecificExecutionStepCandidacyDto.class);
+        this.executeStepCandidacyDto = new ExecuteStepCandidacyDto(
+                GeneratorIdentifier.forStep(),
+                GeneratorIdentifier.forCandidacy(),
+                GeneratorIdentifier.forSelectiveProcess(),
+                TypeStep.THEORETICAL_TEST,
+                null,
+                null
+        );
+        this.executeStepCandidacyFind = new ExecuteStepCandidacyFindDto(
+                GeneratorIdentifier.forStep(),
+                StatusStepCandidacy.WAITING_FOR_EXECUTION,
+                LocalDate.now().plusDays(3),
+                LocalDate.now().minusDays(1)
+        );
     }
 
     @Test
@@ -208,6 +235,117 @@ final class CandidateTest {
         assertDoesNotThrow(() -> this.candidate.findSpecificStepCandidacy(this.strategy, this.consultSpecificStepCandidacyDto));
 
         verify(this.strategy, only()).execute(this.candidate.getIdentifier(), this.consultSpecificStepCandidacyDto);
+    }
+
+    @Test
+    void when_prompted_must_perform_a_step_successfully() {
+        when(this.stepRepository.find(
+                this.executeStepCandidacyDto.getStepIdentifier(),
+                this.executeStepCandidacyDto.getSelectiveProcessIdentifier(),
+                this.executeStepCandidacyDto.getCandidacyIdentifier(),
+                this.candidate.getIdentifier()
+        )).thenReturn(Optional.of(this.executeStepCandidacyFind));
+
+        assertDoesNotThrow(() -> this.candidate.executeStep(this.stepRepository, this.executeStepCandidacyStrategy, this.executeStepCandidacyDto));
+
+        verify(this.stepRepository, only()).find(
+                this.executeStepCandidacyDto.getStepIdentifier(),
+                this.executeStepCandidacyDto.getSelectiveProcessIdentifier(),
+                this.executeStepCandidacyDto.getCandidacyIdentifier(),
+                this.candidate.getIdentifier()
+        );
+        verify(this.executeStepCandidacyStrategy, only()).execute(this.candidate.getIdentifier(), this.executeStepCandidacyDto);
+    }
+
+    @Test
+    void when_requested_it_must_launch_a_NotFound_when_it_does_not_find_the_step_to_be_executed() {
+        when(this.stepRepository.find(
+                this.executeStepCandidacyDto.getStepIdentifier(),
+                this.executeStepCandidacyDto.getSelectiveProcessIdentifier(),
+                this.executeStepCandidacyDto.getCandidacyIdentifier(),
+                this.candidate.getIdentifier()
+        )).thenReturn(Optional.empty());
+
+        final NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> this.candidate.executeStep(this.stepRepository, this.executeStepCandidacyStrategy, this.executeStepCandidacyDto)
+        );
+
+        assertEquals(this.executeStepCandidacyDto.getStepIdentifier(), exception.getCode());
+        assertEquals(StepCandidacy.class, exception.getClassType());
+
+        verify(this.stepRepository, only()).find(
+                this.executeStepCandidacyDto.getStepIdentifier(),
+                this.executeStepCandidacyDto.getSelectiveProcessIdentifier(),
+                this.executeStepCandidacyDto.getCandidacyIdentifier(),
+                this.candidate.getIdentifier()
+        );
+        verifyNoInteractions(this.executeStepCandidacyStrategy);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusStepCandidacy.class, mode = EnumSource.Mode.EXCLUDE, names = {"WAITING_FOR_EXECUTION"})
+    void when_requested_should_throw_a_BusinessException_when_the_step_is_in_invalid_status(final StatusStepCandidacy status) {
+        this.executeStepCandidacyFind = new ExecuteStepCandidacyFindDto(
+                GeneratorIdentifier.forStep(),
+                status,
+                LocalDate.now().plusDays(3),
+                LocalDate.now().minusDays(1)
+        );
+
+        when(this.stepRepository.find(
+                this.executeStepCandidacyDto.getStepIdentifier(),
+                this.executeStepCandidacyDto.getSelectiveProcessIdentifier(),
+                this.executeStepCandidacyDto.getCandidacyIdentifier(),
+                this.candidate.getIdentifier()
+        )).thenReturn(Optional.of(this.executeStepCandidacyFind));
+
+        final BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> this.candidate.executeStep(this.stepRepository, this.executeStepCandidacyStrategy, this.executeStepCandidacyDto)
+        );
+
+        assertEquals(APIX_013, exception.getError());
+
+        verify(this.stepRepository, only()).find(
+                this.executeStepCandidacyDto.getStepIdentifier(),
+                this.executeStepCandidacyDto.getSelectiveProcessIdentifier(),
+                this.executeStepCandidacyDto.getCandidacyIdentifier(),
+                this.candidate.getIdentifier()
+        );
+        verifyNoInteractions(this.executeStepCandidacyStrategy);
+    }
+
+    @Test
+    void when_requested_it_should_throw_a_BusinessException_when_the_step_is_already_expired() {
+        this.executeStepCandidacyFind = new ExecuteStepCandidacyFindDto(
+                GeneratorIdentifier.forStep(),
+                StatusStepCandidacy.WAITING_FOR_EXECUTION,
+                LocalDate.now().minusDays(1),
+                LocalDate.now().minusDays(1)
+        );
+
+        when(this.stepRepository.find(
+                this.executeStepCandidacyDto.getStepIdentifier(),
+                this.executeStepCandidacyDto.getSelectiveProcessIdentifier(),
+                this.executeStepCandidacyDto.getCandidacyIdentifier(),
+                this.candidate.getIdentifier()
+        )).thenReturn(Optional.of(this.executeStepCandidacyFind));
+
+        final BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> this.candidate.executeStep(this.stepRepository, this.executeStepCandidacyStrategy, this.executeStepCandidacyDto)
+        );
+
+        assertEquals(APIX_014, exception.getError());
+
+        verify(this.stepRepository, only()).find(
+                this.executeStepCandidacyDto.getStepIdentifier(),
+                this.executeStepCandidacyDto.getSelectiveProcessIdentifier(),
+                this.executeStepCandidacyDto.getCandidacyIdentifier(),
+                this.candidate.getIdentifier()
+        );
+        verifyNoInteractions(this.executeStepCandidacyStrategy);
     }
 
 }

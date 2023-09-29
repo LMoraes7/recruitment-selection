@@ -25,6 +25,16 @@ public enum Error {
     APIX_011("apix-011.error"),
 //  Processo seletivo informado não pode mais receber inscrições pq está fechado
     APIX_012("apix-012.error"),
+//  Etapa informada não se encotra no status aguardando execução para ser executada
+    APIX_013("apix-013.error"),
+//  Etapa informada já passou da validade para ser executada
+    APIX_014("apix-014.error"),
+//  Etapa de questão foi informada para ser executa contendo 2 tipos diferentes de questão
+    APIX_015("apix-015.error"),
+//  Etapa de envio de arquivos teve mais ou menos arquivos enviados do que o definido na etapa
+    APIX_016("apix-016.error"),
+//  Etapa de envio de arquivos teve arquivos de tipos inválidos
+    APIX_017("apix-017.error"),
 //  Erro ao buscar o perfil de candidato
     INTG_001("intg-001.error"),
 //  Erro interno genérico

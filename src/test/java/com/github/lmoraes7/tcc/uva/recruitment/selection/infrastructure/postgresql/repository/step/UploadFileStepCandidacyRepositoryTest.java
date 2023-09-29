@@ -2,7 +2,9 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeFile;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteUploadFileStepCandidacyDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.SpecificExecutionStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.batch.SaveUploadFileStepCandidacyBatch;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.UploadFileStepCandidacyRowMapper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.vo.UploadFileStepCandidacyVo;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.FIND_FILES_TO_BE_SENT;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.SAVE_EXECUTION_UPLOAD_FILES_STEP;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils.dummyObject;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -27,7 +30,7 @@ final class UploadFileStepCandidacyRepositoryTest {
     private String selectiveProcessIdentifier;
     private String stepIdentifier;
     private List<UploadFileStepCandidacyVo> uploadFileStepCandidacyVos;
-
+    private ExecuteUploadFileStepCandidacyDto uploadFile;
     @BeforeEach
     void setUp() {
         this.candidacyIdentifier = GeneratorIdentifier.forCandidacy();
@@ -68,6 +71,7 @@ final class UploadFileStepCandidacyRepositoryTest {
                         dummyObject(TypeFile.class)
                 )
         );
+        this.uploadFile = dummyObject(ExecuteUploadFileStepCandidacyDto.class);
     }
 
     @Test
@@ -136,4 +140,28 @@ final class UploadFileStepCandidacyRepositoryTest {
                 this.stepIdentifier
         );
     }
+
+    @Test
+    void when_prompted_you_must_save_the_successfully_executed_step() {
+        when(this.jdbcTemplate.batchUpdate(
+                SAVE_EXECUTION_UPLOAD_FILES_STEP.sql,
+                new SaveUploadFileStepCandidacyBatch(
+                        candidacyIdentifier,
+                        stepIdentifier,
+                        uploadFile.getFiles()
+                )
+        )).thenReturn(new int[]{0});
+
+        assertDoesNotThrow(() -> this.uploadFileStepCandidacyRepository.saveTestExecuted(this.candidacyIdentifier, this.stepIdentifier, this.uploadFile));
+
+        verify(this.jdbcTemplate, only()).batchUpdate(
+                SAVE_EXECUTION_UPLOAD_FILES_STEP.sql,
+                new SaveUploadFileStepCandidacyBatch(
+                        candidacyIdentifier,
+                        stepIdentifier,
+                        uploadFile.getFiles()
+                )
+        );
+    }
+
 }

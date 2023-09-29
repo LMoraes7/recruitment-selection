@@ -12,9 +12,11 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgres
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.entity.UploadFileStepEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.entity.vo.FileVoEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.vo.ExternalStepCandidacyVo;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.vo.StepFindVo;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.vo.TheoricalTestStepCandidacyVo;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.vo.UploadFileStepCandidacyVo;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -141,6 +143,25 @@ public final class ConverterHelper {
                         externalStepCandidacyVo.getExternalLink(),
                         externalStepCandidacyVo.getExternalDateTime()
                 )
+        );
+    }
+
+    public static ExecuteStepCandidacyFindDto toDto(final StepFindVo stepFindVo) {
+        LocalDate releaseDate = null;
+        LocalDate limitTime = null;
+
+        if (stepFindVo.getReleaseDate() != null) {
+            releaseDate = stepFindVo.getReleaseDate();
+
+            if (stepFindVo.getLimitTime() != null && stepFindVo.getLimitTime() != 0L)
+                limitTime = releaseDate.plusDays(stepFindVo.getLimitTime());
+        }
+
+        return new ExecuteStepCandidacyFindDto(
+                stepFindVo.getIdentifier(),
+                stepFindVo.getStatus(),
+                limitTime,
+                releaseDate
         );
     }
 

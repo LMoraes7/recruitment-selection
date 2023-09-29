@@ -2,10 +2,11 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeQuestion;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.QuestionDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.SpecificExecutionStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.*;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.batch.SaveAnswerMultipleChoiceTheoricalTestStepBatch;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.TheoricalTestStepCandidacyRowMapper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.vo.TheoricalTestStepCandidacyVo;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.vo.StepBatch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.*;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.FIND_QUESTIONS_TO_BE_EXECUTED;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.SAVE_EXECUTION_QUESTION_MULTIPLE_CHOICE;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils.dummyObject;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,6 +31,7 @@ final class TheoricalTestStepCandidacyRepositoryTest {
     private List<String> questionsIdentifiers;
     private List<String> answersIdentifiers;
     private List<TheoricalTestStepCandidacyVo> theoricalTestStepCandidacyVos;
+    private ExecuteTheoricalTestStepCandidacyDto theoricalTest;
 
     @BeforeEach
     void setUp() {
@@ -115,6 +118,31 @@ final class TheoricalTestStepCandidacyRepositoryTest {
                         TypeQuestion.MULTIPLE_CHOICE,
                         this.answersIdentifiers.get(4),
                         dummyObject(String.class)
+                )
+        );
+
+        this.theoricalTest = new ExecuteTheoricalTestStepCandidacyDto(
+                List.of(
+                        new ExecuteQuestionDto(
+                                GeneratorIdentifier.forQuestion(),
+                                TypeQuestion.MULTIPLE_CHOICE,
+                                new ExecuteAnswerDto(GeneratorIdentifier.forAnswer())
+                        ),
+                        new ExecuteQuestionDto(
+                                GeneratorIdentifier.forQuestion(),
+                                TypeQuestion.MULTIPLE_CHOICE,
+                                new ExecuteAnswerDto(GeneratorIdentifier.forAnswer())
+                        ),
+                        new ExecuteQuestionDto(
+                                GeneratorIdentifier.forQuestion(),
+                                TypeQuestion.MULTIPLE_CHOICE,
+                                new ExecuteAnswerDto(GeneratorIdentifier.forAnswer())
+                        ),
+                        new ExecuteQuestionDto(
+                                GeneratorIdentifier.forQuestion(),
+                                TypeQuestion.MULTIPLE_CHOICE,
+                                new ExecuteAnswerDto(GeneratorIdentifier.forAnswer())
+                        )
                 )
         );
     }
@@ -222,6 +250,44 @@ final class TheoricalTestStepCandidacyRepositoryTest {
                 this.candidateIdentifier,
                 this.selectiveProcessIdentifier,
                 this.stepIdentifier
+        );
+    }
+
+    @Test
+    void when_prompted_it_should_save_responses_successfully() {
+        final List<StepBatch> stepBatches = theoricalTest.getQuestions().stream().map(it -> {
+            String answerIdentifier = null;
+            String answerDiscursive = null;
+
+            if (it.getType() == TypeQuestion.MULTIPLE_CHOICE)
+                answerIdentifier = it.getAnswer().getAnswer();
+            else
+                answerDiscursive = it.getAnswer().getAnswer();
+
+            return new StepBatch(
+                    candidacyIdentifier,
+                    stepIdentifier,
+                    it.getQuestionIdentifier(),
+                    answerIdentifier,
+                    it.getType(),
+                    answerDiscursive
+            );
+        }).toList();
+
+        when(this.jdbcTemplate.batchUpdate(
+                SAVE_EXECUTION_QUESTION_MULTIPLE_CHOICE.sql,
+                new SaveAnswerMultipleChoiceTheoricalTestStepBatch(stepBatches)
+        )).thenReturn(new int[]{0});
+
+        assertDoesNotThrow(() -> this.theoricalTestStepCandidacyRepository.saveTestExecuted(
+                this.candidacyIdentifier,
+                this.stepIdentifier,
+                this.theoricalTest
+        ));
+
+        verify(this.jdbcTemplate, only()).batchUpdate(
+                SAVE_EXECUTION_QUESTION_MULTIPLE_CHOICE.sql,
+                new SaveAnswerMultipleChoiceTheoricalTestStepBatch(stepBatches)
         );
     }
 

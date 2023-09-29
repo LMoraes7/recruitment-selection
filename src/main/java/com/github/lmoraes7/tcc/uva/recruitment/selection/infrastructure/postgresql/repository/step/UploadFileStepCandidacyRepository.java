@@ -1,6 +1,8 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step;
 
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteUploadFileStepCandidacyDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.SpecificExecutionStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.batch.SaveUploadFileStepCandidacyBatch;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.UploadFileStepCandidacyRowMapper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.vo.UploadFileStepCandidacyVo;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.FIND_FILES_TO_BE_SENT;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.FIND_QUESTIONS_TO_BE_EXECUTED;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.SAVE_EXECUTION_UPLOAD_FILES_STEP;
 
 @Repository
 public class UploadFileStepCandidacyRepository {
@@ -45,6 +47,21 @@ public class UploadFileStepCandidacyRepository {
             return Optional.empty();
 
         return Optional.of(ConverterHelper.uploadFileVotoDto(result));
+    }
+
+    public void saveTestExecuted(
+            final String candidacyIdentifier,
+            final String stepIdentifier,
+            final ExecuteUploadFileStepCandidacyDto uploadFile
+    ) {
+        this.jdbcTemplate.batchUpdate(
+                SAVE_EXECUTION_UPLOAD_FILES_STEP.sql,
+                new SaveUploadFileStepCandidacyBatch(
+                        candidacyIdentifier,
+                        stepIdentifier,
+                        uploadFile.getFiles()
+                )
+        );
     }
 
 }
