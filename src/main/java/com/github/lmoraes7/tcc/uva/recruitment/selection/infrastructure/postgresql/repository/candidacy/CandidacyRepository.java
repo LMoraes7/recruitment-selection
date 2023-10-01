@@ -2,6 +2,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Candidacy;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.SelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.CandidacyPaginated;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.PaginationQuery;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidacy.dto.SpecificCandidacyDto;
@@ -130,6 +131,21 @@ public class CandidacyRepository {
         this.jdbcTemplate.update(
                 CLOSE_STEPS_CANDIDACY.sql,
                 candidacyIdentifier
+        );
+    }
+
+    public void closeCandidacyBySelectiveProcess(final String selectiveProcessIdentifier) {
+        int update = this.jdbcTemplate.update(
+                CLOSE_CANDIDACY_BY_SELECTIVE_PROCESS.sql,
+                selectiveProcessIdentifier
+        );
+
+        if (update == 0)
+            throw new NotFoundException(selectiveProcessIdentifier, SelectiveProcess.class);
+
+        this.jdbcTemplate.update(
+                CLOSE_STEPS_CANDIDACY_BY_SELECTIVE_PROCESS.sql,
+                selectiveProcessIdentifier
         );
     }
 

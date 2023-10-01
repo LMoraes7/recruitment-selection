@@ -4,6 +4,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.G
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Candidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.ExternalStep;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.SelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusStepCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
@@ -346,6 +347,51 @@ final class CandidacyRepositoryTest {
                 CLOSE_CANDIDACY.sql,
                 this.candidacy.getIdentifier(),
                 this.candidateIdentifier,
+                this.selectiveProcessIdentifier
+        );
+    }
+
+    @Test
+    void when_requested_you_must_successfully_complete_an_application_through_the_selection_process() {
+        when(this.jdbcTemplate.update(
+                CLOSE_CANDIDACY_BY_SELECTIVE_PROCESS.sql,
+                this.selectiveProcessIdentifier
+        )).thenReturn(1);
+        when(this.jdbcTemplate.update(
+                CLOSE_STEPS_CANDIDACY_BY_SELECTIVE_PROCESS.sql,
+                this.selectiveProcessIdentifier
+        )).thenReturn(1);
+
+        assertDoesNotThrow(() -> this.candidacyRepository.closeCandidacyBySelectiveProcess(this.selectiveProcessIdentifier));
+
+        verify(this.jdbcTemplate, times(1)).update(
+                CLOSE_CANDIDACY_BY_SELECTIVE_PROCESS.sql,
+                this.selectiveProcessIdentifier
+        );
+        verify(this.jdbcTemplate, times(1)).update(
+                CLOSE_STEPS_CANDIDACY_BY_SELECTIVE_PROCESS.sql,
+                this.selectiveProcessIdentifier
+        );
+        verifyNoMoreInteractions(this.jdbcTemplate);
+    }
+
+    @Test
+    void when_requested_it_must_throw_a_NotFoundException_when_closing_an_application_through_the_selection_process() {
+        when(this.jdbcTemplate.update(
+                CLOSE_CANDIDACY_BY_SELECTIVE_PROCESS.sql,
+                this.selectiveProcessIdentifier
+        )).thenReturn(0);
+
+        final NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> this.candidacyRepository.closeCandidacyBySelectiveProcess(this.selectiveProcessIdentifier)
+        );
+
+        assertEquals(exception.getCode(), this.selectiveProcessIdentifier);
+        assertEquals(exception.getClassType(), SelectiveProcess.class);
+
+        verify(this.jdbcTemplate, only()).update(
+                CLOSE_CANDIDACY_BY_SELECTIVE_PROCESS.sql,
                 this.selectiveProcessIdentifier
         );
     }

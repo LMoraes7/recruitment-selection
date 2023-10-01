@@ -1,6 +1,7 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusSelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.AccessCredentials;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.PersonalData;
@@ -15,6 +16,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selectiv
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessStepDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.create.CreateStepStrategy;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
@@ -26,7 +28,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.*;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_011;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.utils.CommonFunctions.validateIdentifiers;
 
 public final class Employee {
@@ -151,6 +152,15 @@ public final class Employee {
     @Override
     public int hashCode() {
         return Objects.hash(identifier, personalData, accessCredentials);
+    }
+
+    public void closeSelectiveProcess(
+            final SelectiveProcessRepository selectiveProcessRepository,
+            final CandidacyRepository candidacyRepository,
+            final String selectiveProcessIdentifier
+    ) {
+        selectiveProcessRepository.updateStatus(selectiveProcessIdentifier, StatusSelectiveProcess.CLOSED);
+        candidacyRepository.closeCandidacyBySelectiveProcess(selectiveProcessIdentifier);
     }
 
 }

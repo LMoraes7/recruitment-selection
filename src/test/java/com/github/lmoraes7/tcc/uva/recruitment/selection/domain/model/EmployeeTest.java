@@ -2,6 +2,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusSelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.RegisterEmployeeService;
@@ -15,6 +16,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selectiv
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessStepDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.create.CreateStepStrategy;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
@@ -41,6 +43,7 @@ final class EmployeeTest {
     private final CreateStepStrategy stepStrategy = mock(CreateStepStrategy.class);
     private final StepRepository stepRepository = mock(StepRepository.class);
     private final SelectiveProcessRepository selectiveProcessRepository = mock(SelectiveProcessRepository.class);
+    private final CandidacyRepository candidacyRepository = mock(CandidacyRepository.class);
 
     private Employee employee;
     private ProfileDto profileDto;
@@ -293,6 +296,14 @@ final class EmployeeTest {
 
         verify(this.stepRepository, only()).fetchSteps(stepsIdentifiersToValidate);
         verifyNoInteractions(this.selectiveProcessRepository);
+    }
+
+    @Test
+    void when_requested_you_must_successfully_complete_a_selection_process() {
+        assertDoesNotThrow(() -> this.employee.closeSelectiveProcess(this.selectiveProcessRepository, this.candidacyRepository, this.selectiveProcess.getIdentifier()));
+
+        verify(this.selectiveProcessRepository, only()).updateStatus(this.selectiveProcess.getIdentifier(), StatusSelectiveProcess.CLOSED);
+        verify(this.candidacyRepository, only()).closeCandidacyBySelectiveProcess(this.selectiveProcess.getIdentifier());
     }
 
 }

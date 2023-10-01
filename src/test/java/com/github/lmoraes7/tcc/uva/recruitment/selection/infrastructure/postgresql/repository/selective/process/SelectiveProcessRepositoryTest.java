@@ -1,6 +1,7 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.ExternalStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.SelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.StepSelectiveProcess;
@@ -16,6 +17,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgres
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.rowmapper.vo.SelectiveProcessStepsVo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -270,6 +273,48 @@ final class SelectiveProcessRepositoryTest {
         verify(this.jdbcTemplate, only()).query(
                 FIND_WITH_STEPS_BY_ID.sql,
                 this.selectiveProcessWithStepsRowMapper,
+                this.selectiveProcess.getIdentifier()
+        );
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusSelectiveProcess.class)
+    void when_requested_you_must_update_the_status_of_a_successful_selection_process(final StatusSelectiveProcess status) {
+        when(this.jdbcTemplate.update(
+                UPDATE_STATUS.sql,
+                status.name(),
+                this.selectiveProcess.getIdentifier()
+        )).thenReturn(1);
+
+        assertDoesNotThrow(() -> this.selectiveProcessRepository.updateStatus(this.selectiveProcess.getIdentifier(), status));
+
+        verify(this.jdbcTemplate, only()).update(
+                UPDATE_STATUS.sql,
+                status.name(),
+                this.selectiveProcess.getIdentifier()
+        );
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusSelectiveProcess.class)
+    void when_requested_it_must_throw_a_NotFoundException_when_updating_the_status_of_a_selection_process(final StatusSelectiveProcess status) {
+        when(this.jdbcTemplate.update(
+                UPDATE_STATUS.sql,
+                status.name(),
+                this.selectiveProcess.getIdentifier()
+        )).thenReturn(0);
+
+        final NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> this.selectiveProcessRepository.updateStatus(this.selectiveProcess.getIdentifier(), status)
+        );
+
+        assertEquals(exception.getCode(), this.selectiveProcess.getIdentifier());
+        assertEquals(exception.getClassType(), SelectiveProcess.class);
+
+        verify(this.jdbcTemplate, only()).update(
+                UPDATE_STATUS.sql,
+                status.name(),
                 this.selectiveProcess.getIdentifier()
         );
     }

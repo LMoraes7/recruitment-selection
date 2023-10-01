@@ -1,6 +1,8 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process;
 
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.SelectiveProcess;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusSelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.PaginationQuery;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessoPaginated;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.SelectiveProcessStepRepository;
@@ -117,6 +119,17 @@ public class SelectiveProcessRepository {
                 page.getNumberOfElements(),
                 page.getTotalElements()
         );
+    }
+
+    public void updateStatus(final String selectiveProcessIdentifier, final StatusSelectiveProcess status) {
+        int update = this.jdbcTemplate.update(
+                UPDATE_STATUS.sql,
+                status.name(),
+                selectiveProcessIdentifier
+        );
+
+        if (update == 0)
+            throw new NotFoundException(selectiveProcessIdentifier, SelectiveProcess.class);
     }
 
 }

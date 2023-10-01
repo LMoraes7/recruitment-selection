@@ -1,6 +1,7 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.ExternalStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.SelectiveProcess;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.StepSelectiveProcess;
@@ -11,6 +12,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selectiv
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,7 +25,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.query.SelectiveProcessCommands.UPDATE_STATUS;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.only;
 
 @Tag("integration")
 @SpringBootTest
@@ -190,6 +196,23 @@ final class SelectiveProcessRepositoryItTest {
         });
 
         assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "selection_processes"));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusSelectiveProcess.class)
+    @Transactional
+    @Sql(scripts = {"/script/selective_process_repository_test.sql"})
+    void when_requested_you_must_update_the_status_of_a_successful_selection_process(final StatusSelectiveProcess status) {
+        assertDoesNotThrow(() -> this.selectiveProcessRepository.updateStatus("SEL-123456789", status));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusSelectiveProcess.class)
+    void when_requested_it_must_throw_a_NotFoundException_when_updating_the_status_of_a_selection_process(final StatusSelectiveProcess status) {
+        assertThrows(
+                NotFoundException.class,
+                () -> this.selectiveProcessRepository.updateStatus(GeneratorIdentifier.forSelectiveProcess(), status)
+        );
     }
 
 }

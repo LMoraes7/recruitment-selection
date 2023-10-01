@@ -18,7 +18,8 @@ public enum SelectiveProcessCommands {
                                     "inner join steps s " +
                                         "on sps.id_step = s.id " +
                                 "where sp.id = ?"
-    );
+    ),
+    UPDATE_STATUS("update selection_processes sp set sp.status = ? where sp.id = ?");
 
     public final String sql;
 

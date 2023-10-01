@@ -270,4 +270,29 @@ class CandidacyRepositoryItTest {
         assertEquals(9, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications"));
     }
 
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/candidacy_repository_test.sql"})
+    void when_requested_you_must_successfully_complete_an_application_through_the_selection_process() {
+        assertNotEquals(
+                7,
+                JdbcTestUtils.countRowsInTableWhere(this.jdbcTemplate, "applications_steps", "status = 'BLOCKED'")
+        );
+        assertDoesNotThrow(() -> this.candidacyRepository.closeCandidacyBySelectiveProcess("SEL-123456789"));
+        assertEquals(
+                7,
+                JdbcTestUtils.countRowsInTableWhere(this.jdbcTemplate, "applications_steps", "status = 'BLOCKED'")
+        );
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/candidacy_repository_test.sql"})
+    void when_requested_it_must_throw_a_NotFoundException_when_closing_an_application_through_the_selection_process() {
+        assertThrows(
+                NotFoundException.class,
+                () -> this.candidacyRepository.closeCandidacyBySelectiveProcess(GeneratorIdentifier.forSelectiveProcess())
+        );
+    }
+
 }

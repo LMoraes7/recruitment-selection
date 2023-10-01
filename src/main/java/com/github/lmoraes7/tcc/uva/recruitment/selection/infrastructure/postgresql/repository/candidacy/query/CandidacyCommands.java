@@ -35,7 +35,18 @@ public enum CandidacyCommands {
     ),
     COUNT_BY_CANDIDATE_ID("select count(*) from applications a where a.id_candidate = ?"),
     CLOSE_CANDIDACY("update applications a set a.status = 'CLOSED' where a.id = ? and a.id_candidate = ? and a.id_selective_process = ?"),
-    CLOSE_STEPS_CANDIDACY("update applications_steps set status = 'BLOCKED' where id_application = ? and status = 'WAITING_FOR_EXECUTION'");
+    CLOSE_STEPS_CANDIDACY("update applications_steps set status = 'BLOCKED' where id_application = ? and status = 'WAITING_FOR_EXECUTION'"),
+    CLOSE_CANDIDACY_BY_SELECTIVE_PROCESS("update applications a set a.status = 'CLOSED' where a.id_selective_process = ?"),
+    CLOSE_STEPS_CANDIDACY_BY_SELECTIVE_PROCESS(
+            "update applications_steps set status = 'BLOCKED' where id_application in (" +
+                    "select " +
+                        "distinct a.id " +
+                    "from applications a " +
+                        "inner join applications_steps ass " +
+                        "on a.id = ass.id_application " +
+                    "where a.id_selective_process = ? " +
+                ")"
+    );
 
     public final String sql;
 
