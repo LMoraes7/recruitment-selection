@@ -1,8 +1,10 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.ExternalStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Step;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.StepCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusStepCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteStepCandidacyFindDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.StepFindRowMapper;
@@ -10,6 +12,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgres
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.vo.StepFindVo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -19,8 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.FIND;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.SELECT_IDENTIFIERS_IN;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.*;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils.dummyObject;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -147,6 +150,52 @@ final class StepRepositoryTest {
                 this.selectiveProcessIdentifier,
                 this.candidacyIdentifier,
                 this.candidateIdentifier
+        );
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusStepCandidacy.class)
+    void when_requested_you_must_update_the_status_of_a_stage_of_a_successful_application(final StatusStepCandidacy status) {
+        when(this.jdbcTemplate.update(
+                UPDATE_STATUS_STEP_CANDIDACY.sql,
+                status.name(),
+                this.stepIdentifier,
+                this.candidacyIdentifier
+        )).thenReturn(1);
+
+        assertDoesNotThrow(() -> this.stepRepository.updateStatusStepCandidacy(this.stepIdentifier, this.candidacyIdentifier, status));
+
+        verify(this.jdbcTemplate, only()).update(
+                UPDATE_STATUS_STEP_CANDIDACY.sql,
+                status.name(),
+                this.stepIdentifier,
+                this.candidacyIdentifier
+        );
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusStepCandidacy.class)
+    void when_requested_it_must_throw_a_NotFoundException_when_updating_the_status_of_an_application_step(final StatusStepCandidacy status) {
+        when(this.jdbcTemplate.update(
+                UPDATE_STATUS_STEP_CANDIDACY.sql,
+                status.name(),
+                this.stepIdentifier,
+                this.candidacyIdentifier
+        )).thenReturn(0);
+
+        final NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> this.stepRepository.updateStatusStepCandidacy(this.stepIdentifier, this.candidacyIdentifier, status)
+        );
+
+        assertEquals(exception.getCode(), this.stepIdentifier);
+        assertEquals(exception.getClassType(), StepCandidacy.class);
+
+        verify(this.jdbcTemplate, only()).update(
+                UPDATE_STATUS_STEP_CANDIDACY.sql,
+                status.name(),
+                this.stepIdentifier,
+                this.candidacyIdentifier
         );
     }
 

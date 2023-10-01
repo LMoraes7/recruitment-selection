@@ -248,13 +248,19 @@ final class CandidateTest {
 
         assertDoesNotThrow(() -> this.candidate.executeStep(this.stepRepository, this.executeStepCandidacyStrategy, this.executeStepCandidacyDto));
 
-        verify(this.stepRepository, only()).find(
+        verify(this.stepRepository, times(1)).find(
                 this.executeStepCandidacyDto.getStepIdentifier(),
                 this.executeStepCandidacyDto.getSelectiveProcessIdentifier(),
                 this.executeStepCandidacyDto.getCandidacyIdentifier(),
                 this.candidate.getIdentifier()
         );
         verify(this.executeStepCandidacyStrategy, only()).execute(this.candidate.getIdentifier(), this.executeStepCandidacyDto);
+        verify(this.stepRepository, times(1)).updateStatusStepCandidacy(
+                this.executeStepCandidacyDto.getStepIdentifier(),
+                this.executeStepCandidacyDto.getCandidacyIdentifier(),
+                StatusStepCandidacy.EXECUTED
+        );
+        verifyNoMoreInteractions(this.stepRepository);
     }
 
     @Test

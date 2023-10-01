@@ -65,7 +65,7 @@ final class ExecuteStepCandidacyUseCaseTest {
 
         assertDoesNotThrow(() -> this.executeStepCandidacyUseCase.execute(this.candidate, this.executeStepCandidacyDto));
 
-        verify(this.stepRepository, only()).find(
+        verify(this.stepRepository, times(1)).find(
                 this.executeStepCandidacyDto.getStepIdentifier(),
                 this.executeStepCandidacyDto.getSelectiveProcessIdentifier(),
                 this.executeStepCandidacyDto.getCandidacyIdentifier(),
@@ -73,6 +73,11 @@ final class ExecuteStepCandidacyUseCaseTest {
         );
         verify(this.strategy, times(1)).getTypeStep();
         verify(this.strategy, times(1)).execute(this.candidate.getIdentifier(), this.executeStepCandidacyDto);
+        verify(this.stepRepository, times(1)).updateStatusStepCandidacy(
+                this.executeStepCandidacyDto.getStepIdentifier(),
+                this.executeStepCandidacyDto.getCandidacyIdentifier(),
+                StatusStepCandidacy.EXECUTED
+        );
         verify(this.applicationEventPublisher, only()).publishEvent(
                 new ExecuteStepCandidacy(
                         this.executeStepCandidacyDto.getStepIdentifier(),
@@ -82,7 +87,7 @@ final class ExecuteStepCandidacyUseCaseTest {
                         this.executeStepCandidacyDto.getType().name()
                 )
         );
-        verifyNoMoreInteractions(this.strategy);
+        verifyNoMoreInteractions(this.strategy, this.stepRepository);
     }
 
     @Test

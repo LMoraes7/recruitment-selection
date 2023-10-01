@@ -76,7 +76,8 @@ public enum StepCommands {
                     "inner join applications_steps_external aps " +
                         "on ast.id_step = aps.id_step " +
                 "where ap.id = ? and ap.id_candidate = ? and ap.id_selective_process = ? and ast.id_step = ?"
-    );
+    ),
+    UPDATE_STATUS_STEP_CANDIDACY("update applications_steps ass set ass.status = ? where ass.id_step = ? and ass.id_application = ?");
 
     public final String sql;
 

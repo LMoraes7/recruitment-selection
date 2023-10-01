@@ -17,7 +17,6 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgres
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.StepRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.*;
@@ -120,6 +119,12 @@ public final class Candidate {
             throw new BusinessException(APIX_014, List.of(step.getLimitTime()));
 
         strategy.execute(this.identifier, dto);
+
+        stepRepository.updateStatusStepCandidacy(
+                dto.getStepIdentifier(),
+                dto.getCandidacyIdentifier(),
+                StatusStepCandidacy.EXECUTED
+        );
     }
 
 }

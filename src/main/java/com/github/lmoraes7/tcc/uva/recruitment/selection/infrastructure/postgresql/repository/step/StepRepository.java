@@ -1,6 +1,9 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step;
 
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.Step;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.StepCandidacy;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusStepCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteStepCandidacyFindDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.StepFindRowMapper;
@@ -15,8 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.SELECT_IDENTIFIERS_IN;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.FIND;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.*;
 
 @Repository
 public class StepRepository {
@@ -68,4 +70,19 @@ public class StepRepository {
         return Optional.ofNullable(ConverterHelper.toDto(result));
     }
 
+    public void updateStatusStepCandidacy(
+            final String stepIdentifier,
+            final String candidacyIdentifier,
+            final StatusStepCandidacy status
+    ) {
+        final int update = this.jdbcTemplate.update(
+                UPDATE_STATUS_STEP_CANDIDACY.sql,
+                status.name(),
+                stepIdentifier,
+                candidacyIdentifier
+        );
+
+        if (update == 0)
+            throw new NotFoundException(stepIdentifier, StepCandidacy.class);
+    }
 }
