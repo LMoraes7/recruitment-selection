@@ -2,6 +2,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeQuestion;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteTheoricalTestStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ResponsesFromAnExecutedTheoricalQuestionStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.SpecificExecutionStepCandidacyDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.batch.SaveAnswerMultipleChoiceTheoricalTestStepBatch;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.converter.ConverterHelper;
@@ -14,8 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.FIND_QUESTIONS_TO_BE_EXECUTED;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.SAVE_EXECUTION_QUESTION_MULTIPLE_CHOICE;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.*;
 
 @Repository
 public class TheoricalTestStepCandidacyRepository {
@@ -78,6 +78,41 @@ public class TheoricalTestStepCandidacyRepository {
         this.jdbcTemplate.batchUpdate(
                 SAVE_EXECUTION_QUESTION_MULTIPLE_CHOICE.sql,
                 new SaveAnswerMultipleChoiceTheoricalTestStepBatch(stepBatches)
+        );
+    }
+
+    public List<ResponsesFromAnExecutedTheoricalQuestionStep> consultTestExecuted(
+            final String candidacyIdentifier,
+            final String stepIdentifier
+    ) {
+        return this.jdbcTemplate.query(
+                FIND_QUESTIONS_EXECUTEDS.sql,
+                (rs, rowNumber) -> {
+                    final TypeQuestion typeQuestion = TypeQuestion.valueOf(rs.getString("question_type"));
+
+                    if (typeQuestion == TypeQuestion.MULTIPLE_CHOICE)
+                        return new ResponsesFromAnExecutedTheoricalQuestionStep(
+                                rs.getString("question_identifier"),
+                                rs.getString("answer_identifier"),
+                                typeQuestion,
+                                rs.getString("question_description"),
+                                rs.getString("answer_description"),
+                                null,
+                                rs.getBoolean("answer_correct")
+                        );
+
+                    return new ResponsesFromAnExecutedTheoricalQuestionStep(
+                            rs.getString("question_identifier"),
+                            null,
+                            typeQuestion,
+                            rs.getString("question_description"),
+                            null,
+                            rs.getString("discursive_answer"),
+                            null
+                    );
+                },
+                candidacyIdentifier,
+                stepIdentifier
         );
     }
 

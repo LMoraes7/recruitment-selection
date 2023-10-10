@@ -9,12 +9,13 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgres
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.vo.StepBatch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.util.*;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.FIND_QUESTIONS_TO_BE_EXECUTED;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.SAVE_EXECUTION_QUESTION_MULTIPLE_CHOICE;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.*;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils.dummyObject;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,6 +33,8 @@ final class TheoricalTestStepCandidacyRepositoryTest {
     private List<String> answersIdentifiers;
     private List<TheoricalTestStepCandidacyVo> theoricalTestStepCandidacyVos;
     private ExecuteTheoricalTestStepCandidacyDto theoricalTest;
+    private List<ResponsesFromAnExecutedTheoricalQuestionStep> questionsDirscusiveExecuted;
+    private List<ResponsesFromAnExecutedTheoricalQuestionStep> questionsMultipleChoiseExecuted;
 
     @BeforeEach
     void setUp() {
@@ -143,6 +146,66 @@ final class TheoricalTestStepCandidacyRepositoryTest {
                                 TypeQuestion.MULTIPLE_CHOICE,
                                 new ExecuteAnswerDto(GeneratorIdentifier.forAnswer())
                         )
+                )
+        );
+
+        this.questionsDirscusiveExecuted = List.of(
+                new ResponsesFromAnExecutedTheoricalQuestionStep(
+                        GeneratorIdentifier.forQuestion(),
+                        null,
+                        TypeQuestion.DISCURSIVE,
+                        dummyObject(String.class),
+                        null,
+                        dummyObject(String.class),
+                        null
+                ),
+                new ResponsesFromAnExecutedTheoricalQuestionStep(
+                        GeneratorIdentifier.forQuestion(),
+                        null,
+                        TypeQuestion.DISCURSIVE,
+                        dummyObject(String.class),
+                        null,
+                        dummyObject(String.class),
+                        null
+                ),
+                new ResponsesFromAnExecutedTheoricalQuestionStep(
+                        GeneratorIdentifier.forQuestion(),
+                        null,
+                        TypeQuestion.DISCURSIVE,
+                        dummyObject(String.class),
+                        null,
+                        dummyObject(String.class),
+                        null
+                )
+        );
+
+        this.questionsMultipleChoiseExecuted = List.of(
+                new ResponsesFromAnExecutedTheoricalQuestionStep(
+                        GeneratorIdentifier.forQuestion(),
+                        GeneratorIdentifier.forAnswer(),
+                        TypeQuestion.MULTIPLE_CHOICE,
+                        dummyObject(String.class),
+                        dummyObject(String.class),
+                        null,
+                        true
+                ),
+                new ResponsesFromAnExecutedTheoricalQuestionStep(
+                        GeneratorIdentifier.forQuestion(),
+                        GeneratorIdentifier.forAnswer(),
+                        TypeQuestion.MULTIPLE_CHOICE,
+                        dummyObject(String.class),
+                        dummyObject(String.class),
+                        null,
+                        false
+                ),
+                new ResponsesFromAnExecutedTheoricalQuestionStep(
+                        GeneratorIdentifier.forQuestion(),
+                        GeneratorIdentifier.forAnswer(),
+                        TypeQuestion.MULTIPLE_CHOICE,
+                        dummyObject(String.class),
+                        dummyObject(String.class),
+                        null,
+                        true
                 )
         );
     }
@@ -288,6 +351,44 @@ final class TheoricalTestStepCandidacyRepositoryTest {
         verify(this.jdbcTemplate, only()).batchUpdate(
                 SAVE_EXECUTION_QUESTION_MULTIPLE_CHOICE.sql,
                 new SaveAnswerMultipleChoiceTheoricalTestStepBatch(stepBatches)
+        );
+    }
+
+    @Test
+    void when_requested_you_must_query_the_questions_successfully() {
+        when(this.jdbcTemplate.query(
+                eq(FIND_QUESTIONS_EXECUTEDS.sql),
+                ArgumentMatchers.<RowMapper<ResponsesFromAnExecutedTheoricalQuestionStep>>any(),
+                eq(this.candidacyIdentifier),
+                eq(this.stepIdentifier)
+        )).thenReturn(this.questionsDirscusiveExecuted);
+
+        assertDoesNotThrow(() -> this.theoricalTestStepCandidacyRepository.consultTestExecuted(this.candidacyIdentifier, this.stepIdentifier));
+
+        verify(this.jdbcTemplate, only()).query(
+                eq(FIND_QUESTIONS_EXECUTEDS.sql),
+                ArgumentMatchers.<RowMapper<ResponsesFromAnExecutedTheoricalQuestionStep>>any(),
+                eq(this.candidacyIdentifier),
+                eq(this.stepIdentifier)
+        );
+    }
+
+    @Test
+    void when_requested_you_must_query_the_questions_successfully_2() {
+        when(this.jdbcTemplate.query(
+                eq(FIND_QUESTIONS_EXECUTEDS.sql),
+                ArgumentMatchers.<RowMapper<ResponsesFromAnExecutedTheoricalQuestionStep>>any(),
+                eq(this.candidacyIdentifier),
+                eq(this.stepIdentifier)
+        )).thenReturn(this.questionsMultipleChoiseExecuted);
+
+        assertDoesNotThrow(() -> this.theoricalTestStepCandidacyRepository.consultTestExecuted(this.candidacyIdentifier, this.stepIdentifier));
+
+        verify(this.jdbcTemplate, only()).query(
+                eq(FIND_QUESTIONS_EXECUTEDS.sql),
+                ArgumentMatchers.<RowMapper<ResponsesFromAnExecutedTheoricalQuestionStep>>any(),
+                eq(this.candidacyIdentifier),
+                eq(this.stepIdentifier)
         );
     }
 

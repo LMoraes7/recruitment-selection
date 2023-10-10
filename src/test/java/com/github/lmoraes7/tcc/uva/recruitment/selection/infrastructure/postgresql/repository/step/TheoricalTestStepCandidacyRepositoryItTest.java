@@ -2,10 +2,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeQuestion;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteAnswerDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteQuestionDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteTheoricalTestStepCandidacyDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.SpecificExecutionStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -187,7 +184,7 @@ class TheoricalTestStepCandidacyRepositoryItTest {
     @Sql(scripts = {"/script/theorical_test_step_candidacy_repository_test.sql"})
     void when_prompted_it_should_save_responses_successfully() {
         assertEquals(
-                0,
+                2,
                 JdbcTestUtils.countRowsInTableWhere(
                         this.jdbcTemplate,
                         "applications_steps_theoretical_tests",
@@ -202,7 +199,7 @@ class TheoricalTestStepCandidacyRepositoryItTest {
         ));
 
         assertEquals(
-                2,
+                4,
                 JdbcTestUtils.countRowsInTableWhere(
                         this.jdbcTemplate,
                         "applications_steps_theoretical_tests",
@@ -216,7 +213,7 @@ class TheoricalTestStepCandidacyRepositoryItTest {
     @Sql(scripts = {"/script/theorical_test_step_candidacy_repository_test.sql"})
     void when_prompted_it_should_save_responses_successfully_2() {
         assertEquals(
-                0,
+                2,
                 JdbcTestUtils.countRowsInTableWhere(
                         this.jdbcTemplate,
                         "applications_steps_theoretical_tests",
@@ -231,13 +228,55 @@ class TheoricalTestStepCandidacyRepositoryItTest {
         ));
 
         assertEquals(
-                2,
+                4,
                 JdbcTestUtils.countRowsInTableWhere(
                         this.jdbcTemplate,
                         "applications_steps_theoretical_tests",
                         "discursive_answer IS NOT NULL AND id_answer IS NULL"
                 )
         );
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/theorical_test_step_candidacy_repository_test.sql"})
+    void when_requested_you_must_query_the_questions_successfully() {
+        List<ResponsesFromAnExecutedTheoricalQuestionStep> result = assertDoesNotThrow(
+                () -> this.theoricalTestStepCandidacyRepository.consultTestExecuted(
+                        this.candidacyIdentifier,
+                        this.stepIdentifierDiscursive
+                )
+        );
+
+        result.forEach(it -> {
+            assertNotNull(it.getQuestionIdentifier());
+            assertNotNull(it.getTypeQuestion());
+            assertNotNull(it.getDiscursiveAnswer());
+            assertNotNull(it.getQuestionDescription());
+            assertNull(it.getAnswerDescription());
+            assertNull(it.getAnswerCorrect());
+        });
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/theorical_test_step_candidacy_repository_test.sql"})
+    void when_requested_you_must_query_the_questions_successfully_2() {
+        List<ResponsesFromAnExecutedTheoricalQuestionStep> result = assertDoesNotThrow(
+                () -> this.theoricalTestStepCandidacyRepository.consultTestExecuted(
+                        this.candidacyIdentifier,
+                        this.stepIdentifierMultipleChoise
+                )
+        );
+
+        result.forEach(it -> {
+            assertNotNull(it.getQuestionIdentifier());
+            assertNotNull(it.getTypeQuestion());
+            assertNotNull(it.getQuestionDescription());
+            assertNotNull(it.getAnswerDescription());
+            assertNotNull(it.getAnswerCorrect());
+            assertNull(it.getDiscursiveAnswer());
+        });
     }
 
 }

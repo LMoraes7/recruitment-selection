@@ -1,6 +1,8 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step;
 
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeFile;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteUploadFileStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ResponsesFromAnExecutedUploadFileStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.SpecificExecutionStepCandidacyDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.batch.SaveUploadFileStepCandidacyBatch;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.converter.ConverterHelper;
@@ -12,8 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.FIND_FILES_TO_BE_SENT;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.SAVE_EXECUTION_UPLOAD_FILES_STEP;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.*;
 
 @Repository
 public class UploadFileStepCandidacyRepository {
@@ -61,6 +62,18 @@ public class UploadFileStepCandidacyRepository {
                         stepIdentifier,
                         uploadFile.getFiles()
                 )
+        );
+    }
+
+    public List<ResponsesFromAnExecutedUploadFileStep> consultTestExecuted(
+            final String applicationIdentifier,
+            final String stepIdentifier
+    ) {
+        return this.jdbcTemplate.query(
+                FIND_FILES_UPLOADS.sql,
+                (rs, rowNumber) -> new ResponsesFromAnExecutedUploadFileStep(rs.getBytes("file"), TypeFile.valueOf(rs.getString("file_type"))),
+                applicationIdentifier,
+                stepIdentifier
         );
     }
 

@@ -3,19 +3,22 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeFile;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteUploadFileStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ResponsesFromAnExecutedTheoricalQuestionStep;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ResponsesFromAnExecutedUploadFileStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.SpecificExecutionStepCandidacyDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.batch.SaveUploadFileStepCandidacyBatch;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.UploadFileStepCandidacyRowMapper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.rowmapper.vo.UploadFileStepCandidacyVo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.FIND_FILES_TO_BE_SENT;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.SAVE_EXECUTION_UPLOAD_FILES_STEP;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.*;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils.dummyObject;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -31,6 +34,7 @@ final class UploadFileStepCandidacyRepositoryTest {
     private String stepIdentifier;
     private List<UploadFileStepCandidacyVo> uploadFileStepCandidacyVos;
     private ExecuteUploadFileStepCandidacyDto uploadFile;
+    private List<ResponsesFromAnExecutedUploadFileStep> responsesFromAnExecutedUploadFileSteps;
     @BeforeEach
     void setUp() {
         this.candidacyIdentifier = GeneratorIdentifier.forCandidacy();
@@ -72,6 +76,11 @@ final class UploadFileStepCandidacyRepositoryTest {
                 )
         );
         this.uploadFile = dummyObject(ExecuteUploadFileStepCandidacyDto.class);
+        this.responsesFromAnExecutedUploadFileSteps = List.of(
+                new ResponsesFromAnExecutedUploadFileStep(new byte[]{2, 1, 1}, TypeFile.MP4),
+                new ResponsesFromAnExecutedUploadFileStep(new byte[]{1, 2, 1}, TypeFile.PDF),
+                new ResponsesFromAnExecutedUploadFileStep(new byte[]{1, 1, 2}, TypeFile.MP4)
+        );
     }
 
     @Test
@@ -161,6 +170,25 @@ final class UploadFileStepCandidacyRepositoryTest {
                         stepIdentifier,
                         uploadFile.getFiles()
                 )
+        );
+    }
+
+    @Test
+    void when_prompted_it_should_query_the_files_successfully() {
+        when(this.jdbcTemplate.query(
+                eq(FIND_FILES_UPLOADS.sql),
+                ArgumentMatchers.<RowMapper<ResponsesFromAnExecutedUploadFileStep>>any(),
+                eq(this.candidacyIdentifier),
+                eq(this.stepIdentifier)
+        )).thenReturn(this.responsesFromAnExecutedUploadFileSteps);
+
+        assertDoesNotThrow(() -> this.uploadFileStepCandidacyRepository.consultTestExecuted(this.candidacyIdentifier, this.stepIdentifier));
+
+        verify(this.jdbcTemplate, only()).query(
+                eq(FIND_FILES_UPLOADS.sql),
+                ArgumentMatchers.<RowMapper<ResponsesFromAnExecutedUploadFileStep>>any(),
+                eq(this.candidacyIdentifier),
+                eq(this.stepIdentifier)
         );
     }
 

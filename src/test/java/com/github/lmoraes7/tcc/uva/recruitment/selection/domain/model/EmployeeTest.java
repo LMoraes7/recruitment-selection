@@ -14,7 +14,10 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessStepDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ConsultResponsesFromAnExecutedStepDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ResponsesFromAnExecutedStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.consult.answer.ConsultResponsesFromAnExecutedStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.create.CreateStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
@@ -44,6 +47,7 @@ final class EmployeeTest {
     private final StepRepository stepRepository = mock(StepRepository.class);
     private final SelectiveProcessRepository selectiveProcessRepository = mock(SelectiveProcessRepository.class);
     private final CandidacyRepository candidacyRepository = mock(CandidacyRepository.class);
+    private final ConsultResponsesFromAnExecutedStepStrategy consultResponsesFromAnExecutedStepStrategy = mock(ConsultResponsesFromAnExecutedStepStrategy.class);
 
     private Employee employee;
     private ProfileDto profileDto;
@@ -53,6 +57,8 @@ final class EmployeeTest {
     private SelectiveProcessDto selectiveProcessDto;
     private List<Step> steps;
     private SelectiveProcess selectiveProcess;
+    private ConsultResponsesFromAnExecutedStepDto consultResponsesFromAnExecutedStepDto;
+    private ResponsesFromAnExecutedStep responsesFromAnExecutedStep;
 
     @BeforeEach
     void setUp() {
@@ -89,6 +95,8 @@ final class EmployeeTest {
         );
         this.steps = this.selectiveProcessDto.getSteps().stream().map(it -> new ExternalStep(new StepData(it.getIdentifier(), TypeStep.UPLOAD_FILES))).collect(Collectors.toList());
         this.selectiveProcess = ConverterHelper.toModel(this.selectiveProcessDto);
+        this.consultResponsesFromAnExecutedStepDto = dummyObject(ConsultResponsesFromAnExecutedStepDto.class);
+        this.responsesFromAnExecutedStep = dummyObject(ResponsesFromAnExecutedStep.class);
     }
 
     @Test
@@ -304,6 +312,17 @@ final class EmployeeTest {
 
         verify(this.selectiveProcessRepository, only()).updateStatus(this.selectiveProcess.getIdentifier(), StatusSelectiveProcess.CLOSED);
         verify(this.candidacyRepository, only()).closeCandidacyBySelectiveProcess(this.selectiveProcess.getIdentifier());
+    }
+
+    @Test
+    void when_requested_you_must_query_the_questions_successfully() {
+        when(this.consultResponsesFromAnExecutedStepStrategy.execute(this.consultResponsesFromAnExecutedStepDto))
+                .thenReturn(this.responsesFromAnExecutedStep);
+
+        assertDoesNotThrow(() -> this.employee.consultResponseFromStep(this.consultResponsesFromAnExecutedStepStrategy, this.consultResponsesFromAnExecutedStepDto));
+
+        verify(this.consultResponsesFromAnExecutedStepStrategy, only())
+                .execute(this.consultResponsesFromAnExecutedStepDto);
     }
 
 }

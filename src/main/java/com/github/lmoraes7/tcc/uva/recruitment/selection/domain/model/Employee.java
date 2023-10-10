@@ -14,7 +14,10 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessStepDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ConsultResponsesFromAnExecutedStepDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ResponsesFromAnExecutedStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.consult.answer.ConsultResponsesFromAnExecutedStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.create.CreateStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
@@ -161,6 +164,13 @@ public final class Employee {
     ) {
         selectiveProcessRepository.updateStatus(selectiveProcessIdentifier, StatusSelectiveProcess.CLOSED);
         candidacyRepository.closeCandidacyBySelectiveProcess(selectiveProcessIdentifier);
+    }
+
+    public ResponsesFromAnExecutedStep consultResponseFromStep(
+            final ConsultResponsesFromAnExecutedStepStrategy strategy,
+            final ConsultResponsesFromAnExecutedStepDto dto
+    ) {
+        return strategy.execute(dto);
     }
 
 }

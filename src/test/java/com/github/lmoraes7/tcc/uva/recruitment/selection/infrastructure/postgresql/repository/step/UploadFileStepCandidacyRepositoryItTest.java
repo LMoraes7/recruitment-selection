@@ -4,8 +4,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.G
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeFile;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteFileDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ExecuteUploadFileStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ResponsesFromAnExecutedUploadFileStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.SpecificExecutionStepCandidacyDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.batch.SaveUploadFileStepCandidacyBatch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -22,9 +22,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.SAVE_EXECUTION_UPLOAD_FILES_STEP;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @Tag("integration")
 @SpringBootTest
@@ -167,6 +165,40 @@ final class UploadFileStepCandidacyRepositoryItTest {
         assertDoesNotThrow(() -> this.uploadFileStepCandidacyRepository.saveTestExecuted(this.candidacyIdentifier, this.stepIdentifier, uploadFile));
 
         assertEquals(3, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications_steps_upload_files"));
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/upload_file_step_candidacy_repository_test.sql"})
+    void when_prompted_it_should_query_the_files_successfully() throws IOException {
+        final File mp4File = new File("./mp4_file_test.mp4");
+        final File pdfFile = new File("./pdf_file_test.pdf");
+
+        final ExecuteUploadFileStepCandidacyDto uploadFile = new ExecuteUploadFileStepCandidacyDto(
+                List.of(
+                        new ExecuteFileDto(
+                                Files.readAllBytes(mp4File.toPath()),
+                                TypeFile.MP4
+                        ),
+                        new ExecuteFileDto(
+                                Files.readAllBytes(pdfFile.toPath()),
+                                TypeFile.PDF
+                        ),
+                        new ExecuteFileDto(
+                                Files.readAllBytes(pdfFile.toPath()),
+                                TypeFile.PDF
+                        )
+                )
+        );
+
+        assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications_steps_upload_files"));
+        assertDoesNotThrow(() -> this.uploadFileStepCandidacyRepository.saveTestExecuted(this.candidacyIdentifier, this.stepIdentifier, uploadFile));
+        assertEquals(3, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications_steps_upload_files"));
+
+        final List<ResponsesFromAnExecutedUploadFileStep> result =
+                assertDoesNotThrow(() -> this.uploadFileStepCandidacyRepository.consultTestExecuted(this.candidacyIdentifier, this.stepIdentifier));
+
+        assertEquals(result.size(), 3);
     }
 
 }

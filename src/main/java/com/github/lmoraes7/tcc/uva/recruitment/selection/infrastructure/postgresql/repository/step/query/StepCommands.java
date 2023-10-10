@@ -77,7 +77,33 @@ public enum StepCommands {
                         "on ast.id_step = aps.id_step " +
                 "where ap.id = ? and ap.id_candidate = ? and ap.id_selective_process = ? and ast.id_step = ?"
     ),
-    UPDATE_STATUS_STEP_CANDIDACY("update applications_steps ass set ass.status = ? where ass.id_step = ? and ass.id_application = ?");
+    UPDATE_STATUS_STEP_CANDIDACY("update applications_steps ass set ass.status = ? where ass.id_step = ? and ass.id_application = ?"),
+    FIND_QUESTIONS_EXECUTEDS(
+            "select " +
+                    "astt.id_application as application_identifier, " +
+                    "astt.id_step as step_identifier, " +
+                    "astt.id_question as question_identifier, " +
+                    "astt.id_answer as answer_identifier, " +
+                    "astt.type_question as question_type, " +
+                    "astt.discursive_answer as discursive_answer, " +
+                    "q.description as question_description, " +
+                    "a.description as answer_description, " +
+                    "a.correct as answer_correct " +
+                "from applications_steps_theoretical_tests astt " +
+                    "inner join questions q " +
+                        "on astt.id_question = q.id " +
+                    "left join answers a " +
+                        "on astt.id_answer = a.id " +
+                "where astt.id_application = ? and astt.id_step = ?"
+    ),
+    FIND_FILES_UPLOADS(
+            "select " +
+                    "asuf.id_application as application_identifier, " +
+                    "asuf.id_step as step_identifier, " +
+                    "asuf.file as file, " +
+                    "asuf.type as file_type " +
+                " from applications_steps_upload_files asuf where asuf.id_application = ? and asuf.id_step = ?"
+    );
 
     public final String sql;
 

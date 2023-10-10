@@ -34,3 +34,9 @@ insert into applications (id, status, id_candidate, id_selective_process) values
 
 insert into applications_steps (id_application, id_step, id_next_step, status, limit_time, release_date) values ('APP-123456781', 'STE-123456781', 'STE-123456782', 'BLOCKED', null, null);
 insert into applications_steps (id_application, id_step, id_next_step, status, limit_time, release_date) values ('APP-123456781', 'STE-123456782', null, 'BLOCKED', null, null);
+
+INSERT INTO applications_steps_theoretical_tests(id_application, id_step, id_question, id_answer, type_question, discursive_answer) VALUES ('APP-123456781', 'STE-123456781', 'QUE-123456781', 'ANS-123456783', 'MULTIPLE_CHOICE', null);
+INSERT INTO applications_steps_theoretical_tests(id_application, id_step, id_question, id_answer, type_question, discursive_answer) VALUES ('APP-123456781', 'STE-123456781', 'QUE-123456782', 'ANS-123456788', 'MULTIPLE_CHOICE', null);
+
+INSERT INTO applications_steps_theoretical_tests(id_application, id_step, id_question, id_answer, type_question, discursive_answer) VALUES ('APP-123456781', 'STE-123456782', 'QUE-123456783', null, 'DISCURSIVE', 'Resposta da 1');
+INSERT INTO applications_steps_theoretical_tests(id_application, id_step, id_question, id_answer, type_question, discursive_answer) VALUES ('APP-123456781', 'STE-123456782', 'QUE-123456784', null, 'DISCURSIVE', 'Resposta da 2');
