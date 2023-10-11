@@ -2,9 +2,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusStepCandidacy;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.FindStepsDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ResponsesFromAnExecutedTheoricalQuestionStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.entity.StepCandidacyEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.batch.SaveCandidacyStepBatch;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,14 +10,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentMatchers;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.query.CandidacyStepCommands.*;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils.dummyObject;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 final class CandidacyStepRepositoryTest {
@@ -109,4 +110,47 @@ final class CandidacyStepRepositoryTest {
         );
     }
 
+    @Test
+    void when_prompted_must_successfully_fetch_a_step() {
+        when(this.jdbcTemplate.queryForObject(
+                eq(SELECT_ONE_STEP.sql),
+                ArgumentMatchers.<RowMapper<FindStepsDto>>any(),
+                eq(this.candidacyIdentifier),
+                eq(this.stepIdentifier)
+        )).thenReturn(this.findStepsDtos.get(0));
+
+        Optional<FindStepsDto> optionalFindStepsDto =
+                assertDoesNotThrow(() -> this.candidacyStepRepository.getStep(this.candidacyIdentifier, this.stepIdentifier));
+
+        assertTrue(optionalFindStepsDto.isPresent());
+
+        verify(this.jdbcTemplate, only()).queryForObject(
+                eq(SELECT_ONE_STEP.sql),
+                ArgumentMatchers.<RowMapper<FindStepsDto>>any(),
+                eq(this.candidacyIdentifier),
+                eq(this.stepIdentifier)
+        );
+    }
+
+    @Test
+    void when_prompted_should_fetch_a_failed_step() {
+        when(this.jdbcTemplate.queryForObject(
+                eq(SELECT_ONE_STEP.sql),
+                ArgumentMatchers.<RowMapper<FindStepsDto>>any(),
+                eq(this.candidacyIdentifier),
+                eq(this.stepIdentifier)
+        )).thenThrow(EmptyResultDataAccessException.class);
+
+        Optional<FindStepsDto> optionalFindStepsDto =
+                assertDoesNotThrow(() -> this.candidacyStepRepository.getStep(this.candidacyIdentifier, this.stepIdentifier));
+
+        assertTrue(optionalFindStepsDto.isEmpty());
+
+        verify(this.jdbcTemplate, only()).queryForObject(
+                eq(SELECT_ONE_STEP.sql),
+                ArgumentMatchers.<RowMapper<FindStepsDto>>any(),
+                eq(this.candidacyIdentifier),
+                eq(this.stepIdentifier)
+        );
+    }
 }

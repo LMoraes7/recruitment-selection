@@ -6,10 +6,12 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.entity.StepCandidacyEntity;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.batch.SaveCandidacyStepBatch;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.query.CandidacyStepCommands.*;
 
@@ -58,6 +60,31 @@ public class CandidacyStepRepository {
                 candidacyIdentifier,
                 stepIdentifier
         );
+    }
+
+    public Optional<FindStepsDto> getStep(
+            final String candidacyIdentifier,
+            final String stepIdentifier
+    ) {
+        FindStepsDto result = null;
+
+        try {
+            result = this.jdbcTemplate.queryForObject(
+                    SELECT_ONE_STEP.sql,
+                    (rs, rowNumber) -> new FindStepsDto(
+                            rs.getString("step_identifier"),
+                            rs.getString("next_step_identifier"),
+                            StatusStepCandidacy.valueOf(rs.getString("step_status")),
+                            TypeStep.valueOf(rs.getString("step_type"))
+                    ),
+                    candidacyIdentifier,
+                    stepIdentifier
+            );
+        } catch (final EmptyResultDataAccessException exception) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(result);
     }
 
 }

@@ -28,6 +28,10 @@ public final class GeneratorIdentifier {
         return "STE-".concat(generateHash());
     }
 
+    public static String forFeedback() {
+        return "FEE-".concat(generateHash());
+    }
+
     public static String forSelectiveProcess() {
         return "SEL-".concat(generateHash());
     }

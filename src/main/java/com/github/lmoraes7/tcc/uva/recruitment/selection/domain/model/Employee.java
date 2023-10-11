@@ -9,6 +9,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.AccessC
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.PersonalData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.RegisterEmployeeService;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.dto.EmployeeDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.feedback.dto.RegisterFeedbackDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.RegisterProfileService;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.dto.ProfileDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.dto.QuestionDto;
@@ -20,6 +21,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.consult.answer.ConsultResponsesFromAnExecutedStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.create.CreateStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.feedback.FeedbackRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.CandidacyStepRepository;
@@ -222,4 +224,28 @@ public final class Employee {
         );
     }
 
+    public Feedback registerFeedback(
+            final CandidacyStepRepository candidacyStepRepository,
+            final FeedbackRepository feedbackRepository,
+            final RegisterFeedbackDto dto
+    ) {
+        final FindStepsDto step = candidacyStepRepository.getStep(dto.getCandidacyIdentifier(), dto.getStepIdentifier())
+                .orElseThrow(() -> new NotFoundException(dto.getStepIdentifier(), StepCandidacy.class));
+
+        if (step.getTypeStep() == TypeStep.EXTERNAL) {
+            if (step.getStatusStepCandidacy() != StatusStepCandidacy.WAITING_FOR_EXECUTION)
+                throw new BusinessException(APIX_020, List.of(dto.getStepIdentifier()));
+        } else if (step.getStatusStepCandidacy() != StatusStepCandidacy.EXECUTED)
+            throw new BusinessException(APIX_021, List.of(dto.getStepIdentifier()));
+
+        final Feedback feedback = feedbackRepository.save(com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.feedback.converter.ConverterHelper.toModel(dto), dto.getCandidacyIdentifier(), dto.getStepIdentifier());
+
+        candidacyStepRepository.updateStatus(
+                dto.getCandidacyIdentifier(),
+                dto.getStepIdentifier(),
+                StatusStepCandidacy.COMPLETED
+        );
+
+        return feedback;
+    }
 }

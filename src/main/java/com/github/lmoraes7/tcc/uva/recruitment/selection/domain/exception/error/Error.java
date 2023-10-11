@@ -39,6 +39,10 @@ public enum Error {
     APIX_018("apix-018.error"),
 //  Etapa externa a ser liberada precisa de um link e uma data e hora para ser liberada
     APIX_019("apix-019.error"),
+//  Feedback para etapa externa não pode ser realizada devido ao status da mesma não estar em "aguardando execucao"
+    APIX_020("apix-020.error"),
+//  Feedback para etapa não externa não pode ser realizada devido ao status da mesma não estar em "executada"
+    APIX_021("apix-021.error"),
 //  Erro ao buscar o perfil de candidato
     INTG_001("intg-001.error"),
 //  Erro interno genérico

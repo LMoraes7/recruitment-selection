@@ -1,5 +1,6 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships;
 
+import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusStepCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.FindStepsDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.entity.StepCandidacyEntity;
@@ -8,24 +9,18 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.query.CandidacyStepCommands.SELECT_STEPS;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.query.CandidacyStepCommands.UPDATE_STATUS;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.only;
 
 @Tag("integration")
 @SpringBootTest
@@ -134,6 +129,36 @@ final class CandidacyStepRepositoryItTest {
                         "status = '" + status.name() + "'"
                 ) >= 1
         );
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/candidacy_step_repository_test.sql"})
+    void when_prompted_must_successfully_fetch_a_step() {
+        Optional<FindStepsDto> optionalFindStepsDto =
+                assertDoesNotThrow(() -> this.candidacyStepRepository.getStep(this.candidacyIdentifier, "STE-987654321"));
+
+        assertTrue(optionalFindStepsDto.isPresent());
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/candidacy_step_repository_test.sql"})
+    void when_prompted_should_fetch_a_failed_step() {
+        Optional<FindStepsDto> optionalFindStepsDto =
+                assertDoesNotThrow(() -> this.candidacyStepRepository.getStep(this.candidacyIdentifier, GeneratorIdentifier.forStep()));
+
+        assertTrue(optionalFindStepsDto.isEmpty());
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/candidacy_step_repository_test.sql"})
+    void when_prompted_should_fetch_a_failed_step_2() {
+        Optional<FindStepsDto> optionalFindStepsDto =
+                assertDoesNotThrow(() -> this.candidacyStepRepository.getStep(GeneratorIdentifier.forCandidacy(), "STE-987654321"));
+
+        assertTrue(optionalFindStepsDto.isEmpty());
     }
 
 }

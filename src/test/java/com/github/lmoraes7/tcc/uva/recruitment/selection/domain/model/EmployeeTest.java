@@ -9,6 +9,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.RegisterEmployeeService;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.dto.EmployeeDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.feedback.dto.RegisterFeedbackDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.RegisterProfileService;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.dto.ProfileDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.dto.QuestionDto;
@@ -20,6 +21,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.consult.answer.ConsultResponsesFromAnExecutedStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.create.CreateStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.feedback.FeedbackRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.CandidacyStepRepository;
@@ -32,10 +34,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.*;
@@ -58,6 +57,7 @@ final class EmployeeTest {
     private final ConsultResponsesFromAnExecutedStepStrategy consultResponsesFromAnExecutedStepStrategy = mock(ConsultResponsesFromAnExecutedStepStrategy.class);
     private final CandidacyStepRepository candidacyStepRepository = mock(CandidacyStepRepository.class);
     private final ExternalStepCandidacyRepository externalStepCandidacyRepository = mock(ExternalStepCandidacyRepository.class);
+    private final FeedbackRepository feedbackRepository = mock(FeedbackRepository.class);
 
     private Employee employee;
     private ProfileDto profileDto;
@@ -71,6 +71,8 @@ final class EmployeeTest {
     private ResponsesFromAnExecutedStep responsesFromAnExecutedStep;
     private ReleaseStepForCandidateDto releaseStepForCandidateDto;
     private List<FindStepsDto> findStepsDtos;
+    private Feedback feedback;
+    private RegisterFeedbackDto registerFeedbackDto;
 
     @BeforeEach
     void setUp() {
@@ -114,6 +116,8 @@ final class EmployeeTest {
             new FindStepsDto("7654321", null, StatusStepCandidacy.BLOCKED, TypeStep.EXTERNAL)
         );
         this.releaseStepForCandidateDto = new ReleaseStepForCandidateDto("7654321", GeneratorIdentifier.forCandidacy(), dummyObject(String.class), LocalDateTime.now());
+        this.feedback = dummyObject(Feedback.class);
+        this.registerFeedbackDto = dummyObject(RegisterFeedbackDto.class);
     }
 
     @Test
@@ -524,6 +528,157 @@ final class EmployeeTest {
                 this.releaseStepForCandidateDto.getStepIdentifier()
         );
         verifyNoInteractions(this.externalStepCandidacyRepository);
+    }
+
+    @Test
+    void when_prompted_you_should_save_feedback_successfully() {
+        when(this.candidacyStepRepository.getStep(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier()
+        )).thenReturn(Optional.of(new FindStepsDto("1234567", "7654321", StatusStepCandidacy.WAITING_FOR_EXECUTION, TypeStep.EXTERNAL)));
+        when(this.feedbackRepository.save(
+                any(),
+                eq(this.registerFeedbackDto.getCandidacyIdentifier()),
+                eq(this.registerFeedbackDto.getStepIdentifier())
+        )).thenReturn(this.feedback);
+
+        assertDoesNotThrow(() -> this.employee.registerFeedback(this.candidacyStepRepository, this.feedbackRepository, this.registerFeedbackDto));
+
+        verify(this.candidacyStepRepository, times(1)).getStep(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier()
+        );
+        verify(this.feedbackRepository, only()).save(
+                any(),
+                eq(this.registerFeedbackDto.getCandidacyIdentifier()),
+                eq(this.registerFeedbackDto.getStepIdentifier())
+        );
+        verify(this.candidacyStepRepository, times(1)).updateStatus(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier(),
+                StatusStepCandidacy.COMPLETED
+        );
+        verifyNoMoreInteractions(this.candidacyStepRepository);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = TypeStep.class, mode = EnumSource.Mode.EXCLUDE, names = {"EXTERNAL"})
+    void when_prompted_you_should_save_feedback_successfully_2(final TypeStep typeStep) {
+        when(this.candidacyStepRepository.getStep(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier()
+        )).thenReturn(Optional.of(new FindStepsDto("1234567", "7654321", StatusStepCandidacy.EXECUTED, typeStep)));
+        when(this.feedbackRepository.save(
+                any(),
+                eq(this.registerFeedbackDto.getCandidacyIdentifier()),
+                eq(this.registerFeedbackDto.getStepIdentifier())
+        )).thenReturn(this.feedback);
+
+        assertDoesNotThrow(() -> this.employee.registerFeedback(this.candidacyStepRepository, this.feedbackRepository, this.registerFeedbackDto));
+
+        verify(this.candidacyStepRepository, times(1)).getStep(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier()
+        );
+        verify(this.feedbackRepository, only()).save(
+                any(),
+                eq(this.registerFeedbackDto.getCandidacyIdentifier()),
+                eq(this.registerFeedbackDto.getStepIdentifier())
+        );
+        verify(this.candidacyStepRepository, times(1)).updateStatus(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier(),
+                StatusStepCandidacy.COMPLETED
+        );
+        verifyNoMoreInteractions(this.candidacyStepRepository);
+    }
+
+    @Test
+    void when_requested_it_should_throw_a_NotFoundException_() {
+        when(this.candidacyStepRepository.getStep(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier()
+        )).thenReturn(Optional.empty());
+
+        final NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> this.employee.registerFeedback(this.candidacyStepRepository, this.feedbackRepository, this.registerFeedbackDto)
+        );
+
+        assertEquals(exception.getCode(), this.registerFeedbackDto.getStepIdentifier());
+        assertEquals(exception.getClassType(), StepCandidacy.class);
+
+        verify(this.candidacyStepRepository, only()).getStep(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier()
+        );
+        verifyNoInteractions(this.feedbackRepository);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusStepCandidacy.class, mode = EnumSource.Mode.EXCLUDE, names = {"WAITING_FOR_EXECUTION"})
+    void when_requested_it_should_throw_a_BusinessException_per_APIX_020(final StatusStepCandidacy status) {
+        when(this.candidacyStepRepository.getStep(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier()
+        )).thenReturn(Optional.of(new FindStepsDto("1234567", "7654321", status, TypeStep.EXTERNAL)));
+
+        final BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> this.employee.registerFeedback(this.candidacyStepRepository, this.feedbackRepository, this.registerFeedbackDto)
+        );
+
+        assertEquals(exception.getError(), APIX_020);
+
+        verify(this.candidacyStepRepository, only()).getStep(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier()
+        );
+        verifyNoInteractions(this.feedbackRepository);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusStepCandidacy.class, mode = EnumSource.Mode.EXCLUDE, names = {"EXECUTED"})
+    void when_requested_it_should_throw_a_BusinessException_per_APIX_022(final StatusStepCandidacy status) {
+        when(this.candidacyStepRepository.getStep(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier()
+        )).thenReturn(Optional.of(new FindStepsDto("1234567", "7654321", status, TypeStep.THEORETICAL_TEST)));
+
+        final BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> this.employee.registerFeedback(this.candidacyStepRepository, this.feedbackRepository, this.registerFeedbackDto)
+        );
+
+        assertEquals(exception.getError(), APIX_021);
+
+        verify(this.candidacyStepRepository, only()).getStep(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier()
+        );
+        verifyNoInteractions(this.feedbackRepository);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = TypeStep.class, mode = EnumSource.Mode.EXCLUDE, names = {"EXTERNAL"})
+    void when_requested_it_should_throw_a_BusinessException_per_APIX_022_2(final TypeStep typeStep) {
+        when(this.candidacyStepRepository.getStep(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier()
+        )).thenReturn(Optional.of(new FindStepsDto("1234567", "7654321", StatusStepCandidacy.WAITING_FOR_EXECUTION, typeStep)));
+
+        final BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> this.employee.registerFeedback(this.candidacyStepRepository, this.feedbackRepository, this.registerFeedbackDto)
+        );
+
+        assertEquals(exception.getError(), APIX_021);
+
+        verify(this.candidacyStepRepository, only()).getStep(
+                this.registerFeedbackDto.getCandidacyIdentifier(),
+                this.registerFeedbackDto.getStepIdentifier()
+        );
+        verifyNoInteractions(this.feedbackRepository);
     }
 
 }
