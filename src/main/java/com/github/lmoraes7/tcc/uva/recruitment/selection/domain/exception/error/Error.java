@@ -35,6 +35,10 @@ public enum Error {
     APIX_016("apix-016.error"),
 //  Etapa de envio de arquivos teve arquivos de tipos inválidos
     APIX_017("apix-017.error"),
+//  Etapa não pode ser liberada pq a anterior não foi completada ainda
+    APIX_018("apix-018.error"),
+//  Etapa externa a ser liberada precisa de um link e uma data e hora para ser liberada
+    APIX_019("apix-019.error"),
 //  Erro ao buscar o perfil de candidato
     INTG_001("intg-001.error"),
 //  Erro interno genérico

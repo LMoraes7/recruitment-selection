@@ -8,9 +8,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.EXTERNAL_TO_BE_EXECUTED;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.UPDATE_DATA_EXTERNAL;
 
 @Repository
 public class ExternalStepCandidacyRepository {
@@ -46,6 +48,21 @@ public class ExternalStepCandidacyRepository {
         }
 
         return Optional.of(ConverterHelper.externalVotoDto(result));
+    }
+
+    public void updateData(
+            final String candidacyIdentifier,
+            final String stepIdentifier,
+            final String link,
+            final LocalDateTime dateTime
+    ) {
+        this.jdbcTemplate.update(
+                UPDATE_DATA_EXTERNAL.sql,
+                link,
+                dateTime,
+                candidacyIdentifier,
+                stepIdentifier
+        );
     }
 
 }

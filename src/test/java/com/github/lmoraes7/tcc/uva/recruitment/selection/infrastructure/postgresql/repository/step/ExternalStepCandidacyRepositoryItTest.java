@@ -2,6 +2,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgre
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.SpecificExecutionStepCandidacyDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -11,9 +12,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.UPDATE_DATA_EXTERNAL;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @Tag("integration")
 @SpringBootTest
@@ -125,6 +129,18 @@ final class ExternalStepCandidacyRepositoryItTest {
                     assertTrue(optional.isEmpty());
                 }
         );
+    }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/external_step_candidacy_repository_test.sql"})
+    void when_prompted_it_should_update_step_successfully() {
+        assertDoesNotThrow(() -> this.externalStepCandidacyRepository.updateData(
+                this.candidacyIdentifier,
+                this.stepIdentifier,
+                TestUtils.dummyObject(String.class),
+                LocalDateTime.now()
+        ));
     }
 
 }

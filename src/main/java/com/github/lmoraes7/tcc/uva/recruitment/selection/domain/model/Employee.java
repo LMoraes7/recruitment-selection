@@ -1,7 +1,9 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusSelectiveProcess;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusStepCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.AccessCredentials;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.PersonalData;
@@ -14,21 +16,18 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessStepDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ConsultResponsesFromAnExecutedStepDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ResponsesFromAnExecutedStep;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.*;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.consult.answer.ConsultResponsesFromAnExecutedStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.create.CreateStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.CandidacyStepRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.ExternalStepCandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.StepRepository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.*;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.utils.CommonFunctions.validateIdentifiers;
@@ -171,6 +170,56 @@ public final class Employee {
             final ConsultResponsesFromAnExecutedStepDto dto
     ) {
         return strategy.execute(dto);
+    }
+
+    public void releaseStepForCandidate(
+            final CandidacyStepRepository candidacyStepRepository,
+            final ExternalStepCandidacyRepository externalStepCandidacyRepository,
+            final ReleaseStepForCandidateDto dto
+    ) {
+        final List<FindStepsDto> steps =
+                candidacyStepRepository.getSteps(dto.getCandidacyIdentifier(), dto.getStepIdentifier());
+
+        if (steps.isEmpty())
+            throw new NotFoundException(dto.getStepIdentifier(), StepCandidacy.class);
+
+        final Optional<FindStepsDto> optionalFirst = steps.stream()
+                .filter(it -> Objects.equals(it.getNextStepIdentifier(), dto.getStepIdentifier()))
+                .findFirst();
+
+        if (optionalFirst.isPresent()) {
+            final FindStepsDto firstStep = optionalFirst.get();
+            if (firstStep.getStatusStepCandidacy() != StatusStepCandidacy.COMPLETED)
+                throw new BusinessException(APIX_018, List.of(firstStep.getStepIdentifier()));
+        }
+
+        final FindStepsDto step = steps.stream()
+                .filter(it -> Objects.equals(it.getStepIdentifier(), dto.getStepIdentifier()))
+                .findFirst().get();
+
+        if (step.getTypeStep() != TypeStep.EXTERNAL) {
+            candidacyStepRepository.updateStatus(
+                    dto.getCandidacyIdentifier(),
+                    dto.getStepIdentifier(),
+                    StatusStepCandidacy.WAITING_FOR_EXECUTION
+            );
+            return;
+        }
+
+        if (dto.getLink() == null || dto.getDateTime() == null)
+            throw new BusinessException(APIX_019, List.of(step.getStepIdentifier()));
+
+        candidacyStepRepository.updateStatus(
+                dto.getCandidacyIdentifier(),
+                dto.getStepIdentifier(),
+                StatusStepCandidacy.WAITING_FOR_EXECUTION
+        );
+        externalStepCandidacyRepository.updateData(
+                dto.getCandidacyIdentifier(),
+                dto.getStepIdentifier(),
+                dto.getLink(),
+                dto.getDateTime()
+        );
     }
 
 }

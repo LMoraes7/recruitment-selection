@@ -2,7 +2,9 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.generator.GeneratorIdentifier;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusSelectiveProcess;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusStepCandidacy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.vo.StepData;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.employee.RegisterEmployeeService;
@@ -14,20 +16,26 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.selective.process.dto.SelectiveProcessStepDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ConsultResponsesFromAnExecutedStepDto;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.ResponsesFromAnExecutedStep;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.StepDto;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.*;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.consult.answer.ConsultResponsesFromAnExecutedStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.strategy.create.CreateStepStrategy;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.CandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.function.FunctionRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.profile.ProfileRepository;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.CandidacyStepRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.selective.process.SelectiveProcessRepository;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.ExternalStepCandidacyRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.StepRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.*;
@@ -48,6 +56,8 @@ final class EmployeeTest {
     private final SelectiveProcessRepository selectiveProcessRepository = mock(SelectiveProcessRepository.class);
     private final CandidacyRepository candidacyRepository = mock(CandidacyRepository.class);
     private final ConsultResponsesFromAnExecutedStepStrategy consultResponsesFromAnExecutedStepStrategy = mock(ConsultResponsesFromAnExecutedStepStrategy.class);
+    private final CandidacyStepRepository candidacyStepRepository = mock(CandidacyStepRepository.class);
+    private final ExternalStepCandidacyRepository externalStepCandidacyRepository = mock(ExternalStepCandidacyRepository.class);
 
     private Employee employee;
     private ProfileDto profileDto;
@@ -59,6 +69,8 @@ final class EmployeeTest {
     private SelectiveProcess selectiveProcess;
     private ConsultResponsesFromAnExecutedStepDto consultResponsesFromAnExecutedStepDto;
     private ResponsesFromAnExecutedStep responsesFromAnExecutedStep;
+    private ReleaseStepForCandidateDto releaseStepForCandidateDto;
+    private List<FindStepsDto> findStepsDtos;
 
     @BeforeEach
     void setUp() {
@@ -97,6 +109,11 @@ final class EmployeeTest {
         this.selectiveProcess = ConverterHelper.toModel(this.selectiveProcessDto);
         this.consultResponsesFromAnExecutedStepDto = dummyObject(ConsultResponsesFromAnExecutedStepDto.class);
         this.responsesFromAnExecutedStep = dummyObject(ResponsesFromAnExecutedStep.class);
+        this.findStepsDtos = List.of(
+            new FindStepsDto("1234567", "7654321", StatusStepCandidacy.COMPLETED, TypeStep.EXTERNAL),
+            new FindStepsDto("7654321", null, StatusStepCandidacy.BLOCKED, TypeStep.EXTERNAL)
+        );
+        this.releaseStepForCandidateDto = new ReleaseStepForCandidateDto("7654321", GeneratorIdentifier.forCandidacy(), dummyObject(String.class), LocalDateTime.now());
     }
 
     @Test
@@ -323,6 +340,190 @@ final class EmployeeTest {
 
         verify(this.consultResponsesFromAnExecutedStepStrategy, only())
                 .execute(this.consultResponsesFromAnExecutedStepDto);
+    }
+
+    @Test
+    void when_requested_it_must_release_the_step_successfully() {
+        when(this.candidacyStepRepository.getSteps(
+            this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+            this.releaseStepForCandidateDto.getStepIdentifier()
+        )).thenReturn(this.findStepsDtos);
+
+        assertDoesNotThrow(() -> this.employee.releaseStepForCandidate(
+                this.candidacyStepRepository,
+                this.externalStepCandidacyRepository,
+                this.releaseStepForCandidateDto
+        ));
+
+        verify(this.candidacyStepRepository, times(1)).getSteps(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier()
+        );
+        verify(this.candidacyStepRepository, times(1)).updateStatus(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier(),
+                StatusStepCandidacy.WAITING_FOR_EXECUTION
+        );
+        verify(this.externalStepCandidacyRepository, only()).updateData(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier(),
+                this.releaseStepForCandidateDto.getLink(),
+                this.releaseStepForCandidateDto.getDateTime()
+        );
+        verifyNoMoreInteractions(this.candidacyStepRepository);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = TypeStep.class, mode = EnumSource.Mode.EXCLUDE, names = {"EXTERNAL"})
+    void when_requested_it_must_release_the_step_successfully_2(final TypeStep typeStep) {
+        this.findStepsDtos = List.of(
+                new FindStepsDto("1234567", "7654321", StatusStepCandidacy.COMPLETED, TypeStep.EXTERNAL),
+                new FindStepsDto("7654321", null, StatusStepCandidacy.BLOCKED, typeStep)
+        );
+
+        when(this.candidacyStepRepository.getSteps(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier()
+        )).thenReturn(this.findStepsDtos);
+
+        assertDoesNotThrow(() -> this.employee.releaseStepForCandidate(
+                this.candidacyStepRepository,
+                this.externalStepCandidacyRepository,
+                this.releaseStepForCandidateDto
+        ));
+
+        verify(this.candidacyStepRepository, times(1)).getSteps(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier()
+        );
+        verify(this.candidacyStepRepository, times(1)).updateStatus(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier(),
+                StatusStepCandidacy.WAITING_FOR_EXECUTION
+        );
+        verifyNoMoreInteractions(this.candidacyStepRepository);
+        verifyNoInteractions(this.externalStepCandidacyRepository);
+    }
+
+    @Test
+    void when_requested_it_should_throw_a_NotFoundException() {
+        when(this.candidacyStepRepository.getSteps(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier()
+        )).thenReturn(List.of());
+
+        final NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> this.employee.releaseStepForCandidate(
+                        this.candidacyStepRepository,
+                        this.externalStepCandidacyRepository,
+                        this.releaseStepForCandidateDto
+                )
+        );
+
+        assertEquals(exception.getCode(), this.releaseStepForCandidateDto.getStepIdentifier());
+        assertEquals(exception.getClassType(), StepCandidacy.class);
+
+        verify(this.candidacyStepRepository, only()).getSteps(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier()
+        );
+        verifyNoInteractions(this.externalStepCandidacyRepository);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusStepCandidacy.class, mode = EnumSource.Mode.EXCLUDE, names = {"COMPLETED"})
+    void when_requested_it_should_throw_a_BusinessException_per_APIX_018(final StatusStepCandidacy status) {
+        this.findStepsDtos = List.of(
+                new FindStepsDto("1234567", "7654321", status, TypeStep.EXTERNAL),
+                new FindStepsDto("7654321", null, StatusStepCandidacy.BLOCKED, TypeStep.EXTERNAL)
+        );
+
+        when(this.candidacyStepRepository.getSteps(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier()
+        )).thenReturn(this.findStepsDtos);
+
+        final BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> this.employee.releaseStepForCandidate(
+                        this.candidacyStepRepository,
+                        this.externalStepCandidacyRepository,
+                        this.releaseStepForCandidateDto
+                )
+        );
+
+        assertEquals(exception.getError(), APIX_018);
+
+        verify(this.candidacyStepRepository, only()).getSteps(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier()
+        );
+        verifyNoInteractions(this.externalStepCandidacyRepository);
+    }
+
+    @Test
+    void when_requested_it_should_throw_a_BusinessException_per_APIX_019() {
+        this.releaseStepForCandidateDto = new ReleaseStepForCandidateDto("7654321", GeneratorIdentifier.forCandidacy(), null, LocalDateTime.now());
+
+        this.findStepsDtos = List.of(
+                new FindStepsDto("1234567", "7654321", StatusStepCandidacy.COMPLETED, TypeStep.EXTERNAL),
+                new FindStepsDto("7654321", null, StatusStepCandidacy.BLOCKED, TypeStep.EXTERNAL)
+        );
+
+        when(this.candidacyStepRepository.getSteps(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier()
+        )).thenReturn(this.findStepsDtos);
+
+        final BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> this.employee.releaseStepForCandidate(
+                        this.candidacyStepRepository,
+                        this.externalStepCandidacyRepository,
+                        this.releaseStepForCandidateDto
+                )
+        );
+
+        assertEquals(exception.getError(), APIX_019);
+
+        verify(this.candidacyStepRepository, only()).getSteps(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier()
+        );
+        verifyNoInteractions(this.externalStepCandidacyRepository);
+    }
+
+    @Test
+    void when_requested_it_should_throw_a_BusinessException_per_APIX_019_2() {
+        this.releaseStepForCandidateDto = new ReleaseStepForCandidateDto("7654321", GeneratorIdentifier.forCandidacy(), dummyObject(String.class), null);
+
+        this.findStepsDtos = List.of(
+                new FindStepsDto("1234567", "7654321", StatusStepCandidacy.COMPLETED, TypeStep.EXTERNAL),
+                new FindStepsDto("7654321", null, StatusStepCandidacy.BLOCKED, TypeStep.EXTERNAL)
+        );
+
+        when(this.candidacyStepRepository.getSteps(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier()
+        )).thenReturn(this.findStepsDtos);
+
+        final BusinessException exception = assertThrows(
+                BusinessException.class,
+                () -> this.employee.releaseStepForCandidate(
+                        this.candidacyStepRepository,
+                        this.externalStepCandidacyRepository,
+                        this.releaseStepForCandidateDto
+                )
+        );
+
+        assertEquals(exception.getError(), APIX_019);
+
+        verify(this.candidacyStepRepository, only()).getSteps(
+                this.releaseStepForCandidateDto.getCandidacyIdentifier(),
+                this.releaseStepForCandidateDto.getStepIdentifier()
+        );
+        verifyNoInteractions(this.externalStepCandidacyRepository);
     }
 
 }

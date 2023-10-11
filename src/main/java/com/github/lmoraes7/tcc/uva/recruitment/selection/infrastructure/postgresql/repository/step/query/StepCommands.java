@@ -103,7 +103,8 @@ public enum StepCommands {
                     "asuf.file as file, " +
                     "asuf.type as file_type " +
                 " from applications_steps_upload_files asuf where asuf.id_application = ? and asuf.id_step = ?"
-    );
+    ),
+    UPDATE_DATA_EXTERNAL("update applications_steps_external ase set ase.link = ?, ase.date_and_time = ? where ase.id_application = ? and ase.id_step = ?");
 
     public final String sql;
 

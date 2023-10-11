@@ -1,13 +1,18 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.StatusStepCandidacy;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.FindStepsDto;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.candidacy.entity.StepCandidacyEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.query.CandidacyStepCommands.SELECT_STEPS;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.relationships.query.CandidacyStepCommands.UPDATE_STATUS;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.only;
 
 @Tag("integration")
 @SpringBootTest
@@ -91,10 +100,40 @@ final class CandidacyStepRepositoryItTest {
     @Transactional
     @Sql(scripts = {"/script/candidacy_step_repository_test.sql"})
     void when_requested_you_must_save_an_application_with_its_steps_successfully() {
-        assertEquals(0, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications_steps"));
+        assertEquals(3, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications_steps"));
 
         assertDoesNotThrow(() -> this.candidacyStepRepository.save(this.candidacyIdentifier, this.stepsEntity));
 
-        assertEquals(7, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications_steps"));
+        assertEquals(10, JdbcTestUtils.countRowsInTable(this.jdbcTemplate, "applications_steps"));
     }
+
+    @Test
+    @Transactional
+    @Sql(scripts = {"/script/candidacy_step_repository_test.sql"})
+    void when_prompted_must_successfully_pursue_steps() {
+        List<FindStepsDto> findStepsDtos = assertDoesNotThrow(
+                () -> this.candidacyStepRepository.getSteps(this.candidacyIdentifier, "STE-987654321")
+        );
+
+        assertEquals(findStepsDtos.size(), 2);
+        assertEquals(findStepsDtos.get(0).getNextStepIdentifier(), "STE-987654321");
+        assertEquals(findStepsDtos.get(1).getStepIdentifier(), "STE-987654321");
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusStepCandidacy.class)
+    @Transactional
+    @Sql(scripts = {"/script/candidacy_step_repository_test.sql"})
+    void when_prompted_it_should_update_step_successfully(final StatusStepCandidacy status) {
+        assertDoesNotThrow(() -> this.candidacyStepRepository.updateStatus(this.candidacyIdentifier, "STE-987654321", status));
+
+        assertTrue(
+                JdbcTestUtils.countRowsInTableWhere(
+                        this.jdbcTemplate,
+                        "applications_steps",
+                        "status = '" + status.name() + "'"
+                ) >= 1
+        );
+    }
+
 }

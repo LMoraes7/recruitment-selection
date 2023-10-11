@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.EXTERNAL_TO_BE_EXECUTED;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.UPDATE_DATA_EXTERNAL;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils.dummyObject;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -100,6 +101,32 @@ final class ExternalStepCandidacyRepositoryTest {
                 this.candidacyIdentifier,
                 this.candidateIdentifier,
                 this.selectiveProcessIdentifier,
+                this.stepIdentifier
+        );
+    }
+
+    @Test
+    void when_prompted_it_should_update_step_successfully() {
+        when(this.jdbcTemplate.update(
+                UPDATE_DATA_EXTERNAL.sql,
+                this.externalStepCandidacyVo.getExternalLink(),
+                this.externalStepCandidacyVo.getExternalDateTime(),
+                this.candidacyIdentifier,
+                this.stepIdentifier
+        )).thenReturn(1);
+
+        assertDoesNotThrow(() -> this.externalStepCandidacyRepository.updateData(
+                this.candidacyIdentifier,
+                this.stepIdentifier,
+                this.externalStepCandidacyVo.getExternalLink(),
+                this.externalStepCandidacyVo.getExternalDateTime()
+        ));
+
+        verify(this.jdbcTemplate, only()).update(
+                UPDATE_DATA_EXTERNAL.sql,
+                this.externalStepCandidacyVo.getExternalLink(),
+                this.externalStepCandidacyVo.getExternalDateTime(),
+                this.candidacyIdentifier,
                 this.stepIdentifier
         );
     }
