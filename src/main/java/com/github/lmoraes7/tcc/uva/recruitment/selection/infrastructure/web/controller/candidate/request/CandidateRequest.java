@@ -1,24 +1,20 @@
-package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.employee.request;
+package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.candidate.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-
-import java.util.Collections;
-import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public final class EmployeeRequest {
+public final class CandidateRequest {
     @NotNull
     @Valid
     private PersonalDataRequest personalData;
     @NotNull
-    @Size(min = 1)
-    private Set<String> profilesIdentifiers;
+    @Valid
+    private AccessCredentialsRequest accessCredentials;
 
     public PersonalDataRequest getPersonalData() {
         return personalData;
@@ -28,12 +24,12 @@ public final class EmployeeRequest {
         this.personalData = personalData;
     }
 
-    public Set<String> getProfilesIdentifiers() {
-        return Collections.unmodifiableSet(profilesIdentifiers);
+    public AccessCredentialsRequest getAccessCredentials() {
+        return accessCredentials;
     }
 
-    public void setProfilesIdentifiers(Set<String> profilesIdentifiers) {
-        this.profilesIdentifiers = profilesIdentifiers;
+    public void setAccessCredentials(AccessCredentialsRequest accessCredentials) {
+        this.accessCredentials = accessCredentials;
     }
 
 }

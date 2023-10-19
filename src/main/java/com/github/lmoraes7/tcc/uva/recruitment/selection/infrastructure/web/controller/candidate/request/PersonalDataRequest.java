@@ -1,4 +1,4 @@
-package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.employee.request;
+package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.candidate.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
