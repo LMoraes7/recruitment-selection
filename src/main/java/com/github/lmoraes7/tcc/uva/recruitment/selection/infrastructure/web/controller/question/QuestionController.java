@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/question")
 @Validated
-public final class QuestionController {
+public class QuestionController {
     private final CreateQuestionUseCase createQuestionUseCase;
 
     @Autowired

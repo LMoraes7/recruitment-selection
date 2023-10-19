@@ -49,6 +49,14 @@ public final class Employee {
         this.accessCredentials = accessCredentials;
     }
 
+    public Employee(
+            final String identifier,
+            final AccessCredentials accessCredentials
+    ) {
+        this.identifier = identifier;
+        this.accessCredentials = accessCredentials;
+    }
+
     public String getIdentifier() {
         return identifier;
     }

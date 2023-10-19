@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/feedback")
 @Validated
-public final class FeedbackController {
+public class FeedbackController {
     private final RegisterFeedbackUseCase registerFeedbackUseCase;
 
     @Autowired

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/selective-process")
 @Validated
-public final class SelectiveProcessController {
+public class SelectiveProcessController {
     private final CloseSelectiveProcessUseCase closeSelectiveProcessUseCase;
     private final ConsultListOfSelectiveProcessUseCase consultListOfSelectiveProcessUseCase;
     private final ConsultSpecificSelectiveProcessUseCase consultSpecificSelectiveProcessUseCase;
@@ -39,7 +39,7 @@ public final class SelectiveProcessController {
         this.createSelectiveProcessUseCase = createSelectiveProcessUseCase;
     }
 
-    @PatchMapping("/{selectiveProcessIdentifier]")
+    @PatchMapping("/{selectiveProcessIdentifier}")
     public ResponseEntity<?> closeSelectiveProcess(@PathVariable final String selectiveProcessIdentifier) {
         this.closeSelectiveProcessUseCase.execute(
                 SecurityEmployeeContext.getContext(),

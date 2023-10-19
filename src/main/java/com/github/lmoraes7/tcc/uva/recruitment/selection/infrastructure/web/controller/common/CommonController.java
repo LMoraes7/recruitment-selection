@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/common")
 @Validated
-public final class CommonController {
+public class CommonController {
     private final RedefinePasswordUseCase redefinePasswordUseCase;
     private final RequestPasswordResetUseCase requestPasswordResetUseCase;
 

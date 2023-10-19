@@ -69,7 +69,7 @@ public class CandidacyController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{candidacyIdentifier]")
+    @GetMapping("/{candidacyIdentifier}")
     public ResponseEntity<SpecificCandidacyResponse> consultSpecificCandidacy(@PathVariable final String candidacyIdentifier) {
         final SpecificCandidacyResponse response = ConverterHelper.toResponse(
                 this.consultSpecificCandidacyUseCase.execute(

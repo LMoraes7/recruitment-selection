@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/candidate")
 @Validated
-public final class CandidateController {
+public class CandidateController {
     private final CreateCandidateUseCase createCandidateUseCase;
 
     public CandidateController(final CreateCandidateUseCase createCandidateUseCase) {

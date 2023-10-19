@@ -37,6 +37,14 @@ public final class Candidate {
         this.accessCredentials = accessCredentials;
     }
 
+    public Candidate(
+            final String identifier,
+            final AccessCredentials accessCredentials
+    ) {
+        this.identifier = identifier;
+        this.accessCredentials = accessCredentials;
+    }
+
     public String getIdentifier() {
         return identifier;
     }

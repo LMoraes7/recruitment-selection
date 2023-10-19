@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/employee")
 @Validated
-public final class EmployeeController {
+public class EmployeeController {
     private final CreateEmployeeUseCase createEmployeeUseCase;
 
     @Autowired

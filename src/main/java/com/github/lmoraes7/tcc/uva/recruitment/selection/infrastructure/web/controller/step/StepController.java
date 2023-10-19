@@ -25,7 +25,7 @@ import java.util.zip.ZipOutputStream;
 @RestController
 @RequestMapping("/step")
 @Validated
-public final class StepController {
+public class StepController {
     private final ConsultResponsesFromAnExecutedStepUseCase consultResponsesFromAnExecutedStepUseCase;
     private final ConsultSpecificExecutionStepCandidacyUseCase consultSpecificExecutionStepCandidacyUseCase;
     private final CreateStepUseCase createStepUseCase;
