@@ -6,12 +6,18 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public final class ResponsesFromAnExecutedUploadFileStep {
+    private final String name;
     private final byte[] bytes;
     private final TypeFile typeFile;
 
-    public ResponsesFromAnExecutedUploadFileStep(final byte[] bytes, final TypeFile typeFile) {
+    public ResponsesFromAnExecutedUploadFileStep(final String name, final byte[] bytes, final TypeFile typeFile) {
+        this.name = name;
         this.bytes = bytes;
         this.typeFile = typeFile;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public byte[] getBytes() {
@@ -27,12 +33,12 @@ public final class ResponsesFromAnExecutedUploadFileStep {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         ResponsesFromAnExecutedUploadFileStep that = (ResponsesFromAnExecutedUploadFileStep) object;
-        return Arrays.equals(bytes, that.bytes) && typeFile == that.typeFile;
+        return Objects.equals(name, that.name) && Arrays.equals(bytes, that.bytes) && typeFile == that.typeFile;
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(typeFile);
+        int result = Objects.hash(name, typeFile);
         result = 31 * result + Arrays.hashCode(bytes);
         return result;
     }

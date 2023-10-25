@@ -3,7 +3,8 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.con
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.question.CreateQuestionUseCase;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.context.SecurityEmployeeContext;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.question.converter.ConverterHelper;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.question.request.QuestionRequest;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.question.request.QuestionDiscursiveRequest;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.question.request.QuestionMultipleChoiceRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,8 +26,18 @@ public class QuestionController {
         this.createQuestionUseCase = createQuestionUseCase;
     }
 
-    @PostMapping
-    public ResponseEntity<?> createQuestion(@RequestBody @Valid final QuestionRequest request) {
+    @PostMapping("/DISCURSIVE")
+    public ResponseEntity<?> createQuestionDiscursive(@RequestBody @Valid final QuestionDiscursiveRequest request) {
+        this.createQuestionUseCase.execute(
+                SecurityEmployeeContext.getContext(),
+                ConverterHelper.toDto(request)
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/MULTIPLE_CHOICE")
+    public ResponseEntity<?> createQuestionMultipleChoice(@RequestBody @Valid final QuestionMultipleChoiceRequest request) {
         this.createQuestionUseCase.execute(
                 SecurityEmployeeContext.getContext(),
                 ConverterHelper.toDto(request)

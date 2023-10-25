@@ -2,7 +2,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.login;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.listener.event.FailedLogin;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.listener.event.LoginSuccessfullyEvent;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.LoginException;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.login.constants.LoginType;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.service.JwtAccessTokenService;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.vo.AccessToken;
@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_022;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.filter.converter.ConverterHelper.candidateDetailsToDomain;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.filter.converter.ConverterHelper.employeeDetailsToDomain;
 
@@ -42,7 +43,7 @@ public final class LoginUseCase {
         return authenticateEmployee(username, password);
     }
 
-    private AccessToken authenticateCandidate(String username, String password) throws LoginException {
+    private AccessToken authenticateCandidate(String username, String password) {
         CustomUserDetails userDetails;
         try {
             final Authentication authenticate = this.authenticationManager.authenticate(
@@ -51,7 +52,7 @@ public final class LoginUseCase {
             userDetails = (CustomUserDetails) authenticate.getPrincipal();
         } catch (final AuthenticationException ex) {
             this.publisher.publishEvent(new FailedLogin(username));
-            throw new LoginException("credentials are invalid");
+            throw new BusinessException(APIX_022, "credentials are invalid");
         }
 
         final AccessToken credentialAccess = this.jwtAccessTokenService.generateCredentialAccess(
@@ -61,7 +62,7 @@ public final class LoginUseCase {
         return credentialAccess;
     }
 
-    private AccessToken authenticateEmployee(String username, String password) throws LoginException {
+    private AccessToken authenticateEmployee(String username, String password) {
         CustomUserDetails userDetails;
         try {
             final Authentication authenticate = this.authenticationManager.authenticate(
@@ -70,7 +71,7 @@ public final class LoginUseCase {
             userDetails = (CustomUserDetails) authenticate.getPrincipal();
         } catch (final AuthenticationException ex) {
             this.publisher.publishEvent(new FailedLogin(username));
-            throw new LoginException("credentials are invalid");
+            throw new BusinessException(APIX_022, "credentials are invalid");
         }
 
         final AccessToken credentialAccess = this.jwtAccessTokenService.generateCredentialAccess(

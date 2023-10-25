@@ -28,7 +28,7 @@ public final class RegisterProfileService {
         try {
             profile = this.profileRepository.save(toModel(dto));
         } catch (final DataIntegrityViolationException ex) {
-            throw new BusinessException(APIX_001, List.of(dto.getName()));
+            throw new BusinessException(APIX_001, "Profile name entered is not valid");
         }
 
         return profile;

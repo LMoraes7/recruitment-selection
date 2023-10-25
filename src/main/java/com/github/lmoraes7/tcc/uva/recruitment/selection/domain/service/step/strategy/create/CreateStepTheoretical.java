@@ -48,12 +48,12 @@ public final class CreateStepTheoretical implements CreateStepStrategy {
         );
 
         if (!invalidIdentifiers.isEmpty())
-            throw new BusinessException(APIX_008, invalidIdentifiers);
+            throw new BusinessException(APIX_008, "The identifiers provided are invalid: " + invalidIdentifiers);
 
         questions.stream().findFirst().ifPresent(
                 question -> {
                     if (!questions.stream().filter(it -> it.getType() != question.getType()).toList().isEmpty())
-                        throw new BusinessException(APIX_009);
+                        throw new BusinessException(APIX_009, "Reported questions are not of the same type");
                 }
         );
 

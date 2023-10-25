@@ -128,8 +128,6 @@ final class RedefinePasswordUseCaseTest {
 
         assertNotNull(exception);
         assertEquals(APIX_005, exception.getError());
-        assertEquals(1, exception.getArgs().size());
-        assertTrue(exception.getArgs().contains(this.passwordChangeRequest.getCode()));
 
         verify(this.commonRepository, only()).findPasswordChangeRequestByCode(this.redefinePasswordDto.getCode());
         verifyNoInteractions(this.redefinePasswordStrategy, this.applicationEventPublisher);
@@ -156,8 +154,6 @@ final class RedefinePasswordUseCaseTest {
 
         assertNotNull(exception);
         assertEquals(APIX_006, exception.getError());
-        assertEquals(1, exception.getArgs().size());
-        assertTrue(exception.getArgs().contains(this.passwordChangeRequest.getCode()));
 
         verify(this.commonRepository, only()).findPasswordChangeRequestByCode(this.redefinePasswordDto.getCode());
         verifyNoInteractions(this.redefinePasswordStrategy, this.applicationEventPublisher);

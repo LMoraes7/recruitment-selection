@@ -15,7 +15,15 @@ public final class SpecificExecutionStepCandidacyResponse {
     private SpecificUploadFileStepCandidacyResponse uploadFileStep;
     private SpecificExternalStepCandidacyResponse externalStep;
 
-    public SpecificExecutionStepCandidacyResponse(String candidacyIdentifier, String candidateIdentifier, String selectiveProcessIdentifier, String stepIdentifier, SpecificTheoricalTestStepCandidacyResponse theoricalTestStep, SpecificUploadFileStepCandidacyResponse uploadFileStep, SpecificExternalStepCandidacyResponse externalStep) {
+    public SpecificExecutionStepCandidacyResponse(
+            String candidacyIdentifier,
+            String candidateIdentifier,
+            String selectiveProcessIdentifier,
+            String stepIdentifier,
+            SpecificTheoricalTestStepCandidacyResponse theoricalTestStep,
+            SpecificUploadFileStepCandidacyResponse uploadFileStep,
+            SpecificExternalStepCandidacyResponse externalStep
+    ) {
         this.candidacyIdentifier = candidacyIdentifier;
         this.candidateIdentifier = candidateIdentifier;
         this.selectiveProcessIdentifier = selectiveProcessIdentifier;

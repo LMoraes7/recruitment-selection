@@ -39,11 +39,11 @@ public final class ExecuteUploadFiletStepCandidacy implements ExecuteStepCandida
         final List<TypeFile> typeFiles = this.uploadFilelStepRepository.findTypeFiles(dto.getStepIdentifier());
 
         if (dto.getUploadFile().getFiles().size() != typeFiles.size())
-            throw new BusinessException(APIX_016, List.of(typeFiles.size()));
+            throw new BusinessException(APIX_016, "File upload step had more or fewer files sent than defined in the step");
 
         for (final ExecuteFileDto file : dto.getUploadFile().getFiles()) {
             if (!typeFiles.contains(file.getType()))
-                throw new BusinessException(APIX_017, List.of(file.getType()));
+                throw new BusinessException(APIX_017, "File upload step had invalid file types");
         }
 
         this.uploadFileStepCandidacyRepository.saveTestExecuted(

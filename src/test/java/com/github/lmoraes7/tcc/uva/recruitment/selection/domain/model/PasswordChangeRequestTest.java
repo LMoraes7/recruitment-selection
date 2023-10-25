@@ -68,8 +68,6 @@ final class PasswordChangeRequestTest {
 
         assertNotNull(exception);
         assertEquals(APIX_005, exception.getError());
-        assertEquals(1, exception.getArgs().size());
-        assertTrue(exception.getArgs().contains(this.passwordChangeRequest.getCode()));
     }
 
     @Test
@@ -90,8 +88,6 @@ final class PasswordChangeRequestTest {
 
         assertNotNull(exception);
         assertEquals(APIX_006, exception.getError());
-        assertEquals(1, exception.getArgs().size());
-        assertTrue(exception.getArgs().contains(this.passwordChangeRequest.getCode()));
     }
 
 }

@@ -5,23 +5,19 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public final class StepRequest {
+public final class StepUploadFilesRequest {
     @NotBlank
     private String title;
     @NotBlank
     private String description;
-    @NotBlank
-    @Pattern(regexp = "THEORETICAL_TEST|UPLOAD_FILES|EXTERNAL")
-    private String type;
-    @Size(min = 3)
-    private Set<String> questionsIdentifiers;
+    @NotNull
     @Size(min = 1)
     @Valid
     private Set<TypeUploadFileRequest> dataUploadFiles;
@@ -40,22 +36,6 @@ public final class StepRequest {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public Set<String> getQuestionsIdentifiers() {
-        return questionsIdentifiers;
-    }
-
-    public void setQuestionsIdentifiers(Set<String> questionsIdentifiers) {
-        this.questionsIdentifiers = questionsIdentifiers;
     }
 
     public Set<TypeUploadFileRequest> getDataUploadFiles() {

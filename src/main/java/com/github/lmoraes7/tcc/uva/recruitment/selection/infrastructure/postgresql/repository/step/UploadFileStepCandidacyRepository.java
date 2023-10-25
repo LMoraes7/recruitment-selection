@@ -71,7 +71,7 @@ public class UploadFileStepCandidacyRepository {
     ) {
         return this.jdbcTemplate.query(
                 FIND_FILES_UPLOADS.sql,
-                (rs, rowNumber) -> new ResponsesFromAnExecutedUploadFileStep(rs.getBytes("file"), TypeFile.valueOf(rs.getString("file_type"))),
+                (rs, rowNumber) -> new ResponsesFromAnExecutedUploadFileStep(rs.getString("file_name"), rs.getBytes("file"), TypeFile.valueOf(rs.getString("file_type"))),
                 applicationIdentifier,
                 stepIdentifier
         );

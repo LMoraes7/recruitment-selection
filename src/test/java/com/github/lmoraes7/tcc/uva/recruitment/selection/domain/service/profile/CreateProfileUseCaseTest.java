@@ -68,8 +68,6 @@ final class CreateProfileUseCaseTest {
 
         assertNotNull(exception);
         assertEquals(APIX_002, exception.getError());
-        assertEquals(this.profileDto.getFunctionsIdentifiers().size(), exception.getArgs().size());
-        assertTrue(exception.getArgs().containsAll(this.profileDto.getFunctionsIdentifiers()));
 
         verify(this.functionRepository, only()).fetchIdentifiers(this.profileDto.getFunctionsIdentifiers());
         verifyNoInteractions(this.registerProfileService, this.applicationEventPublisher);

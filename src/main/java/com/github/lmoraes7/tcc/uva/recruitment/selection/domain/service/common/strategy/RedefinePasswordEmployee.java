@@ -39,7 +39,7 @@ public class RedefinePasswordEmployee implements RedefinePasswordStrategy {
                     this.passwordEncryptorService.execute(redefinePasswordDto.getNewPassword())
             );
         } catch (final NotFoundException ex) {
-            throw new BusinessException(APIX_007, List.of(ex.getCode()));
+            throw new BusinessException(APIX_007, "Email provided is not valid");
         }
     }
 

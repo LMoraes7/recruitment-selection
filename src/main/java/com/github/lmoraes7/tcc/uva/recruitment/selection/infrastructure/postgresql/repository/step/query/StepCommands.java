@@ -23,7 +23,7 @@ public enum StepCommands {
             "insert into applications_steps_theoretical_tests (id_application, id_step, id_question, id_answer, type_question, discursive_answer) values (?, ?, ?, ?, ?, ?)"
     ),
     SAVE_EXECUTION_UPLOAD_FILES_STEP(
-            "insert into applications_steps_upload_files (id_application, id_step, file, type) values (?, ?, ?, ?)"
+            "insert into applications_steps_upload_files (id_application, id_step, file_name, file, type) values (?, ?, ?, ?, ?)"
     ),
     FIND_QUESTIONS_TO_BE_EXECUTED(
             "select " +
@@ -100,6 +100,7 @@ public enum StepCommands {
             "select " +
                     "asuf.id_application as application_identifier, " +
                     "asuf.id_step as step_identifier, " +
+                    "asuf.file_name as file_name, " +
                     "asuf.file as file, " +
                     "asuf.type as file_type " +
                 " from applications_steps_upload_files asuf where asuf.id_application = ? and asuf.id_step = ?"

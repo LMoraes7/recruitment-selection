@@ -48,12 +48,12 @@ public final class PasswordChangeRequest {
 
     public void hasItAlreadyBeenUsed() {
         if (this.isUsed)
-            throw new BusinessException(APIX_005, List.of(this.code));
+            throw new BusinessException(APIX_005, "Password reset code has already been used");
     }
 
     public void isItExpired() {
         if (LocalDateTime.now().isAfter(this.expiredIn))
-            throw new BusinessException(APIX_006, List.of(this.code));
+            throw new BusinessException(APIX_006, "Password reset code has already expired");
     }
 
     @Override

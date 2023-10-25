@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_016;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_017;
@@ -39,6 +40,7 @@ final class ExecuteUploadFiletStepCandidacyTest {
                 new ExecuteUploadFileStepCandidacyDto(
                         List.of(
                                 new ExecuteFileDto(
+                                        UUID.randomUUID().toString(),
                                         new byte[] {1, 2, 3, 5},
                                         TypeFile.MP4
                                 )

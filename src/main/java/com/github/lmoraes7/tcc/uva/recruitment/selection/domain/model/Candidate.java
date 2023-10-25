@@ -66,7 +66,7 @@ public final class Candidate {
                 .orElseThrow(() -> new NotFoundException(dto.getSelectiveProcessIdentifier(), SelectiveProcess.class));
 
         if (selectiveProcess.getStatus() != IN_PROGRESS)
-            throw new BusinessException(APIX_012, List.of(selectiveProcess.getIdentifier()));
+            throw new BusinessException(APIX_012, "Informed selection process can no longer receive applications as it is closed");
 
         return candidacyRepository.save(
                 this.identifier,
@@ -121,10 +121,10 @@ public final class Candidate {
         ).orElseThrow(() -> new NotFoundException(dto.getStepIdentifier(), StepCandidacy.class));
 
         if (step.getStatus() != StatusStepCandidacy.WAITING_FOR_EXECUTION)
-            throw new BusinessException(APIX_013, List.of(step.getStatus()));
+            throw new BusinessException(APIX_013, "Informed step is not in the status awaiting execution to be executed");
 
         if (step.hasItPassedTheDeadline())
-            throw new BusinessException(APIX_014, List.of(step.getLimitTime()));
+            throw new BusinessException(APIX_014, "The informed step has already expired to be carried out");
 
         strategy.execute(this.identifier, dto);
 

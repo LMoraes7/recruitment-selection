@@ -28,8 +28,9 @@ public final class SaveUploadFileStepCandidacyBatch implements BatchPreparedStat
     public void setValues(final PreparedStatement ps, final int i) throws SQLException {
         ps.setString(1, this.candidacyIdentifier);
         ps.setString(2, this.stepIdentifier);
-        ps.setBytes(3, this.files.get(i).getBytes());
-        ps.setString(4, this.files.get(i).getType().name());
+        ps.setString(3, this.files.get(i).getName());
+        ps.setBytes(4, this.files.get(i).getBytes());
+        ps.setString(5, this.files.get(i).getType().name());
     }
 
     @Override

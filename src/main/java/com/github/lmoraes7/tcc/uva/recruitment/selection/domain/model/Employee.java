@@ -80,7 +80,7 @@ public final class Employee {
         );
 
         if (!invalidIdentifiers.isEmpty())
-            throw new BusinessException(APIX_002, invalidIdentifiers);
+            throw new BusinessException(APIX_002, "The identifiers provided are invalid: " + invalidIdentifiers);
 
         return registerProfileService.save(dto);
     }
@@ -96,7 +96,7 @@ public final class Employee {
         );
 
         if (!invalidIdentifiers.isEmpty())
-            throw new BusinessException(APIX_004, invalidIdentifiers);
+            throw new BusinessException(APIX_004, "The identifiers provided are invalid: " + invalidIdentifiers);
 
         return registerEmployeeService.save(dto);
     }
@@ -132,7 +132,7 @@ public final class Employee {
         );
 
         if (!invalidIdentifiers.isEmpty())
-            throw new BusinessException(APIX_010, invalidIdentifiers);
+            throw new BusinessException(APIX_010, "The identifiers provided are invalid: " + invalidIdentifiers);
 
         final List<String> externalStepsIdentifiers = validSteps
                 .stream()
@@ -147,7 +147,7 @@ public final class Employee {
                     .toList();
 
             if (!invalidExternalSteps.isEmpty())
-                throw new BusinessException(APIX_011, invalidExternalSteps);
+                throw new BusinessException(APIX_011, "The identifiers provided are invalid: " + invalidIdentifiers);
         }
 
         return selectiveProcessRepository.save(ConverterHelper.toModel(dto));
@@ -200,7 +200,7 @@ public final class Employee {
         if (optionalFirst.isPresent()) {
             final FindStepsDto firstStep = optionalFirst.get();
             if (firstStep.getStatusStepCandidacy() != StatusStepCandidacy.COMPLETED)
-                throw new BusinessException(APIX_018, List.of(firstStep.getStepIdentifier()));
+                throw new BusinessException(APIX_018, "The step cannot be released" + firstStep.getStepIdentifier());
         }
 
         final FindStepsDto step = steps.stream()
@@ -217,7 +217,7 @@ public final class Employee {
         }
 
         if (dto.getLink() == null || dto.getDateTime() == null)
-            throw new BusinessException(APIX_019, List.of(step.getStepIdentifier()));
+            throw new BusinessException(APIX_019, "The step cannot be released" + step.getStepIdentifier());
 
         candidacyStepRepository.updateStatus(
                 dto.getCandidacyIdentifier(),
@@ -242,9 +242,9 @@ public final class Employee {
 
         if (step.getTypeStep() == TypeStep.EXTERNAL) {
             if (step.getStatusStepCandidacy() != StatusStepCandidacy.WAITING_FOR_EXECUTION)
-                throw new BusinessException(APIX_020, List.of(dto.getStepIdentifier()));
+                throw new BusinessException(APIX_020, "Feedback cannot be registered");
         } else if (step.getStatusStepCandidacy() != StatusStepCandidacy.EXECUTED)
-            throw new BusinessException(APIX_021, List.of(dto.getStepIdentifier()));
+            throw new BusinessException(APIX_021, "Feedback cannot be registered");
 
         final Feedback feedback = feedbackRepository.save(com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.feedback.converter.ConverterHelper.toModel(dto), dto.getCandidacyIdentifier(), dto.getStepIdentifier());
 

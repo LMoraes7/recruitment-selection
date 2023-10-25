@@ -55,7 +55,7 @@ public final class CreateCandidateUseCase {
         } catch (final DataIntegrityViolationException ex) {
             throw new BusinessException(
                     APIX_003,
-                    List.of(dto.getPersonalData().getEmail(), dto.getPersonalData().getCpf())
+                    "CPF or Email provided have already been registered"
             );
         }
 

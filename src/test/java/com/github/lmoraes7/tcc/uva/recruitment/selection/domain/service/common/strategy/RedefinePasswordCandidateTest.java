@@ -65,8 +65,6 @@ final class RedefinePasswordCandidateTest {
 
         assertNotNull(exception);
         assertEquals(APIX_007, exception.getError());
-        assertEquals(1, exception.getArgs().size());
-        assertTrue(exception.getArgs().contains(this.redefinePasswordDto.getCode()));
 
         verify(this.candidateRepository, only()).changePassword(this.passwordChangeRequest.getEmailEntity(), redefinePasswordDto.getNewPassword());
         verify(this.passwordEncryptorService, only()).execute(redefinePasswordDto.getNewPassword());

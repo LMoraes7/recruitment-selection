@@ -66,12 +66,12 @@ public final class ExecuteTheoricalTestStepCandidacy implements ExecuteStepCandi
         );
 
         if (!invalidIdentifiers.isEmpty())
-            throw new BusinessException(APIX_008, invalidIdentifiers);
+            throw new BusinessException(APIX_008, "The identifiers provided are invalid: " + invalidIdentifiers);
     }
 
     private void valideUniqueTypeQuestion(List<ExecuteQuestionDto> questions) {
         if (questions.stream().map(ExecuteQuestionDto::getType).collect(Collectors.toSet()).size() != 1)
-            throw new BusinessException(APIX_015);
+            throw new BusinessException(APIX_015, "Question step was informed to be performed containing 2 different types of question");
     }
 
 }

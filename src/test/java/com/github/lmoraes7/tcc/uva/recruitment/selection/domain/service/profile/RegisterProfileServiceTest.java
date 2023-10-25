@@ -43,11 +43,8 @@ final class RegisterProfileServiceTest {
 
         assertNotNull(businessException);
         assertNotNull(businessException.getError());
-        assertNotNull(businessException.getArgs());
 
         assertEquals(Error.APIX_001, businessException.getError());
-        assertEquals(1, businessException.getArgs().size());
-        assertTrue(businessException.getArgs().contains(this.profileDto.getName()));
 
         verify(this.profileRepository, only()).save(argThat(new ProfileArgMatchers(profile)));
     }

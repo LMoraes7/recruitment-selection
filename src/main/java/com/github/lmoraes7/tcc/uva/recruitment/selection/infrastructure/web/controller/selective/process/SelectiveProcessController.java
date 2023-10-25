@@ -54,7 +54,11 @@ public class SelectiveProcessController {
             @RequestParam @Valid @Min(1) final Integer pageSize,
             @RequestParam @Valid @Min(0) final Integer pageNumber
     ) {
-        final SelectiveProcessoPaginatedResponse response = ConverterHelper.toResponse(this.consultListOfSelectiveProcessUseCase.execute(ConverterHelper.toDto(pageSize, pageNumber)));
+        final SelectiveProcessoPaginatedResponse response = ConverterHelper.toResponse(
+                this.consultListOfSelectiveProcessUseCase.execute(
+                        ConverterHelper.toDto(pageSize, pageNumber)
+                )
+        );
 
         if (response.getSelectiveProcesses().isEmpty())
             return ResponseEntity.noContent().build();

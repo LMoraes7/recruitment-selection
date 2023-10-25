@@ -1,13 +1,16 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.step.converter;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeFile;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeQuestion;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.constants.TypeStep;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.step.dto.*;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.step.request.ReleaseStepForCandidateRequest;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.step.request.StepRequest;
-import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.step.request.TypeUploadFileRequest;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.step.request.*;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.step.response.*;
+import org.apache.commons.io.FilenameUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,18 +59,44 @@ public final class ConverterHelper {
             return null;
 
         return new ResponsesFromAnExecutedUploadStepResponse(
-                uploadStepExecuted.getFiles().stream().map(it -> new ResponsesFromAnExecutedUploadFileStepResponse(it.getBytes(), it.getTypeFile().name())).collect(Collectors.toList())
+                uploadStepExecuted
+                        .getFiles()
+                        .stream()
+                        .map(it -> new ResponsesFromAnExecutedUploadFileStepResponse(
+                                it.getBytes(),
+                                it.getTypeFile().name()
+                        )).collect(Collectors.toList())
         );
     }
 
 
-    public static StepDto toDto(final StepRequest request) {
+    public static StepDto toDto(final StepTheoricalTestRequest request) {
         return new StepDto(
                 request.getTitle(),
                 request.getDescription(),
-                TypeStep.valueOf(request.getType()),
+                TypeStep.THEORETICAL_TEST,
                 request.getQuestionsIdentifiers(),
+                null
+        );
+    }
+
+    public static StepDto toDto(final StepUploadFilesRequest request) {
+        return new StepDto(
+                request.getTitle(),
+                request.getDescription(),
+                TypeStep.UPLOAD_FILES,
+                null,
                 toDto(request.getDataUploadFiles())
+        );
+    }
+
+    public static StepDto toDto(final StepExternalRequest request) {
+        return new StepDto(
+                request.getTitle(),
+                request.getDescription(),
+                TypeStep.EXTERNAL,
+                null,
+                null
         );
     }
 
@@ -109,8 +138,120 @@ public final class ConverterHelper {
         );
     }
 
-    public static void toResponse(SpecificExecutionStepCandidacyDto result) {
-
+    public static SpecificExecutionStepCandidacyResponse toResponse(SpecificExecutionStepCandidacyDto result) {
+        return new SpecificExecutionStepCandidacyResponse(
+                result.getCandidacyIdentifier(),
+                result.getCandidateIdentifier(),
+                result.getSelectiveProcessIdentifier(),
+                result.getStepIdentifier(),
+                toDto(result.getTheoricalTestStep()),
+                toDto(result.getUploadFileStep()),
+                toDto(result.getExternalStep())
+        );
     }
 
+    private static SpecificExternalStepCandidacyResponse toDto(SpecificExternalStepCandidacyDto externalStep) {
+        if (externalStep == null)
+            return null;
+
+        return new SpecificExternalStepCandidacyResponse(
+                externalStep.getLink(),
+                externalStep.getDateTime()
+        );
+    }
+
+    private static SpecificUploadFileStepCandidacyResponse toDto(SpecificUploadFileStepCandidacyDto uploadFileStep) {
+        if (uploadFileStep == null)
+            return null;
+
+        return new SpecificUploadFileStepCandidacyResponse(
+                uploadFileStep
+                        .getFiles()
+                        .stream()
+                        .map(it -> new FileResponse(it.getDescription(), it.getTypeFile().name()))
+                        .collect(Collectors.toList())
+        );
+    }
+
+    private static SpecificTheoricalTestStepCandidacyResponse toDto(SpecificTheoricalTestStepCandidacyDto theoricalTestStep) {
+        if (theoricalTestStep == null)
+            return null;
+
+        return new SpecificTheoricalTestStepCandidacyResponse(
+                theoricalTestStep
+                        .getQuestions()
+                        .stream()
+                        .map(question -> {
+                            if (question.getQuestionType() == TypeQuestion.DISCURSIVE)
+                                return new QuestionResponse(
+                                        question.getQuestionIdentifier(),
+                                        question.getQuestionDescription(),
+                                        question.getQuestionType().name(),
+                                        null
+                                );
+
+                            return new QuestionResponse(
+                                    question.getQuestionIdentifier(),
+                                    question.getQuestionDescription(),
+                                    question.getQuestionType().name(),
+                                    question.getAnswers()
+                                            .stream()
+                                            .map(it -> new AnswerResponse(it.getAnswerIdentifier(), it.getAnswerDescription()))
+                                            .collect(Collectors.toList())
+                            );
+                        }).collect(Collectors.toList())
+        );
+    }
+
+    public static ExecuteStepCandidacyDto toDto(
+            String stepIdentifier,
+            String candidacyIdentifier,
+            String selectiveProcessIdentifier,
+            ExecuteStepCandidacyTheoricalTestRequest request
+    ) {
+        return new ExecuteStepCandidacyDto(
+                stepIdentifier,
+                candidacyIdentifier,
+                selectiveProcessIdentifier,
+                TypeStep.THEORETICAL_TEST,
+                new ExecuteTheoricalTestStepCandidacyDto(
+                        request.getQuestions()
+                                .stream()
+                                .map(it -> new ExecuteQuestionDto(
+                                        it.getQuestionIdentifier(),
+                                        TypeQuestion.valueOf(it.getType()),
+                                        new ExecuteAnswerDto(it.getAnswer().getAnswer()))
+                                ).collect(Collectors.toList())
+                ),
+                null
+        );
+    }
+
+    public static ExecuteStepCandidacyDto toDto(
+            String stepIdentifier,
+            String candidacyIdentifier,
+            String selectiveProcessIdentifier,
+            MultipartFile[] files
+    ) {
+        return new ExecuteStepCandidacyDto(
+                stepIdentifier,
+                candidacyIdentifier,
+                selectiveProcessIdentifier,
+                TypeStep.UPLOAD_FILES,
+                null,
+                new ExecuteUploadFileStepCandidacyDto(
+                        Arrays.stream(files).map(it -> {
+                            try {
+                                return new ExecuteFileDto(
+                                        it.getOriginalFilename(),
+                                        it.getBytes(),
+                                        TypeFile.valueOf(FilenameUtils.getExtension(it.getOriginalFilename()))
+                                );
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }).collect(Collectors.toList())
+                )
+        );
+    }
 }

@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.postgresql.repository.step.query.StepCommands.*;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.utils.TestUtils.dummyObject;
@@ -77,9 +78,9 @@ final class UploadFileStepCandidacyRepositoryTest {
         );
         this.uploadFile = dummyObject(ExecuteUploadFileStepCandidacyDto.class);
         this.responsesFromAnExecutedUploadFileSteps = List.of(
-                new ResponsesFromAnExecutedUploadFileStep(new byte[]{2, 1, 1}, TypeFile.MP4),
-                new ResponsesFromAnExecutedUploadFileStep(new byte[]{1, 2, 1}, TypeFile.PDF),
-                new ResponsesFromAnExecutedUploadFileStep(new byte[]{1, 1, 2}, TypeFile.MP4)
+                new ResponsesFromAnExecutedUploadFileStep(UUID.randomUUID().toString(), new byte[]{2, 1, 1}, TypeFile.MP4),
+                new ResponsesFromAnExecutedUploadFileStep(UUID.randomUUID().toString(), new byte[]{1, 2, 1}, TypeFile.PDF),
+                new ResponsesFromAnExecutedUploadFileStep(UUID.randomUUID().toString(), new byte[]{1, 1, 2}, TypeFile.MP4)
         );
     }
 

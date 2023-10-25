@@ -169,6 +169,7 @@ create table registered_emails_documents(
 create table applications_steps_upload_files(
     id_application varchar(13) not null,
     id_step varchar(13) not null,
+    file_name varchar(255) not null,
     file bytea not null,
     type varchar(100) not null,
     constraint fk_application_step_upload_file foreign key (id_application) references applications (id),

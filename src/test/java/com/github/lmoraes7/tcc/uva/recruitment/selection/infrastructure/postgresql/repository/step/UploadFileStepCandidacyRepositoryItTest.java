@@ -146,14 +146,17 @@ final class UploadFileStepCandidacyRepositoryItTest {
         final ExecuteUploadFileStepCandidacyDto uploadFile = new ExecuteUploadFileStepCandidacyDto(
             List.of(
                     new ExecuteFileDto(
+                            mp4File.getName(),
                             Files.readAllBytes(mp4File.toPath()),
                             TypeFile.MP4
                     ),
                     new ExecuteFileDto(
+                            pdfFile.getName(),
                             Files.readAllBytes(pdfFile.toPath()),
                             TypeFile.PDF
                     ),
                     new ExecuteFileDto(
+                            pdfFile.getName(),
                             Files.readAllBytes(pdfFile.toPath()),
                             TypeFile.PDF
                     )
@@ -177,14 +180,17 @@ final class UploadFileStepCandidacyRepositoryItTest {
         final ExecuteUploadFileStepCandidacyDto uploadFile = new ExecuteUploadFileStepCandidacyDto(
                 List.of(
                         new ExecuteFileDto(
+                                mp4File.getName(),
                                 Files.readAllBytes(mp4File.toPath()),
                                 TypeFile.MP4
                         ),
                         new ExecuteFileDto(
+                                pdfFile.getName(),
                                 Files.readAllBytes(pdfFile.toPath()),
                                 TypeFile.PDF
                         ),
                         new ExecuteFileDto(
+                                pdfFile.getName(),
                                 Files.readAllBytes(pdfFile.toPath()),
                                 TypeFile.PDF
                         )

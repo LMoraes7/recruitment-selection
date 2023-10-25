@@ -171,9 +171,6 @@ final class EmployeeTest {
 
         assertNotNull(businessException.getError());
         assertEquals(businessException.getError(), APIX_002);
-        assertNotNull(businessException.getArgs());
-        assertEquals(businessException.getArgs().size(), invalidIdentifiers.size());
-        assertTrue(businessException.getArgs().containsAll(invalidIdentifiers));
 
         verify(this.functionRepository, only()).fetchIdentifiers(this.profileDto.getFunctionsIdentifiers());
         verifyNoInteractions(this.registerProfileService);
@@ -222,9 +219,6 @@ final class EmployeeTest {
 
         assertNotNull(businessException.getError());
         assertEquals(businessException.getError(), APIX_004);
-        assertNotNull(businessException.getArgs());
-        assertEquals(businessException.getArgs().size(), invalidIdentifiers.size());
-        assertTrue(businessException.getArgs().containsAll(invalidIdentifiers));
 
         verify(this.profileRepository, only()).fetchIdentifiers(this.employeeDto.getProfilesIdentifiers());
         verifyNoInteractions(this.registerEmployeeService);

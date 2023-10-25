@@ -68,8 +68,6 @@ final class CreateEmployeeUseCaseTest {
 
         assertNotNull(exception);
         assertEquals(APIX_004, exception.getError());
-        assertEquals(this.employeeDto.getProfilesIdentifiers().size(), exception.getArgs().size());
-        assertTrue(exception.getArgs().containsAll(this.employeeDto.getProfilesIdentifiers()));
 
         verify(this.profileRepository, only()).fetchIdentifiers(this.employeeDto.getProfilesIdentifiers());
         verifyNoInteractions(this.registerEmployeeService, this.applicationEventPublisher);

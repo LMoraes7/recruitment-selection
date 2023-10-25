@@ -7,23 +7,20 @@ import java.util.Collections;
 
 public final class BusinessException extends RuntimeException {
     private final Error error;
-    private Collection<?> args;
+    private final String message;
 
-    public BusinessException(final Error error) {
+    public BusinessException(final Error error, final String message) {
         this.error = error;
-    }
-
-    public BusinessException(final Error error, final Collection<?> args) {
-        this.error = error;
-        this.args = args;
+        this.message = message;
     }
 
     public Error getError() {
         return error;
     }
 
-    public Collection<?> getArgs() {
-        return Collections.unmodifiableCollection(args);
+    @Override
+    public String getMessage() {
+        return message;
     }
 
 }

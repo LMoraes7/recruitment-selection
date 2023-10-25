@@ -92,13 +92,8 @@ final class CreateCandidateUseCaseTest {
 
         assertNotNull(businessException);
         assertNotNull(businessException.getError());
-        assertNotNull(businessException.getArgs());
 
         assertEquals(Error.APIX_003, businessException.getError());
-        assertEquals(2, businessException.getArgs().size());
-        assertTrue(businessException.getArgs().containsAll(
-                List.of(this.dto.getPersonalData().getEmail(), this.dto.getPersonalData().getCpf())
-        ));
 
         verify(this.commonRepository, only()).saveRecords(
                 this.dto.getPersonalData().getEmail(),

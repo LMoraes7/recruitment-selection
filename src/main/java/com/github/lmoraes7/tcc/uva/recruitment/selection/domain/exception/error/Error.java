@@ -43,6 +43,8 @@ public enum Error {
     APIX_020("apix-020.error"),
 //  Feedback para etapa não externa não pode ser realizada devido ao status da mesma não estar em "executada"
     APIX_021("apix-021.error"),
+//  Credencias informadas são inválidas
+    APIX_022("apix-021.error"),
 //  Erro ao buscar o perfil de candidato
     INTG_001("intg-001.error"),
 //  Erro interno genérico
