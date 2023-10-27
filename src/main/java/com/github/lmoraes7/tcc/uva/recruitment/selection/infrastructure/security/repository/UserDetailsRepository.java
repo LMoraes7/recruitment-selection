@@ -29,7 +29,7 @@ public class UserDetailsRepository {
                             "inner join employees_profiles ep " +
                                 "on e.id = ep.id_employee " +
                             "inner join profiles_functions pf " +
-                                "on ep.id_profile on pf.id_profile " +
+                                "on ep.id_profile = pf.id_profile " +
                             "inner join functions f " +
                                 "on pf.id_function = f.id " +
                     "where e.id = ?",
@@ -60,7 +60,7 @@ public class UserDetailsRepository {
                         "inner join candidates_profiles ep " +
                         "on c.id = ep.id_candidate " +
                         "inner join profiles_functions pf " +
-                        "on ep.id_profile on pf.id_profile " +
+                        "on ep.id_profile = pf.id_profile " +
                         "inner join functions f " +
                         "on pf.id_function = f.id " +
                         "where c.id = ?",
@@ -92,7 +92,7 @@ public class UserDetailsRepository {
                         "inner join candidates_profiles ep " +
                         "on c.id = ep.id_candidate " +
                         "inner join profiles_functions pf " +
-                        "on ep.id_profile on pf.id_profile " +
+                        "on ep.id_profile = pf.id_profile " +
                         "inner join functions f " +
                         "on pf.id_function = f.id " +
                         "where c.username = ?",
@@ -124,7 +124,7 @@ public class UserDetailsRepository {
                         "inner join employees_profiles ep " +
                         "on e.id = ep.id_employee " +
                         "inner join profiles_functions pf " +
-                        "on ep.id_profile on pf.id_profile " +
+                        "on ep.id_profile = pf.id_profile " +
                         "inner join functions f " +
                         "on pf.id_function = f.id " +
                         "where e.username = ?",

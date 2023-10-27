@@ -1,11 +1,11 @@
 create table functions(
     id varchar(13) not null primary key,
-    name varchar(20) not null unique
+    name varchar(255) not null unique
 );
 
 create table profiles(
     id varchar(13) not null primary key,
-    name varchar(20) not null unique
+    name varchar(255) not null unique
 );
 
 create table profiles_functions(

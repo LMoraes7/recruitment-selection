@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -33,29 +34,29 @@ public class SecurityConfig {
     ) throws Exception {
         return http.authorizeHttpRequests((requests) -> {
             try {
-                requests.requestMatchers(PATCH, "/candidacy/close/**").authenticated()
-                        .requestMatchers(GET, "/candidacy").authenticated()
-                        .requestMatchers(GET, "/candidacy/**").authenticated()
-                        .requestMatchers(POST, "/candidacy/selective-process/**").authenticated()
-                        .requestMatchers(POST, "/candidate").permitAll()
-                        .requestMatchers(POST, "/common/redefine-password").permitAll()
-                        .requestMatchers(POST, "/common/reset-password").permitAll()
-                        .requestMatchers(POST, "/employee").authenticated()
-                        .requestMatchers(POST, "/feedback/candidacy/**").authenticated()
-                        .requestMatchers(POST, "/feedback/candidacy/**").authenticated()
-                        .requestMatchers(POST, "/login").permitAll()
-                        .requestMatchers(POST, "/profile").authenticated()
-                        .requestMatchers(POST, "/question").authenticated()
-                        .requestMatchers(PATCH, "/selective-process/**").authenticated()
-                        .requestMatchers(GET, "/selective-process").permitAll()
-                        .requestMatchers(GET, "/selective-process").permitAll()
-                        .requestMatchers(GET, "/selective-process/**").permitAll()
-                        .requestMatchers(POST, "/selective-process").authenticated()
-                        .requestMatchers(GET, "/step/**/type/**/application/**").authenticated()
-                        .requestMatchers(GET, "/step/**/type/**/candidacy/**/selective-process/**").authenticated()
-                        .requestMatchers(POST, "/step").authenticated()
-                        .requestMatchers(POST, "/step/**").authenticated()
-                        .requestMatchers(PATCH, "/step/**").authenticated()
+                requests.antMatchers(PATCH, "/candidacy/close/**").authenticated()//.hasRole("FUNC_CLOSE_CANDIDACY")
+                        .antMatchers(GET, "/candidacy").authenticated()//.hasRole("FUNC_CONSULT_CANDIDACY")
+                        .antMatchers(GET, "/candidacy/**").authenticated()//.hasRole("FUNC_CONSULT_ALL_CANDIDACY")
+                        .antMatchers(POST, "/candidacy/**").authenticated()//.hasRole("FUNC_CREATE_CANDIDACY")
+                        .antMatchers(POST, "/candidate").permitAll()
+                        .antMatchers(POST, "/common/reset-password", "/common/redefine-password").permitAll()
+                        .antMatchers(POST, "/employee").authenticated()//.hasRole("FUNC_CREATE_EMPLOYEE")
+                        .antMatchers(POST, "/feedback/**").authenticated()//.hasRole("FUNC_CREATE_FEEDBACK")
+                        .antMatchers(POST, "/login").permitAll()
+                        .antMatchers(POST, "/profile").authenticated()//.hasRole("FUNC_CREATE_PROFILE")
+                        .antMatchers(POST, "/question").authenticated()//.hasRole("FUNC_CREATE_QUESTION")
+                        .antMatchers(PATCH, "/selective-process/**").authenticated()//.hasRole("FUNC_CLOSE_SELECTIVE_PROCESS")
+                        .antMatchers(GET, "/selective-process").permitAll()
+                        .antMatchers(GET, "/selective-process/**").permitAll()
+                        .antMatchers(POST, "/selective-process").authenticated()//.hasRole("FUNC_CREATE_SELECTIVE_PROCESS")
+                        .antMatchers(GET, "/step/**/type/**/application/**").authenticated()//.hasRole("FUNC_CONSULT_STEP_ANSWERS")
+                        .antMatchers(GET, "/step/**/type/**/candidacy/**/selective-process/**").authenticated()//.hasRole("FUNC_CONSULT_STEP")
+                        .antMatchers(POST, "/step/EXTERNAL").authenticated()//.hasRole("FUNC_CREATE_STEP")
+                        .antMatchers(POST, "/step/UPLOAD_FILES").authenticated()//.hasRole("FUNC_CREATE_STEP")
+                        .antMatchers(POST, "/step/THEORETICAL_TEST").authenticated()//.hasRole("FUNC_CREATE_STEP")
+                        .antMatchers(POST, "/step/**/type/THEORETICAL_TEST/**").authenticated()//.hasRole("FUNC_EXEC_STEP")
+                        .antMatchers(POST, "/step/**/type/UPLOAD_FILES/**").authenticated()//.hasRole("FUNC_EXEC_STEP")
+                        .antMatchers(PATCH, "/step/**").authenticated()//.hasRole("FUNC_RELEASE_STEP")
                         .anyRequest().authenticated()
                         .and().csrf().disable()
                         .sessionManagement().sessionCreationPolicy(STATELESS)

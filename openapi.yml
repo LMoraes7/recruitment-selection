@@ -1,0 +1,711 @@
+openapi: 3.0.3
+info:
+  title: Swagger API de gestão de processos seletivos - OpenAPI 3.0
+  description: |-
+    Está é uma API Rest que tem como objetivo expor endpoints para realizar a gestão de um processo seletivo.
+    
+    Essa API Rest faz parte de um trabalho de conclusão de curso de Sistemas de Informação do aluno Lucas Moraes Cavalcante na Universidade Veiga de Almeida.
+  termsOfService: https://github.com/LMoraes7/recruitment-selection
+  contact:
+    name: Lucas Moraes Cavalcante
+    email: lukaocavalcante93@gmail.com
+  version: 1.0.11
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: login
+    description: Operações de autenticação de usuários
+  - name: common
+    description: Operações comuns a todos os usuários
+  - name: candidate
+    description: Operações sobre um candidato
+  - name: employee
+    description: Operações sobre um funcionário
+  - name: profile
+    description: Operações sobre um perfil
+  - name: question
+    description: Operações sobre uma questão
+paths:
+  '/login':
+    post:
+      tags:
+        - login
+      summary: Autenticar usuário
+      description: |-
+        Endpoint responsável por autenticar um usuário através de nome de usuário e senha
+      operationId: login
+      requestBody:
+        required: true
+        description: Dados para realizar a autenticação de um usuário
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              candidateLoginRequest:
+                $ref: '#/components/examples/CandidateLoginRequest'
+              employeeLoginRequest:
+                $ref: '#/components/examples/EmployeeLoginRequest'
+      responses:
+        '200':
+          description: Solicitação efetuada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              examples:
+                loginResponse:
+                  $ref: '#/components/examples/LoginResponse'
+        '400':
+          description: A requisição contém dados inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                badRequestErrorResponse:
+                  $ref: '#/components/examples/BadRequestErrorResponse'
+        '401':
+          description: A requisição contém dados de autenticação inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                unauthorizedErrorResponse:
+                  $ref: '#/components/examples/UnauthorizedErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/common/redefine-password':
+    post:
+      tags:
+        - common
+      summary: Redefinir senha do usuário
+      description: |-
+        Endpoint responsável por redefinir a senha de um usuário
+      operationId: redefinePassword
+      requestBody:
+        required: true
+        description: Dados para realizar a redefinição de senha de um usuário
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RedefinePasswordRequest'
+            examples:
+              redefinePasswordRequest:
+                $ref: '#/components/examples/RedefinePasswordRequest'
+      responses:
+        '200':
+          description: Solicitação efetuada com sucesso.
+        '400':
+          description: A requisição contém dados inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                badRequestErrorResponse:
+                  $ref: '#/components/examples/BadRequestErrorResponse'
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                codeNotFoundErrorResponse:
+                  $ref: '#/components/examples/CodeNotFoundErrorResponse'
+                codeHasAlreadyBeenUsedErrorResponse:
+                  $ref: '#/components/examples/CodeHasAlreadyBeenUsedErrorResponse'
+                codeHasExpiredErrorResponse:
+                  $ref: '#/components/examples/CodeHasExpiredErrorResponse'
+                emailInvalidErrorResponse:
+                  $ref: '#/components/examples/EmailInvalidErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/common/reset-password':
+    post:
+      tags:
+        - common
+      summary: Solicitar redefinição de senha do usuário
+      description: |-
+        Endpoint responsável por solicitar uma redefinição de senha de um usuário
+      operationId: resetPassword
+      requestBody:
+        required: true
+        description: Dados para realizar a solicitacação de redefinição de senha de um usuário
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+            examples:
+              resetPasswordRequest:
+                $ref: '#/components/examples/ResetPasswordRequest'
+      responses:
+        '200':
+          description: Solicitação efetuada com sucesso.
+        '400':
+          description: A requisição contém dados inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                badRequestErrorResponse:
+                  $ref: '#/components/examples/BadRequestErrorResponse'
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                emailInvalidErrorResponse:
+                  $ref: '#/components/examples/EmailInvalidErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/candidate':
+    post:
+      tags:
+        - candidate
+      summary: Solicitar criação de conta como candidato
+      description: |-
+        Endpoint responsável por criar conta como um candidato
+      operationId: createCandidate
+      requestBody:
+        required: true
+        description: Dados para realizar a criação da conta de um candidato
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCandidateRequest'
+            examples:
+              CreateCandidateRequest:
+                $ref: '#/components/examples/CreateCandidateRequest'
+      responses:
+        '201':
+          description: Solicitação efetuada com sucesso.
+        '400':
+          description: A requisição contém dados inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                badRequestErrorResponse:
+                  $ref: '#/components/examples/BadRequestErrorResponse'
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                cpfOrEmailInvalidErrorResponse:
+                  $ref: '#/components/examples/CpfOrEmailInvalidErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/employee':
+    post:
+      tags:
+        - employee
+      summary: Solicitar criação de conta de um funcionário
+      description: |-
+        Endpoint responsável por criar conta de um funcionário
+      operationId: createEmployee
+      requestBody:
+        required: true
+        description: Dados para realizar a criação da conta de um funcionário
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEmployeeRequest'
+            examples:
+              CreateEmployeeRequest:
+                $ref: '#/components/examples/CreateEmployeeRequest'
+      responses:
+        '201':
+          description: Solicitação efetuada com sucesso.
+        '400':
+          description: A requisição contém dados inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                badRequestErrorResponse:
+                  $ref: '#/components/examples/BadRequestErrorResponse'
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                profilesInvalidErrorResponse:
+                  $ref: '#/components/examples/ProfilesInvalidErrorResponse'
+                cpfOrEmailInvalidErrorResponse:
+                  $ref: '#/components/examples/CpfOrEmailInvalidErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      description: Dados para autenticar um usuário.
+      required:
+        - username
+        - password
+        - login_type
+      properties:
+        username:
+          type: string
+          format: email
+          description: E-mail atual de acesso.
+          maxLength: 255
+          nullable: false
+        password:
+          type: string
+          format: password
+          description: Senha atual de acesso.
+          minLength: 8
+          maxLength: 12
+          nullable: false
+        login_type:
+          type: string
+          description: Informa se o modelo de autenticação deve ser executado para um candidato (CAN) ou um funcionário (EMP).
+          enum:
+            - EMP
+            - CAN
+          nullable: false
+    LoginResponse:
+      type: object
+      description: Dados de credencias de para usuário autenticado com sucesso.
+      required:
+        - type
+        - access_token
+        - creation_date
+        - expiration_date
+        - expiration_in
+      properties:
+        type:
+          type: string
+          description: Modelo de autenticação a ser utilizado no Token de acesso JWT.
+          nullable: false
+        access_token:
+          type: string
+          description: Token de acesso no formato JWT.
+          nullable: false
+        creation_date:
+          type: integer
+          description: Instante informado em minutos no momento que as credencias de acesso foram geradas.
+          nullable: false
+        expiration_date:
+          type: integer
+          description: Instante informado em minutos no momento que as credencias de acesso serão expiradas.
+          nullable: false
+        expiration_in:
+          type: integer
+          description: Instante informado em minutos no tempo de vida útil das credencias de acesso geradas.
+          nullable: false
+    DefaultErrorResponse:
+      type: object
+      description: Dados informando algum erro retornado para o cliente.
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Campo informando o código de erro que aconteceu.
+          nullable: false
+        message:
+          type: string
+          description: Mensagem para dar maior detalhamento do erro ocorrido.
+          nullable: false
+        errors:
+          type: array
+          description: Informações sobre os campos que causaram o erro.
+          nullable: true
+          items:
+            type: object
+            required:
+              - field
+              - message
+            properties:
+              field:
+                type: string
+                description: Nome do campo que causou o erro gerado.
+                nullable: false
+              message:
+                type: string
+                description: Mensagem para dar maior detalhamento do erro ocorrido no campo.
+                nullable: false
+    RedefinePasswordRequest:
+      type: object
+      description: Dados para redefinir a senha de um usuário.
+      required:
+        - code
+        - new_password
+      properties:
+        code:
+          type: string
+          description: Código de redefinição de senha.
+          minLength: 13
+          maxLength: 13
+          nullable: false
+        new_password:
+          type: string
+          format: password
+          description: Nova senha a ser utilizada.
+          minLength: 8
+          maxLength: 12
+          nullable: false
+    ResetPasswordRequest:
+      type: object
+      description: Dados para solicitar redefinição de senha de um usuário.
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: E-mail atual da conta para ser solicitado a redefinição de senha.
+          maxLength: 255
+          nullable: false
+    CreateCandidateRequest:
+      type: object
+      description: Dados para solicitar a crição de um candidato.
+      required:
+        - personal_data
+        - access_credentials
+      properties:
+        personal_data:
+          $ref: '#/components/schemas/PersonalDataRequest'
+        access_credentials:
+          $ref: '#/components/schemas/AccessCredentialsRequest'
+    CreateEmployeeRequest:
+      type: object
+      description: Dados para solicitar a crição de um funcionário.
+      required:
+        - personal_data
+        - profiles_identifiers
+      properties:
+        personal_data:
+          $ref: '#/components/schemas/PersonalDataRequest'
+        profiles_identifiers:
+          type: array
+          description: Identificadores de perfis a serem atrelados ao funcionário.
+          nullable: false
+          minItems: 1
+          items:
+            type: string
+            nullable: false
+    PersonalDataRequest:
+      type: object
+      description: Informações sobre os dados pessoais do usuário.
+      required:
+        - name
+        - cpf
+        - email
+        - date_of_birth
+        - phone
+        - address
+      nullable: false
+      properties:
+        name:
+          type: string
+          description: Nome do usuário.
+          minLength: 8
+          maxLength: 12
+          nullable: false
+        cpf:
+          type: string
+          description: CPF do usuário.
+          minLength: 11
+          maxLength: 11
+          nullable: false
+        email:
+          type: string
+          format: email
+          description: E-mail do usuário.
+          maxLength: 255
+          nullable: false
+        date_of_birth:
+          type: string
+          format: date
+          pattern: 'yyyy-MM-dd'
+          description: Data de nascimento do usuário.
+          nullable: false
+        phone:
+          $ref: '#/components/schemas/PhoneRequest'
+        address:
+          $ref: '#/components/schemas/AddressRequest'
+    PhoneRequest:
+      type: object
+      description: Informações sobre o telefone do usuário.
+      required:
+        - ddd
+        - number
+      nullable: false
+      properties:
+        ddd:
+          type: string
+          pattern: '^[0-9]{3}$'
+          description: DDD do telefone do usuário
+          minLength: 3
+          maxLength: 3
+          nullable: false
+        number:
+          type: string
+          pattern: '^[0-9]{8,9}$'
+          description: Número do telefone do usuário
+          minLength: 8
+          maxLength: 9
+          nullable: false
+    AddressRequest:
+      type: object
+      description: Informações sobre o endereço do usuário.
+      nullable: false
+      required:
+        - cep
+        - place
+        - neighborhood
+        - locality
+        - uf
+      properties:
+        number:
+          type: integer
+          description: Número do endereço do usuário
+          minimum: 1
+          nullable: true
+        complement:
+          type: string
+          description: Complemento do endereço do usuário
+          maxLength: 255
+          nullable: true
+        cep:
+          type: string
+          pattern: '^[0-9]{8}$'
+          description: CEP do endereço do usuário
+          minLength: 8
+          maxLength: 8
+          nullable: false
+        place:
+          type: string
+          description: Logradouro do usuário
+          minLength: 1
+          maxLength: 255
+          nullable: false
+        neighborhood:
+          type: string
+          description: Bairro do endereço do usuário
+          minLength: 1
+          maxLength: 255
+          nullable: false
+        locality:
+          type: string
+          description: Cidade do endereço do usuário
+          minLength: 1
+          maxLength: 255
+          nullable: false
+        uf:
+          type: string
+          pattern: '^[A-Z]{2}$'
+          description: Estado do endereço do usuário
+          minLength: 2
+          maxLength: 2
+          nullable: false
+    AccessCredentialsRequest:
+      type: object
+      description: Informações sobre as credenciais do usuário.
+      required:
+        - password
+      nullable: false
+      properties:
+        password:
+          type: string
+          format: password
+          description: Senha a ser utilizada.
+          minLength: 8
+          maxLength: 12
+          nullable: false
+  examples:
+    CandidateLoginRequest:
+      summary: "Exemplo de autenticação de um candidato"
+      value:
+        username: "joao_lucas@gmail.com.br"
+        password: "Senha@12345"
+        login_type: "CAN"
+    EmployeeLoginRequest:
+      summary: "Exemplo de autenticação de um funcionário"
+      value:
+        username: "maria_fernanda@gmail.com.br"
+        password: "Senha@12345"
+        login_type: "EMP"
+    LoginResponse:
+      summary: "Exemplo de resposta de autenticação de um usuário"
+      value:
+        type: "Bearer"
+        access_token: "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhcGktcmVjcnVpdG1lbnQtc2VsZWN0aW9uIiwic3ViIjoiQ0FOLTNkYTI0MzU5IiwiYXVkIjoiam9hb19yaWNhcmRvQGdtYWlsLmNvbS5iciIsImV4cCI6MTc4NDY5MDY4MCwiaWF0IjoxNjk4MjkwNjgwLCJzY29wZXMiOlsiRlVOQ19DT05TVUxUX0FMTF9DQU5ESURBQ1kiLCJGVU5DX0NMT1NFX0NBTkRJREFDWSIsIkZVTkNfUkVERUZJTkVfUEFTU1dPUkQiLCJGVU5DX0NPTlNVTFRfQ0FORElEQUNZIiwiRlVOQ19DUkVBVEVfQ0FORElEQUNZIiwiRlVOQ19FWEVDX1NURVAiXX0.PubQZWUMnNwl3Q1ISpcy0LYJRc-deueboyN3HicAwqw"
+        creation_date: 28304844
+        expiration_date: 29744844
+        expiration_in: 86400000
+    RedefinePasswordRequest:
+      summary: "Exemplo de redefinicação de senha de um usuário"
+      value:
+        code: "RST-NJhhe37YG"
+        new_password: "NovaSenha@12"
+    ResetPasswordRequest:
+      summary: "Exemplo de solicitação de redefinicação de senha de um usuário"
+      value:
+        email: "joao_lucas@gmail.com.br"
+    CreateCandidateRequest:
+      summary: "Exemplo de solicitação para criação de conta de um candidato"
+      value:
+        personal_data:
+          name: "João Ricardo Fernandes"
+          cpf: "41933012064"
+          email: "joao_ricardo@gmail.com.br"
+          date_of_birth: "2000-01-01"
+          phone:
+            ddd: "021"
+            number: "998846581"
+          address:
+            number: 155
+            complement: "Bloco 1 APTO 202"
+            cep: "11755801"
+            place: "Avenida Delfim Moreira"
+            neighborhood: "Leblon"
+            locality: "Rio de Janeiro"
+            uf: "RJ"
+        access_credentials:
+          password: "Senha@12345"
+    CreateEmployeeRequest:
+      summary: "Exemplo de solicitação para criação de conta de um funcionário"
+      value:
+        personal_data:
+          name: "João Ricardo Fernandes"
+          cpf: "41933012064"
+          email: "joao_ricardo@gmail.com.br"
+          date_of_birth: "2000-01-01"
+          phone:
+            ddd: "021"
+            number: "998846581"
+          address:
+            number: 155
+            complement: "Bloco 1 APTO 202"
+            cep: "11755801"
+            place: "Avenida Delfim Moreira"
+            neighborhood: "Leblon"
+            locality: "Rio de Janeiro"
+            uf: "RJ"
+        profiles_identifiers: [
+          "PRO-bhjb675Ga",
+          "PRO-AKjM675aa",
+          "PRO-Ghkb675Ga"
+        ]
+    BadRequestErrorResponse:
+      summary: "Exemplo genérico de resposta de erro na requisição do cliente"
+      value:
+        code: "INVALID_ARGUMENTS"
+        message: "Informações erradas foram fornecidas. Por favor, revise o contrato."
+        errors:
+          - field: "abc.xpto"
+            message: "não deve estar em branco"
+          - field: "xyz"
+            message: "deve corresponder a \"ABC|DEF\""
+          - field: "abc.dto"
+            message: "não pode ser nulo"
+    UnauthorizedErrorResponse:
+      summary: "Exemplo de resposta de credencias inválidas para autenticação"
+      value:
+        code: "INVALID_CREDENTIALS"
+        message: "Credencias inválidas foram fornecidas."
+    InternalErrorResponse:
+      summary: "Exemplo de resposta de erro interno no servidor"
+      value:
+        code: "INTERNAL_ERROR"
+        message: "Aconteceu um erro inesperado. Caso o erro persista por um tempo, por favor, entre em contato com o administrador do sistema."
+    CodeNotFoundErrorResponse:
+      summary: "Exemplo de resposta de um código informado de redefinição de senha inexistente"
+      value:
+        code: "APIX_023"
+        message: "Código informado é inexistente."
+    CodeHasAlreadyBeenUsedErrorResponse:
+      summary: "Exemplo de resposta de um código informado de redefinição de senha já utilizado"
+      value:
+        code: "APIX_005"
+        message: "O código de redefinição de senha já foi utilizado."
+    CodeHasExpiredErrorResponse:
+      summary: "Exemplo de resposta de um código informado de redefinição de senha expirado"
+      value:
+        code: "APIX_006"
+        message: "O código de redefinição de senha já expirou."
+    EmailInvalidErrorResponse:
+      summary: "Exemplo de resposta de informando que não é possível alterar a senha para a conta"
+      value:
+        code: "APIX_007"
+        message: "E-mail do usuário não se encontra válido ou não existe no sistema para redefinir a senha."
+    CpfOrEmailInvalidErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível cadastrar uma conta pois o CPF ou o E-mail já foram cadastrados"
+      value:
+        code: "APIX_003"
+        message: "CPF ou E-mail fornecidos já foram cadastrados."
+    ProfilesInvalidErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível cadastrar uma conta pois foram informados identificadores de perfis inválidos"
+      value:
+        code: "APIX_004"
+        message: "Os identificadores fornecidos são inválidos: [PRO-bhjb675Ga, PRO-Ghkb675Ga]."
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

@@ -4,7 +4,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.profile.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.context.SecurityEmployeeContext;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.profile.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.profile.request.ProfileRequest;
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -24,6 +24,10 @@ public final class Profile {
         this.functions = functions;
     }
 
+    public Profile(final Set<Function> functions) {
+        this.functions = functions;
+    }
+
     public String getIdentifier() {
         return identifier;
     }

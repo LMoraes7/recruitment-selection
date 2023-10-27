@@ -17,6 +17,10 @@ public final class Function {
         this.name = name;
     }
 
+    public Function(final Functionality name) {
+        this.name = name;
+    }
+
     public String getIdentifier() {
         return identifier;
     }

@@ -5,7 +5,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.common.R
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.common.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.common.request.RedefinePasswordRequest;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.common.request.ResetPasswordRequest;
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

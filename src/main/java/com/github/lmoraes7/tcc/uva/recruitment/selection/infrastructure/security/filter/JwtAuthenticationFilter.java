@@ -6,18 +6,17 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.context.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.context.SecurityEmployeeContext;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.repository.UserDetailsRepository;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.service.JwtAccessTokenService;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.filter.converter.ConverterHelper.candidateDetailsToDomain;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.filter.converter.ConverterHelper.employeeDetailsToDomain;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.filter.converter.ConverterHelper.*;
 
 
 public final class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -59,7 +58,7 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
         final var ownerIdentifier = this.jwtTokenService.getOwnerIdentifier(acessToken);
         if (ownerIdentifier.startsWith("EMP")) {
             this.userDetailsRepository.findEmployeeByIdWithAccessProfile(ownerIdentifier).ifPresent((it -> {
-                final Employee employee = employeeDetailsToDomain(ownerIdentifier, it);
+                final Employee employee = employeeDetailsToDomainWithProfiles(ownerIdentifier, it);
                 final var authentication = new UsernamePasswordAuthenticationToken(
                         employee,
                         null,
@@ -74,7 +73,7 @@ public final class JwtAuthenticationFilter extends OncePerRequestFilter {
             }));
         } else {
             this.userDetailsRepository.findCandidateByIdWithAccessProfile(ownerIdentifier).ifPresent((it -> {
-                final Candidate candidate = candidateDetailsToDomain(ownerIdentifier, it);
+                final Candidate candidate = candidateDetailsToDomainWithProfile(ownerIdentifier, it);
                 final var authentication = new UsernamePasswordAuthenticationToken(
                         candidate,
                         null,

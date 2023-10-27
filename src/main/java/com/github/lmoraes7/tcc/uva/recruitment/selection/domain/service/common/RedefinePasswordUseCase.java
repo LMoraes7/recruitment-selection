@@ -1,6 +1,7 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.common;
 
 import com.github.lmoraes7.tcc.uva.recruitment.selection.application.listener.event.PasswordReset;
+import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.BusinessException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.InternalErrorException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.NotFoundException;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.model.PasswordChangeRequest;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_023;
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.INTG_002;
 
 @Service
@@ -35,7 +37,7 @@ public final class RedefinePasswordUseCase {
 
     public void execute(final RedefinePasswordDto dto) {
         final PasswordChangeRequest passwordChangeRequest = this.commonRepository.findPasswordChangeRequestByCode(dto.getCode())
-                .orElseThrow(() -> new NotFoundException(dto.getCode(), PasswordChangeRequest.class));
+                .orElseThrow(() -> new BusinessException(APIX_023, "Código informado é inexistente."));
 
         passwordChangeRequest.hasItAlreadyBeenUsed();
         passwordChangeRequest.isItExpired();

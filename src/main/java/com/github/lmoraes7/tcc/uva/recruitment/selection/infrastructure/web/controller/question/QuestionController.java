@@ -5,7 +5,7 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.context.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.question.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.question.request.QuestionDiscursiveRequest;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.question.request.QuestionMultipleChoiceRequest;
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -16,6 +16,7 @@ public final class CustomGrantedAuthority implements GrantedAuthority {
         return id;
     }
 
+    @Override
     public String getAuthority() {
         return this.value;
     }

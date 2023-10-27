@@ -1,6 +1,6 @@
 package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.validation;
 
-import jakarta.validation.Constraint;
+import javax.validation.Constraint;
 
 import java.lang.annotation.*;
 

@@ -3,13 +3,13 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.con
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public final class AddressRequest {
-    @Pattern(regexp = "^[0-9]$")
+//    @Pattern(regexp = "^[0-9]$")
     private Integer number;
     private String complement;
     @NotBlank
@@ -22,6 +22,7 @@ public final class AddressRequest {
     @NotBlank
     private String locality;
     @NotBlank
+    @Pattern(regexp = "^[A-Z]{2}$")
     private String uf;
 
 

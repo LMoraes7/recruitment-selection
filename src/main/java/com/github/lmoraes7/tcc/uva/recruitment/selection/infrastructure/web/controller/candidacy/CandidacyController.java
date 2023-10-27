@@ -8,11 +8,12 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.context.
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.candidacy.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.candidacy.response.CandidacyPaginatedResponse;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.candidacy.response.SpecificCandidacyResponse;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,6 +52,7 @@ public class CandidacyController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('FUNC_CREATE_EMPLOYEE')")
     @GetMapping
     public ResponseEntity<CandidacyPaginatedResponse> consultListOfCandidacy(
             @RequestParam @Valid @Min(1) final Integer pageSize,

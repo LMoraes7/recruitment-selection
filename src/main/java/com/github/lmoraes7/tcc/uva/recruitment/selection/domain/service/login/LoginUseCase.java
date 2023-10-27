@@ -16,8 +16,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 import static com.github.lmoraes7.tcc.uva.recruitment.selection.domain.exception.error.Error.APIX_022;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.filter.converter.ConverterHelper.candidateDetailsToDomain;
-import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.filter.converter.ConverterHelper.employeeDetailsToDomain;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.filter.converter.ConverterHelper.candidateDetailsToDomainWithProfile;
+import static com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.security.filter.converter.ConverterHelper.employeeDetailsToDomainWithProfiles;
 
 @Service
 public final class LoginUseCase {
@@ -56,7 +56,7 @@ public final class LoginUseCase {
         }
 
         final AccessToken credentialAccess = this.jwtAccessTokenService.generateCredentialAccess(
-                candidateDetailsToDomain(userDetails.getId(), userDetails)
+                candidateDetailsToDomainWithProfile(userDetails.getId(), userDetails)
         );
         this.publisher.publishEvent(new LoginSuccessfullyEvent(username));
         return credentialAccess;
@@ -75,7 +75,7 @@ public final class LoginUseCase {
         }
 
         final AccessToken credentialAccess = this.jwtAccessTokenService.generateCredentialAccess(
-                employeeDetailsToDomain(userDetails.getId(), userDetails)
+                employeeDetailsToDomainWithProfiles(userDetails.getId(), userDetails)
         );
         this.publisher.publishEvent(new LoginSuccessfullyEvent(username));
         return credentialAccess;

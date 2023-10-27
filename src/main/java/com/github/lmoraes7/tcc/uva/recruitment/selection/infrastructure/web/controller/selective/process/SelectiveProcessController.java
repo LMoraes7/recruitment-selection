@@ -9,8 +9,8 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.cont
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.selective.process.request.SelectiveProcessRequest;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.selective.process.response.SelectiveProcessoPaginatedResponse;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.selective.process.response.SpecificSelectiveProcessResponse;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

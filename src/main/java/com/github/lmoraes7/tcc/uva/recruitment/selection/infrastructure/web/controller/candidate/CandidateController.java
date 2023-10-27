@@ -3,7 +3,7 @@ package com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.con
 import com.github.lmoraes7.tcc.uva.recruitment.selection.domain.service.candidate.CreateCandidateUseCase;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.candidate.converter.ConverterHelper;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.candidate.request.CandidateRequest;
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
