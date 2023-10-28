@@ -26,7 +26,7 @@ public class QuestionController {
         this.createQuestionUseCase = createQuestionUseCase;
     }
 
-    @PostMapping("/DISCURSIVE")
+    @PostMapping("/discursive")
     public ResponseEntity<?> createQuestionDiscursive(@RequestBody @Valid final QuestionDiscursiveRequest request) {
         this.createQuestionUseCase.execute(
                 SecurityEmployeeContext.getContext(),
@@ -36,7 +36,7 @@ public class QuestionController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/MULTIPLE_CHOICE")
+    @PostMapping("/multiple-choice")
     public ResponseEntity<?> createQuestionMultipleChoice(@RequestBody @Valid final QuestionMultipleChoiceRequest request) {
         this.createQuestionUseCase.execute(
                 SecurityEmployeeContext.getContext(),

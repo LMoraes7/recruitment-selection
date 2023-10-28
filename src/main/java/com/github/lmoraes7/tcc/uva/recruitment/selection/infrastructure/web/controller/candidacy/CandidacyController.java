@@ -9,7 +9,10 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.cont
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.candidacy.response.CandidacyPaginatedResponse;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.candidacy.response.SpecificCandidacyResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,11 +55,10 @@ public class CandidacyController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('FUNC_CREATE_EMPLOYEE')")
     @GetMapping
     public ResponseEntity<CandidacyPaginatedResponse> consultListOfCandidacy(
-            @RequestParam @Valid @Min(1) final Integer pageSize,
-            @RequestParam @Valid @Min(0) final Integer pageNumber
+            @RequestParam @Valid @NotNull @Min(1) @Max(10) final Integer pageSize,
+            @RequestParam @Valid @NotNull @Min(0) final Integer pageNumber
     ) {
         final CandidacyPaginatedResponse response = ConverterHelper.toResponse(
                 this.consultListOfCandidacyUseCase.execute(

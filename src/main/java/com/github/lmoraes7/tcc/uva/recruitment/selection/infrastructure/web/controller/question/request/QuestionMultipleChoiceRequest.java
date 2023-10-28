@@ -15,7 +15,7 @@ public final class QuestionMultipleChoiceRequest {
     @NotBlank
     private String description;
 
-    @Size(min = 5, max = 10)
+    @Size(min = 4, max = 4)
     @NotNull
     private Set<AnswerRequest> answers;
 

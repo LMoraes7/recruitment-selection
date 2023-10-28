@@ -25,6 +25,10 @@ tags:
     description: Operações sobre um perfil
   - name: question
     description: Operações sobre uma questão
+  - name: feedback
+    description: Operações sobre um feedback
+  - name: candidacy
+    description: Operações sobre uma candidatura
 paths:
   '/login':
     post:
@@ -65,8 +69,8 @@ paths:
               examples:
                 badRequestErrorResponse:
                   $ref: '#/components/examples/BadRequestErrorResponse'
-        '401':
-          description: A requisição contém dados de autenticação inválidos.
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
           content:
             application/json:
               schema:
@@ -253,7 +257,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateEmployeeRequest'
             examples:
-              CreateEmployeeRequest:
+              createEmployeeRequest:
                 $ref: '#/components/examples/CreateEmployeeRequest'
       responses:
         '201':
@@ -278,6 +282,362 @@ paths:
                   $ref: '#/components/examples/ProfilesInvalidErrorResponse'
                 cpfOrEmailInvalidErrorResponse:
                   $ref: '#/components/examples/CpfOrEmailInvalidErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/profile':
+    post:
+      tags:
+        - profile
+      summary: Solicitar criação de um perfil de acesso
+      description: |-
+        Endpoint responsável por criar um perfil de acesso
+        <br /> <br />
+        **Scope:** FUNC_CREATE_PROFILE
+      operationId: createProfile
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        description: Dados para realizar a criação de um perfil de acesso
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProfileRequest'
+            examples:
+              createProfileRequest:
+                $ref: '#/components/examples/CreateProfileRequest'
+      responses:
+        '201':
+          description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                functionsInvalidErrorResponse:
+                  $ref: '#/components/examples/FunctionsInvalidErrorResponse'
+                profileNameInvalidErrorResponse:
+                  $ref: '#/components/examples/ProfileNameInvalidErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/question/discursive':
+    post:
+      tags:
+        - question
+      summary: Solicitar criação de questão discursiva
+      description: |-
+        Endpoint responsável por criar uma questão discursiva
+        <br /> <br />
+        **Scope:** FUNC_CREATE_QUESTION
+      operationId: createQuestionDiscursive
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        description: Dados para realizar a criação de uma questão discursiva
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateQuestionDiscursiveRequest'
+            examples:
+              createQuestionDiscursiveRequest:
+                $ref: '#/components/examples/CreateQuestionDiscursiveRequest'
+      responses:
+        '201':
+          description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/question/multiple-choice':
+    post:
+      tags:
+        - question
+      summary: Solicitar criação de questão de múltipla escolha
+      description: |-
+        Endpoint responsável por criar uma questão de múltipla escolha
+        <br /> <br />
+        **Scope:** FUNC_CREATE_QUESTION
+      operationId: createQuestionMultipleChoice
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        description: Dados para realizar a criação de uma questão de múltipla escolha
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateQuestionMultipleChoiceRequest'
+            examples:
+              createQuestionMultipleChoiceRequest:
+                $ref: '#/components/examples/CreateQuestionMultipleChoiceRequest'
+      responses:
+        '201':
+          description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/feedback/candidacy/{candidacyIdentifier}/step/{stepIdentifier}':
+    post:
+      tags:
+        - feedback
+      summary: Solicitar criação de um feedback
+      description: |-
+        Endpoint responsável por criar um feedback
+        <br /> <br />
+        **Scope:** FUNC_CREATE_FEEDBACK
+      operationId: createFeedback
+      parameters:
+        - $ref: '#/components/parameters/CandidacyIdentifierPath'
+        - $ref: '#/components/parameters/StepIdentifierPath'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        description: Dados para realizar a criação de um feedback
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeedbackRequest'
+            examples:
+              createFeedbackRequest:
+                $ref: '#/components/examples/CreateFeedbackRequest'
+      responses:
+        '201':
+          description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão
+        '404':
+          description: Recurso não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                candidacyStepNotFoundErrorResponse:
+                  $ref: '#/components/examples/CandidacyStepNotFoundErrorResponse'
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                externalWaitingExecutionErrorResponse:
+                  $ref: '#/components/examples/ExternalWaitingExecutionErrorResponse'
+                executedErrorResponse:
+                  $ref: '#/components/examples/ExecutedErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/candidacy/close/{candidacyIdentifier}/selective-process/{selectiveProcessIdentifier}':
+    patch:
+      tags:
+        - candidacy
+      summary: Solicitar encerramento da candidatura
+      description: |-
+        Endpoint responsável por encerrar uma candidatura
+        <br /> <br />
+        **Scope:** FUNC_CLOSE_CANDIDACY
+      operationId: closeCandidacy
+      parameters:
+        - $ref: '#/components/parameters/CandidacyIdentifierPath'
+        - $ref: '#/components/parameters/SelectiveProcessIdentifierPath'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '204':
+          description: Solicitação efetuada com sucesso.
+        '404':
+          description: Recurso não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                candidacySelectiveProcessNotFoundErrorResponse:
+                  $ref: '#/components/examples/CandidacySelectiveProcessNotFoundErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/candidacy':
+    get:
+      tags:
+        - candidacy
+      summary: Solicitar busca de candidaturas efetuadas
+      description: |-
+        Endpoint responsável por buscar candidaturas efetuadas
+        <br /> <br />
+        **Scope:** FUNC_CONSULT_ALL_CANDIDACY
+      operationId: consultListOfCandidacy
+      parameters:
+        - $ref: '#/components/parameters/PageSizeParam'
+        - $ref: '#/components/parameters/PageNumberParam'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Solicitação efetuada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidacyDataPaginatedResponse'
+              examples:
+                candidacyDataPaginatedResponse:
+                  $ref: '#/components/examples/CandidacyDataPaginatedResponse'
+        '204':
+          description: Solicitação efetuada com sucesso, porém não foi encontrada nenhuma candidatura com os parâmetros de paginação informados.
+        '400':
+          description: A requisição contém dados inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                badRequestErrorResponse:
+                  $ref: '#/components/examples/BadRequestErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/candidacy/{candidacyIdentifier}':
+    get:
+      tags:
+        - candidacy
+      summary: Solicitar busca de uma candidatura específica
+      description: |-
+        Endpoint responsável por buscar candidatura específica
+        <br /> <br />
+        **Scope:** FUNC_CONSULT_CANDIDACY
+      operationId: consultSpecificCandidacy
+      parameters:
+        - $ref: '#/components/parameters/CandidacyIdentifierPath'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Solicitação efetuada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidacyResponse'
+              examples:
+                candidacyResponse:
+                  $ref: '#/components/examples/CandidacyResponse'
+        '404':
+          description: Recurso não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                candidacyNotFoundErrorResponse:
+                  $ref: '#/components/examples/CandidacyNotFoundErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/candidacy/selective-process/{selectiveProcessIdentifier}':
+    post:
+      tags:
+        - candidacy
+      summary: Solicitar criação de uma candidatura
+      description: |-
+        Endpoint responsável por criar uma candidatura
+        <br /> <br />
+        **Scope:** FUNC_CREATE_CANDIDACY
+      operationId: createCandidacy
+      parameters:
+        - $ref: '#/components/parameters/SelectiveProcessIdentifierPath'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '201':
+          description: Solicitação efetuada com sucesso.
+        '404':
+          description: Recurso não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                selectiveProcessNotFoundErrorResponse:
+                  $ref: '#/components/examples/SelectiveProcessNotFoundErrorResponse'
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                createCandidacyErrorResponse:
+                  $ref: '#/components/examples/CreateCandidacyErrorResponse'
         '500':
           description: Ocorreu um erro interno no servidor.
           content:
@@ -569,6 +929,234 @@ components:
           minLength: 8
           maxLength: 12
           nullable: false
+    CreateProfileRequest:
+      type: object
+      description: Informações sobre o perfil de acesso.
+      required:
+        - name
+        - functions_identifiers
+      properties:
+        name:
+          type: string
+          description: Nome do perfil de acesso
+          minLength: 1
+          maxLength: 255
+          nullable: false
+        functions_identifiers:
+          type: array
+          description: Identificadores de funções a serem atreladas ao perfil.
+          nullable: false
+          minItems: 1
+          items:
+            type: string
+            nullable: false
+    CreateQuestionDiscursiveRequest:
+      type: object
+      description: Informações sobre a questão discursiva.
+      required:
+        - description
+      properties:
+        description:
+          type: string
+          description: Enunciado da questão
+          minLength: 1
+          nullable: false
+    CreateQuestionMultipleChoiceRequest:
+      type: object
+      description: Informações sobre a questão de múltipla escolha.
+      required:
+        - description
+        - answers
+      properties:
+        description:
+          type: string
+          description: Enunciado da questão.
+          minLength: 1
+          nullable: false
+        answers:
+          type: array
+          description: Informações sobre as alternativas de respotas da questão.
+          minItems: 4
+          maxItems: 4
+          nullable: false
+          items:
+            type: object
+            required:
+              - description
+              - is_correct
+            properties:
+              description:
+                type: string
+                description: Enunciado da resposta da questão.
+                minLength: 1
+                nullable: false
+              is_correct:
+                type: boolean
+                description: Informação se a alternativa é a correta para questão.
+                nullable: false
+    CreateFeedbackRequest:
+      type: object
+      description: Informações sobre o feedback.
+      required:
+        - pointing
+      properties:
+        additional_info:
+          type: string
+          description: Mensagem adicional para o candidato.
+          minLength: 1
+          nullable: true
+        pointing:
+          type: number
+          format: decimal
+          description: Pontuação do candidato na etapa. Deve-se informar o valor no formato com suas casas decimais.
+          minimum: 0.0
+          maximum: 10.00
+          nullable: false
+    CandidacyDataPaginatedResponse:
+      type: object
+      description: Informações sobre as candidaturas buscadas.
+      required:
+        - candidacies
+        - page_number
+        - page_size
+        - total_pages
+        - total_elements
+        - total_results
+      properties:
+        candidacies:
+          $ref: '#/components/schemas/CandidacyPaginatedResponse'
+        page_number:
+          type: integer
+          format: int64
+          description: Número da página utilizado no filtro.
+          nullable: false
+        page_size:
+          type: integer
+          format: int64
+          description: Quantidade de ítens na página utilizado no filtro.
+          nullable: false
+        total_pages:
+          type: integer
+          format: int64
+          description: Quantidade total de páginas com o filtro de busca utilizado.
+          nullable: false
+        total_elements:
+          type: integer
+          format: int64
+          description: Quantidade de ítens páginas que foram retornados.
+          nullable: false
+        total_results:
+          type: integer
+          format: int64
+          description: Quantidade total de ítens com o filtro de busca utilizado.
+          nullable: false
+    CandidacyPaginatedResponse:
+      type: array
+      description: Informações sobre as candidaturas.
+      nullable: false
+      items:
+        type: object
+        required:
+          - identifier
+          - status
+          - selective_process_title
+        properties:
+          identifier:
+            type: string
+            description: Identificador da candidatura.
+            nullable: false
+          status:
+            type: string
+            description: Status da candidatura. Em progresso (IN_PROGRESS), Aprovada (APPROVED), Reprovada (FAILED) e Encerrada (CLOSED).
+            enum:
+              - IN_PROGRESS
+              - APPROVED
+              - FAILED
+              - CLOSED
+            nullable: false
+          selective_process_title:
+            type: string
+            description: Título do processo seletivo
+            nullable: false
+    CandidacyResponse:
+      type: object
+      description: Informações sobre uma candidatura buscada.
+      required:
+        - id
+        - status
+        - selective_process
+        - steps
+      properties:
+        id:
+          type: string
+          description: Identificador da candidatura.
+          nullable: false
+        status:
+          type: string
+          description: Status da candidatura. Em progresso (IN_PROGRESS), Aprovada (APPROVED), Reprovada (FAILED) e Encerrada (CLOSED).
+          enum:
+            - IN_PROGRESS
+            - APPROVED
+            - FAILED
+            - CLOSED
+          nullable: false
+        selective_process:
+          $ref: '#/components/schemas/CandidacySelectiveProcessResponse'
+        steps:
+          $ref: '#/components/schemas/CandidacyStepResponse'
+    CandidacySelectiveProcessResponse:
+      type: object
+      description: Informações sobre o processo seletivo da candidatura.
+      required:
+        - id
+        - title
+      nullable: false
+      properties:
+        id:
+          type: string
+          description: Identificador do processo seletivo.
+          nullable: false
+        title:
+          type: string
+          description: Título do processo seletivo.
+          nullable: false
+    CandidacyStepResponse:
+      type: array
+      description: Informações sobre as etapas da candidatura.
+      nullable: false
+      items:
+        type: object
+        required:
+          - id
+          - status
+          - title
+          - type
+        properties:
+          id:
+            type: string
+            description: Identificador da etapa.
+            nullable: false
+          status:
+            type: string
+            description: Status da etapa. Executada (EXECUTED), Aguardando Execução (WAITING_FOR_EXECUTION), Bloqueada (BLOCKED) e Completada (COMPLETED).
+            enum:
+              - EXECUTED
+              - WAITING_FOR_EXECUTION
+              - BLOCKED
+              - COMPLETED
+            nullable: false
+          title:
+            type: string
+            description: Título do etapa.
+            nullable: false
+          type:
+            type: string
+            description: Tipo da etapa. Teste Teórico (THEORETICAL_TEST), Envio de Arquivos (UPLOAD_FILES) e Externa (EXTERNAL).
+            enum:
+              - THEORETICAL_TEST
+              - UPLOAD_FILES
+              - EXTERNAL
+            nullable: false
   examples:
     CandidateLoginRequest:
       summary: "Exemplo de autenticação de um candidato"
@@ -644,6 +1232,76 @@ components:
           "PRO-AKjM675aa",
           "PRO-Ghkb675Ga"
         ]
+    CreateProfileRequest:
+      summary: "Exemplo de solicitação para criação de um perfil de acesso"
+      value:
+        name: "Administrador"
+        functions_identifiers: [
+          "FUN-bhjb675Ga",
+          "FUN-AKjM675aa",
+          "FUN-Ghkb675Ga"
+        ]
+    CreateQuestionDiscursiveRequest:
+      summary: "Exemplo de solicitação para criação de uma questão discursiva"
+      value:
+        description: "Quantos planetas o Sistema Solar possui?"
+    CreateQuestionMultipleChoiceRequest:
+      summary: "Exemplo de solicitação para criação de uma questão de múltipla escolha"
+      value:
+        description: "Quantos planetas o Sistema Solar possui?"
+        answers:
+          - description: "5"
+            is_correct: false
+          - description: "9"
+            is_correct: false
+          - description: "2"
+            is_correct: false
+          - description: "8"
+            is_correct: true
+    CreateFeedbackRequest:
+      summary: "Exemplo de solicitação para criação de um feedback"
+      value:
+        additional_info: "Parabéns, seu aproveitamento nesse etapa foi muito bom!"
+        pointing: "9.75"
+    CandidacyDataPaginatedResponse:
+      summary: "Exemplo de resposta para busca de candidaturas"
+      value:
+        candidacies:
+          - identifier: "APP-KjoiJ77gy"
+            status: "IN_PROGRESS"
+            selective_process_title: "Desenvolvedor Backend Java Pleno"
+          - identifier: "APP-ljUiJQ1gy"
+            status: "FAILED"
+            selective_process_title: "Desenvolvedor Backend Java Sênior"
+          - identifier: "APP-Mjop871gy"
+            status: "IN_PROGRESS"
+            selective_process_title: "Desenvolvedor Backend Java Júnior"
+        page_number: 0
+        page_size: 10
+        total_pages: 1
+        total_elements: 3
+        total_results: 3
+    CandidacyResponse:
+      summary: "Exemplo de resposta para busca de uma candidatura"
+      value:
+        id: "APP-KjoiJ77gy"
+        status: "IN_PROGRESS"
+        selective_process:
+          id: "SEL-Duh7y7hua"
+          title: "Desenvolvedor Backend Java Pleno"
+        steps:
+          - id: "STE-kGuUdyuih"
+            status: "WAITING_FOR_EXECUTION"
+            title: "Envio do currículo"
+            type: "UPLOAD_FILES"
+          - id: "STE-gG6U9yu01"
+            status: "BLOCKED"
+            title: "Teste de raciocínio lógico"
+            type: "THEORETICAL_TEST"
+          - id: "STE-HGYU8yuih"
+            status: "BLOCKED"
+            title: "Entrevista com gerente"
+            type: "EXTERNAL"
     BadRequestErrorResponse:
       summary: "Exemplo genérico de resposta de erro na requisição do cliente"
       value:
@@ -696,16 +1354,97 @@ components:
       value:
         code: "APIX_004"
         message: "Os identificadores fornecidos são inválidos: [PRO-bhjb675Ga, PRO-Ghkb675Ga]."
-  securitySchemes:
-    petstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
-          scopes:
-            write:pets: modify pets in your account
-            read:pets: read your pets
-    api_key:
-      type: apiKey
-      name: api_key
+    FunctionsInvalidErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível cadastrar um perfil de acesso pois foram informados identificadores de funções inválidas"
+      value:
+        code: "APIX_002"
+        message: "Os identificadores fornecidos são inválidos: [FUN-bhjb675Ga, FUN-Ghkb675Ga]."
+    ProfileNameInvalidErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível cadastrar um perfil de acesso pois o nome informado já existe"
+      value:
+        code: "APIX_001"
+        message: "Nome informado não é válido."
+    CandidacyStepNotFoundErrorResponse:
+      summary: "Exemplo de resposta informando que não existe relação entre a candidatura e a etapa informada"
+      value:
+        code: "NOT_FOUND"
+        message: "As entidades de identificadores APP-KJ89dh3G1 e STE-Kiuh7dJBJ não possuem relação entre si."
+    ExternalWaitingExecutionErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível cadastrar feedback para uma etapa externa em status de aguardando execução"
+      value:
+        code: "APIX_020"
+        message: "Feedback não pode ser cadastrado."
+    ExecutedErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível cadastrar feedback para uma etapa não external que não esteja no status de executada"
+      value:
+        code: "APIX_021"
+        message: "Feedback não pode ser cadastrado."
+    CandidacySelectiveProcessNotFoundErrorResponse:
+      summary: "Exemplo de resposta informando que não existe relação entre a candidatura e o processo seletivo informado"
+      value:
+        code: "NOT_FOUND"
+        message: "As entidades de identificadores APP-KJ89dh3G1 e SEL-l1Hp7dJBJ não possuem relação entre si."
+    CandidacyNotFoundErrorResponse:
+      summary: "Exemplo de resposta informando que não existe a candidatura informada"
+      value:
+        code: "NOT_FOUND"
+        message: "A entidade de identificadore APP-KJ89dh3G1 não existe."
+    SelectiveProcessNotFoundErrorResponse:
+      summary: "Exemplo de resposta informando que não existe o processo seletivo informado"
+      value:
+        code: "NOT_FOUND"
+        message: "A entidade de identificador SEL-KJ89dh3G1 não existe."
+    CreateCandidacyErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível efetuar uma candidatura em um processo seletivo que se encontra fechado"
+      value:
+        code: "APIX_012"
+        message: "Processo seletivo informado se encontra fechado para novas candidaturas."
+  parameters:
+    AuthorizationHeader:
+      name: Authorization
       in: header
+      description: >-
+        Token de acesso no formato JWT.
+        
+        > Obs.: para mais informações sobre como gerar o token de autenticação, acesso o endpoint '/login'.
+      required: true
+      schema:
+        type: string
+    CandidacyIdentifierPath:
+      name: candidacyIdentifier
+      in: path
+      description: Identificador de uma candidatura.
+      required: true
+      schema:
+        type: string
+    StepIdentifierPath:
+      name: stepIdentifier
+      in: path
+      description: Identificador de uma etapa.
+      required: true
+      schema:
+        type: string
+    SelectiveProcessIdentifierPath:
+      name: selectiveProcessIdentifier
+      in: path
+      description: Identificador de um processo seletivo.
+      required: true
+      schema:
+        type: string
+    PageSizeParam:
+      name: pageSize
+      in: query
+      description: Tamanho de ítens a serem retornados na página.
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 10
+    PageNumberParam:
+      name: pageNumber
+      in: query
+      description: Número da página.
+      required: true
+      schema:
+        type: integer
+        minimum: 0
