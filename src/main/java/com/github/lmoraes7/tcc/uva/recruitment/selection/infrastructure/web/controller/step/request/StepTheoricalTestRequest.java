@@ -17,7 +17,7 @@ public final class StepTheoricalTestRequest {
     @NotBlank
     private String description;
     @NotNull
-    @Size(min = 3)
+    @Size(min = 3, max = 10)
     private Set<String> questionsIdentifiers;
 
     public String getTitle() {

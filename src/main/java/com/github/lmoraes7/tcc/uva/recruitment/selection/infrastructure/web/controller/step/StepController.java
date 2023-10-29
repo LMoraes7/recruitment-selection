@@ -115,7 +115,7 @@ public class StepController {
         return ResponseEntity.ok(ConverterHelper.toResponse(result));
     }
 
-    @PostMapping("/THEORETICAL_TEST")
+    @PostMapping("/theorical_test")
     public ResponseEntity<?> createStepTheoricalStep(@RequestBody @Valid final StepTheoricalTestRequest request) {
         this.createStepUseCase.execute(
                 SecurityEmployeeContext.getContext(),
@@ -125,7 +125,7 @@ public class StepController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/UPLOAD_FILES")
+    @PostMapping("/upload_files")
     public ResponseEntity<?> createStepUploadFiles(@RequestBody @Valid final StepUploadFilesRequest request) {
         this.createStepUseCase.execute(
                 SecurityEmployeeContext.getContext(),
@@ -135,8 +135,8 @@ public class StepController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/EXTERNAL")
-    public ResponseEntity<?> createStep(@RequestBody @Valid final StepExternalRequest request) {
+    @PostMapping("/external")
+    public ResponseEntity<?> createStepExternal(@RequestBody @Valid final StepExternalRequest request) {
         this.createStepUseCase.execute(
                 SecurityEmployeeContext.getContext(),
                 ConverterHelper.toDto(request)

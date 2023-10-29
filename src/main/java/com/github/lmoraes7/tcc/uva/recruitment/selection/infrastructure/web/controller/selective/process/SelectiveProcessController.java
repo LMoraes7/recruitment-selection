@@ -9,13 +9,14 @@ import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.cont
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.selective.process.request.SelectiveProcessRequest;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.selective.process.response.SelectiveProcessoPaginatedResponse;
 import com.github.lmoraes7.tcc.uva.recruitment.selection.infrastructure.web.controller.selective.process.response.SpecificSelectiveProcessResponse;
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 
 @RestController
 @RequestMapping("/selective-process")

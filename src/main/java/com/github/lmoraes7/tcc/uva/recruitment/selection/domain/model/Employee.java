@@ -147,7 +147,7 @@ public final class Employee {
                     .toList();
 
             if (!invalidExternalSteps.isEmpty())
-                throw new BusinessException(APIX_011, "The identifiers provided are invalid: " + invalidIdentifiers);
+                throw new BusinessException(APIX_011, "It is not possible to register a selection process because execution time limits were informed for external stages:  " + invalidIdentifiers);
         }
 
         return selectiveProcessRepository.save(ConverterHelper.toModel(dto));

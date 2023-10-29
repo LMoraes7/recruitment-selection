@@ -18,7 +18,7 @@ public final class StepUploadFilesRequest {
     @NotBlank
     private String description;
     @NotNull
-    @Size(min = 1)
+    @Size(min = 1, max = 3)
     @Valid
     private Set<TypeUploadFileRequest> dataUploadFiles;
 

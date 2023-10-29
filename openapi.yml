@@ -29,6 +29,10 @@ tags:
     description: Operações sobre um feedback
   - name: candidacy
     description: Operações sobre uma candidatura
+  - name: selective process
+    description: Operações sobre um processo seletivo
+  - name: step
+    description: Operações sobre uma etapa
 paths:
   '/login':
     post:
@@ -36,11 +40,11 @@ paths:
         - login
       summary: Autenticar usuário
       description: |-
-        Endpoint responsável por autenticar um usuário através de nome de usuário e senha
+        Endpoint responsável por autenticar um usuário através de nome de usuário e senha.
       operationId: login
       requestBody:
         required: true
-        description: Dados para realizar a autenticação de um usuário
+        description: Dados para realizar a autenticação de um usuário.
         content:
           application/json:
             schema:
@@ -94,11 +98,11 @@ paths:
         - common
       summary: Redefinir senha do usuário
       description: |-
-        Endpoint responsável por redefinir a senha de um usuário
+        Endpoint responsável por redefinir a senha de um usuário.
       operationId: redefinePassword
       requestBody:
         required: true
-        description: Dados para realizar a redefinição de senha de um usuário
+        description: Dados para realizar a redefinição de senha de um usuário.
         content:
           application/json:
             schema:
@@ -149,11 +153,11 @@ paths:
         - common
       summary: Solicitar redefinição de senha do usuário
       description: |-
-        Endpoint responsável por solicitar uma redefinição de senha de um usuário
+        Endpoint responsável por solicitar uma redefinição de senha de um usuário.
       operationId: resetPassword
       requestBody:
         required: true
-        description: Dados para realizar a solicitacação de redefinição de senha de um usuário
+        description: Dados para realizar a solicitacação de redefinição de senha de um usuário.
         content:
           application/json:
             schema:
@@ -198,11 +202,11 @@ paths:
         - candidate
       summary: Solicitar criação de conta como candidato
       description: |-
-        Endpoint responsável por criar conta como um candidato
+        Endpoint responsável por criar conta como um candidato.
       operationId: createCandidate
       requestBody:
         required: true
-        description: Dados para realizar a criação da conta de um candidato
+        description: Dados para realizar a criação da conta de um candidato.
         content:
           application/json:
             schema:
@@ -247,11 +251,15 @@ paths:
         - employee
       summary: Solicitar criação de conta de um funcionário
       description: |-
-        Endpoint responsável por criar conta de um funcionário
+        Endpoint responsável por criar conta de um funcionário.
+        <br /> <br />
+        **Scope:** FUNC_CREATE_EMPLOYEE
       operationId: createEmployee
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
       requestBody:
         required: true
-        description: Dados para realizar a criação da conta de um funcionário
+        description: Dados para realizar a criação da conta de um funcionário.
         content:
           application/json:
             schema:
@@ -271,6 +279,10 @@ paths:
               examples:
                 badRequestErrorResponse:
                   $ref: '#/components/examples/BadRequestErrorResponse'
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
         '422':
           description: A requisição não pode ser processada devido a um erro de negócio.
           content:
@@ -298,7 +310,7 @@ paths:
         - profile
       summary: Solicitar criação de um perfil de acesso
       description: |-
-        Endpoint responsável por criar um perfil de acesso
+        Endpoint responsável por criar um perfil de acesso.
         <br /> <br />
         **Scope:** FUNC_CREATE_PROFILE
       operationId: createProfile
@@ -306,7 +318,7 @@ paths:
         - $ref: '#/components/parameters/AuthorizationHeader'
       requestBody:
         required: true
-        description: Dados para realizar a criação de um perfil de acesso
+        description: Dados para realizar a criação de um perfil de acesso.
         content:
           application/json:
             schema:
@@ -318,9 +330,9 @@ paths:
         '201':
           description: Solicitação efetuada com sucesso.
         '401':
-          description: Solicitação não autorizada devido a falta de autenticação
+          description: Solicitação não autorizada devido a falta de autenticação.
         '403':
-          description: Solicitação não autorizada devido a falta de permissão
+          description: Solicitação não autorizada devido a falta de permissão.
         '422':
           description: A requisição não pode ser processada devido a um erro de negócio.
           content:
@@ -348,7 +360,7 @@ paths:
         - question
       summary: Solicitar criação de questão discursiva
       description: |-
-        Endpoint responsável por criar uma questão discursiva
+        Endpoint responsável por criar uma questão discursiva.
         <br /> <br />
         **Scope:** FUNC_CREATE_QUESTION
       operationId: createQuestionDiscursive
@@ -356,7 +368,7 @@ paths:
         - $ref: '#/components/parameters/AuthorizationHeader'
       requestBody:
         required: true
-        description: Dados para realizar a criação de uma questão discursiva
+        description: Dados para realizar a criação de uma questão discursiva.
         content:
           application/json:
             schema:
@@ -368,9 +380,9 @@ paths:
         '201':
           description: Solicitação efetuada com sucesso.
         '401':
-          description: Solicitação não autorizada devido a falta de autenticação
+          description: Solicitação não autorizada devido a falta de autenticação.
         '403':
-          description: Solicitação não autorizada devido a falta de permissão
+          description: Solicitação não autorizada devido a falta de permissão.
         '500':
           description: Ocorreu um erro interno no servidor.
           content:
@@ -387,7 +399,7 @@ paths:
         - question
       summary: Solicitar criação de questão de múltipla escolha
       description: |-
-        Endpoint responsável por criar uma questão de múltipla escolha
+        Endpoint responsável por criar uma questão de múltipla escolha.
         <br /> <br />
         **Scope:** FUNC_CREATE_QUESTION
       operationId: createQuestionMultipleChoice
@@ -395,7 +407,7 @@ paths:
         - $ref: '#/components/parameters/AuthorizationHeader'
       requestBody:
         required: true
-        description: Dados para realizar a criação de uma questão de múltipla escolha
+        description: Dados para realizar a criação de uma questão de múltipla escolha.
         content:
           application/json:
             schema:
@@ -407,9 +419,9 @@ paths:
         '201':
           description: Solicitação efetuada com sucesso.
         '401':
-          description: Solicitação não autorizada devido a falta de autenticação
+          description: Solicitação não autorizada devido a falta de autenticação.
         '403':
-          description: Solicitação não autorizada devido a falta de permissão
+          description: Solicitação não autorizada devido a falta de permissão.
         '500':
           description: Ocorreu um erro interno no servidor.
           content:
@@ -426,7 +438,7 @@ paths:
         - feedback
       summary: Solicitar criação de um feedback
       description: |-
-        Endpoint responsável por criar um feedback
+        Endpoint responsável por criar um feedback.
         <br /> <br />
         **Scope:** FUNC_CREATE_FEEDBACK
       operationId: createFeedback
@@ -436,7 +448,7 @@ paths:
         - $ref: '#/components/parameters/AuthorizationHeader'
       requestBody:
         required: true
-        description: Dados para realizar a criação de um feedback
+        description: Dados para realizar a criação de um feedback.
         content:
           application/json:
             schema:
@@ -448,9 +460,9 @@ paths:
         '201':
           description: Solicitação efetuada com sucesso.
         '401':
-          description: Solicitação não autorizada devido a falta de autenticação
+          description: Solicitação não autorizada devido a falta de autenticação.
         '403':
-          description: Solicitação não autorizada devido a falta de permissão
+          description: Solicitação não autorizada devido a falta de permissão.
         '404':
           description: Recurso não encontrado.
           content:
@@ -487,7 +499,7 @@ paths:
         - candidacy
       summary: Solicitar encerramento da candidatura
       description: |-
-        Endpoint responsável por encerrar uma candidatura
+        Endpoint responsável por encerrar uma candidatura.
         <br /> <br />
         **Scope:** FUNC_CLOSE_CANDIDACY
       operationId: closeCandidacy
@@ -498,6 +510,10 @@ paths:
       responses:
         '204':
           description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
         '404':
           description: Recurso não encontrado.
           content:
@@ -610,7 +626,7 @@ paths:
         - candidacy
       summary: Solicitar criação de uma candidatura
       description: |-
-        Endpoint responsável por criar uma candidatura
+        Endpoint responsável por criar uma candidatura.
         <br /> <br />
         **Scope:** FUNC_CREATE_CANDIDACY
       operationId: createCandidacy
@@ -620,6 +636,10 @@ paths:
       responses:
         '201':
           description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
         '404':
           description: Recurso não encontrado.
           content:
@@ -647,6 +667,312 @@ paths:
               examples:
                 internalErrorResponse:
                   $ref: '#/components/examples/InternalErrorResponse'
+
+  '/selective-process':
+    get:
+      tags:
+        - selective process
+      summary: Solicitar busca de processos seletivos em aberto
+      description: |-
+        Endpoint responsável por buscar processos seletivos em aberto.
+      operationId: consultListOfSelectiveProcess
+      parameters:
+        - $ref: '#/components/parameters/PageSizeParam'
+        - $ref: '#/components/parameters/PageNumberParam'
+      responses:
+        '200':
+          description: Solicitação efetuada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelectiveProcessDataPaginatedResponse'
+              examples:
+                selectiveProcessDataPaginatedResponse:
+                  $ref: '#/components/examples/SelectiveProcessDataPaginatedResponse'
+        '204':
+          description: Solicitação efetuada com sucesso, porém não foi encontrada nenhum processo seletivo com os parâmetros de paginação informados.
+        '400':
+          description: A requisição contém dados inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                badRequestErrorResponse:
+                  $ref: '#/components/examples/BadRequestErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+    post:
+      tags:
+        - selective process
+      summary: Solicitar criação de um processo seletivo
+      description: |-
+        Endpoint responsável por criar um processo seletivo.
+        <br /> <br />
+        **Scope:** FUNC_CREATE_SELECTIVE_PROCESS
+      operationId: createSelectiveProcess
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        description: Dados para realizar a criação de um processo seletivo.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSelectiveProcessRequest'
+            examples:
+              CreateSelectiveProcessRequest:
+                $ref: '#/components/examples/CreateSelectiveProcessRequest'
+      responses:
+        '201':
+          description: Solicitação efetuada com sucesso.
+        '400':
+          description: A requisição contém dados inválidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                badRequestErrorResponse:
+                  $ref: '#/components/examples/BadRequestErrorResponse'
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                stepInvalidErrorResponse:
+                  $ref: '#/components/examples/StepInvalidErrorResponse'
+                externalStepInvalidErrorResponse:
+                  $ref: '#/components/examples/ExternalStepInvalidErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/selective-process/{selectiveProcessIdentifier}':
+    get:
+      tags:
+        - selective process
+      summary: Solicitar busca de um processo seletivo específico
+      description: |-
+        Endpoint responsável por buscar processo seletivo específico.
+      operationId: consultSpecificSelectiveProcess
+      parameters:
+        - $ref: '#/components/parameters/SelectiveProcessIdentifierPath'
+      responses:
+        '200':
+          description: Solicitação efetuada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelectiveProcessResponse'
+              examples:
+                selectiveProcessResponse:
+                  $ref: '#/components/examples/SelectiveProcessResponse'
+        '404':
+          description: Recurso não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                selectiveProcessNotFoundErrorResponse:
+                  $ref: '#/components/examples/SelectiveProcessNotFoundErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+    patch:
+      tags:
+        - selective process
+      summary: Solicitar encerramento de um processo seletivo
+      description: |-
+        Endpoint responsável por encerrar um processo seletivo.
+        <br /> <br />
+        **Scope:** FUNC_CLOSE_SELECTIVE_PROCESS
+      operationId: closeSelectiveProcess
+      parameters:
+        - $ref: '#/components/parameters/SelectiveProcessIdentifierPath'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '204':
+          description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
+        '404':
+          description: Recurso não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                selectiveProcessNotFoundErrorResponse:
+                  $ref: '#/components/examples/SelectiveProcessNotFoundErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/step/theorical_test':
+    post:
+      tags:
+        - step
+      summary: Solicitar criação de uma etapa de teste teórico
+      description: |-
+        Endpoint responsável por criar uma etapa de teste teórico.
+        <br /> <br />
+        **Scope:** FUNC_CREATE_STEP
+      operationId: createStepTheoricalStep
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        description: Dados para realizar a criação de uma etapa de teste teórico.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStepTheoricalTestRequest'
+            examples:
+              createStepTheoricalTestRequest:
+                $ref: '#/components/examples/CreateStepTheoricalTestRequest'
+      responses:
+        '201':
+          description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                questionsInvalidErrorResponse:
+                  $ref: '#/components/examples/QuestionsInvalidErrorResponse'
+                questionsNotSameTypeErrorResponse:
+                  $ref: '#/components/examples/QuestionsNotSameTypeErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/step/external':
+    post:
+      tags:
+        - step
+      summary: Solicitar criação de uma etapa externa
+      description: |-
+        Endpoint responsável por criar uma etapa externa.
+        <br /> <br />
+        **Scope:** FUNC_CREATE_STEP
+      operationId: createStepExternal
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        description: Dados para realizar a criação de uma etapa externa.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStepExternalRequest'
+            examples:
+              createStepExternalRequest:
+                $ref: '#/components/examples/CreateStepExternalRequest'
+      responses:
+        '201':
+          description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/step/upload_files':
+    post:
+      tags:
+        - step
+      summary: Solicitar criação de uma etapa de envio de arquivos
+      description: |-
+        Endpoint responsável por criar uma etapa de envio de arquivos.
+        <br /> <br />
+        **Scope:** FUNC_CREATE_STEP
+      operationId: createStepUploadFiles
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        description: Dados para realizar a criação de uma etapa de envio de arquivo.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStepUploadFilesRequest'
+            examples:
+              createStepUploadFilesRequest:
+                $ref: '#/components/examples/CreateStepUploadFilesRequest'
+      responses:
+        '201':
+          description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
 components:
   schemas:
     LoginRequest:
@@ -1157,6 +1483,272 @@ components:
               - UPLOAD_FILES
               - EXTERNAL
             nullable: false
+    SelectiveProcessDataPaginatedResponse:
+      type: object
+      description: Informações sobre os processos seletivos buscados.
+      required:
+        - selective_processes
+        - page_number
+        - page_size
+        - total_pages
+        - total_elements
+        - total_results
+      properties:
+        selective_processes:
+          $ref: '#/components/schemas/SelectiveProcessPaginatedResponse'
+        page_number:
+          type: integer
+          format: int64
+          description: Número da página utilizado no filtro.
+          nullable: false
+        page_size:
+          type: integer
+          format: int64
+          description: Quantidade de ítens na página utilizado no filtro.
+          nullable: false
+        total_pages:
+          type: integer
+          format: int64
+          description: Quantidade total de páginas com o filtro de busca utilizado.
+          nullable: false
+        total_elements:
+          type: integer
+          format: int64
+          description: Quantidade de ítens páginas que foram retornados.
+          nullable: false
+        total_results:
+          type: integer
+          format: int64
+          description: Quantidade total de ítens com o filtro de busca utilizado.
+          nullable: false
+    SelectiveProcessPaginatedResponse:
+      type: array
+      description: Informações sobre os processos seletivos.
+      nullable: false
+      items:
+        type: object
+        required:
+          - id
+          - title
+        properties:
+          id:
+            type: string
+            description: Identificador do processo seletivo.
+            nullable: false
+          title:
+            type: string
+            description: Título do processo seletivo.
+            nullable: false
+    SelectiveProcessResponse:
+      type: object
+      description: Informações sobre um processo seletivo buscado.
+      required:
+        - id
+        - title
+        - description
+        - desired_position
+        - status
+        - responsibilities
+        - requirements
+      properties:
+        id:
+          type: string
+          description: Identificador do processo seletivo.
+          nullable: false
+        title:
+          type: string
+          description: Título do processo seletivo.
+          nullable: false
+        description:
+          type: string
+          description: Descrição do processo seletivo
+          nullable: false
+        desired_position:
+          type: string
+          description: Cargo desejado para contratação no processo seletivo
+          nullable: false
+        status:
+          type: string
+          description: Status do processo seletivo. Em progresso (IN_PROGRESS) e Encerrado (CLOSED).
+          enum:
+            - IN_PROGRESS
+            - CLOSED
+          nullable: false
+        responsibilities:
+          type: array
+          description: Responsabilidades descritas para o cargo.
+          nullable: false
+          items:
+            type: string
+            nullable: false
+        requirements:
+          type: array
+          description: Requerimentos obrigatórios para o cargo.
+          nullable: false
+          items:
+            type: string
+            nullable: false
+        additional_infos:
+          type: array
+          description: Informações adicionais do processo seletivo.
+          nullable: true
+          items:
+            type: string
+            nullable: false
+    CreateSelectiveProcessRequest:
+      type: object
+      description: Dados para solicitar a crição de um processo seletivo.
+      required:
+        - title
+        - description
+        - desired_position
+        - responsibilities
+        - requirements
+        - steps
+      properties:
+        title:
+          type: string
+          description: Título do processo seletivo.
+          nullable: false
+        description:
+          type: string
+          description: Descrição do processo seletivo.
+          nullable: false
+        desired_position:
+          type: string
+          description: Cargo desejado para contratação no processo seletivo.
+          nullable: false
+        responsibilities:
+          type: array
+          description: Responsabilidades descritas para o cargo.
+          nullable: false
+          items:
+            type: string
+            nullable: false
+        requirements:
+          type: array
+          description: Requerimentos obrigatórios para o cargo.
+          nullable: false
+          items:
+            type: string
+            nullable: false
+        additional_infos:
+          type: array
+          description: Informações adicionais do processo seletivo.
+          nullable: true
+          items:
+            type: string
+            nullable: false
+        steps:
+          $ref: '#/components/schemas/SelectiveProcessStepRequest'
+    SelectiveProcessStepRequest:
+      type: array
+      description: Informações sobre as etapas para compor um processo seletivo.
+      minItems: 2
+      maxItems: 5
+      nullable: false
+      items:
+        type: object
+        required:
+          - identifier
+          - limit_time
+        properties:
+          identifier:
+            type: string
+            description: Identificador da etapa.
+            nullable: false
+          limit_time:
+            type: integer
+            format: int64
+            description: |-
+              Tempo para etapa ser realizada após a sua liberação para o candidato.
+              <br />
+              Deve-se informar o tempo em dias. 
+              <br />
+              Caso a etapa seja do externa, não deve preencher esse campo, pois não é permitido definir um tempo limite para etapas externas.
+            minimum: 1
+            nullable: true
+    CreateStepTheoricalTestRequest:
+      type: object
+      description: Dados para solicitar a crição de um processo seletivo.
+      required:
+        - title
+        - description
+        - questions_identifiers
+      properties:
+        title:
+          type: string
+          description: Título da etapa.
+          nullable: false
+        description:
+          type: string
+          description: Descrição da etapa.
+          nullable: false
+        questions_identifiers:
+          type: array
+          description: Identificadores de questões a serem utilizadas na etapa.
+          nullable: false
+          items:
+            type: string
+            nullable: false
+          minItems: 3
+          maxItems: 10
+    CreateStepExternalRequest:
+      type: object
+      description: Dados para solicitar a crição de um processo seletivo.
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+          description: Título da etapa.
+          nullable: false
+        description:
+          type: string
+          description: Descrição da etapa.
+          nullable: false
+    CreateStepUploadFilesRequest:
+      type: object
+      description: Dados para solicitar a crição de um processo seletivo.
+      required:
+        - title
+        - description
+        - data_upload_files
+      properties:
+        title:
+          type: string
+          description: Título da etapa.
+          nullable: false
+        description:
+          type: string
+          description: Descrição da etapa.
+          nullable: false
+        data_upload_files:
+          $ref: '#/components/schemas/StepDataUploadFilesRequest'
+    StepDataUploadFilesRequest:
+      type: array
+      description: Informações sobre os arquivos que devem ser enviados na etapa.
+      minItems: 1
+      maxItems: 3
+      nullable: false
+      items:
+        type: object
+        required:
+          - description
+          - type
+        properties:
+          description:
+            type: string
+            description: Descrição de qual arquivo deve ser enviado.
+            nullable: false
+          type:
+            type: string
+            description: Tipo do arquivo a ser enviado.
+            enum:
+              - PDF
+              - MP4
+            nullable: false
   examples:
     CandidateLoginRequest:
       summary: "Exemplo de autenticação de um candidato"
@@ -1281,6 +1873,21 @@ components:
         total_pages: 1
         total_elements: 3
         total_results: 3
+    SelectiveProcessDataPaginatedResponse:
+      summary: "Exemplo de resposta para busca de processos seletivos"
+      value:
+        selective_processes:
+          - id: "SEL-KjoiJ77gy"
+            title: "Desenvolvedor Backend Java Pleno"
+          - id: "SEL-ljUiJQ1gy"
+            title: "Desenvolvedor Backend Java Sênior"
+          - id: "SEL-Mjop871gy"
+            title: "Desenvolvedor Backend Java Júnior"
+        page_number: 0
+        page_size: 10
+        total_pages: 1
+        total_elements: 3
+        total_results: 3
     CandidacyResponse:
       summary: "Exemplo de resposta para busca de uma candidatura"
       value:
@@ -1302,6 +1909,81 @@ components:
             status: "BLOCKED"
             title: "Entrevista com gerente"
             type: "EXTERNAL"
+    SelectiveProcessResponse:
+      summary: "Exemplo de resposta para busca de um processo seletivo"
+      value:
+        id: "SEL-KjoiJ77gy"
+        title: "Desenvolvedor Backend Java Pleno"
+        description: "Processo seletivo para contratação de uma vaga para desenvolvedor Java pleno"
+        desired_position: "Desenvolvedor Java Pleno"
+        status: "IN_PROGRESS"
+        responsibilities: [
+          "Realizar manutenção no sistema",
+          "Criar novas funcionalidades",
+          "Atuar junto ao time de produto"
+        ]
+        requirements: [
+          "Experiência de +3 anos",
+          "Conhecimento em Spring Framework",
+          "Familiaridade com ambiente AWS"
+        ]
+        additional_infos: [
+          "VR + VA flexível",
+          "Atuação remota de trabalho",
+          "PLR"
+        ]
+    CreateSelectiveProcessRequest:
+      summary: "Exemplo de solicitação para criação de um processo seletivo"
+      value:
+        title: "Desenvolvedor Backend Java Pleno"
+        description: "Processo seletivo para contratação de uma vaga para desenvolvedor Java pleno"
+        desired_position: "Desenvolvedor Java Pleno"
+        responsibilities: [
+          "Realizar manutenção no sistema",
+          "Criar novas funcionalidades",
+          "Atuar junto ao time de produto"
+        ]
+        requirements: [
+          "Experiência de +3 anos",
+          "Conhecimento em Spring Framework",
+          "Familiaridade com ambiente AWS"
+        ]
+        additional_infos: [
+          "VR + VA flexível",
+          "Atuação remota de trabalho",
+          "PLR"
+        ]
+        steps:
+          - identifier: "STE-Nuy7H56KJ"
+            limit_time: 2
+          - identifier: "STE-oNKYfc65H"
+          - identifier: "STE-Kamknsd8d"
+            limit_time: 7
+    CreateStepTheoricalTestRequest:
+      summary: "Exemplo de solicitação para criação de uma etapa de teste teórico"
+      value:
+        title: "Teste teórico de raciocínio lógico"
+        description: "Essa é uma etapa para testar o seu raciocínio lógica :)"
+        questions_identifiers: [
+          "STE-Kamknsd8d",
+          "STE-oNKYfc65H",
+          "STE-Nuy7H56KJ"
+        ]
+    CreateStepExternalRequest:
+      summary: "Exemplo de solicitação para criação de uma etapa externa"
+      value:
+        title: "Entrevista com o gestor da vaga"
+        description: "Essa é uma etapa para para nos conhecermos melhor e entender as suas expectativas perante a vaga :)"
+    CreateStepUploadFilesRequest:
+      summary: "Exemplo de solicitação para criação de uma etapa de envio de arquivos"
+      value:
+        title: "Envio de arquivos de apresentação"
+        description: "Essa é uma etapa para você nos informar quem você é :)"
+        data_upload_files:
+          - description: "currículo"
+            type: "PDF"
+          - description: "vídeo de apresentação"
+            type: "MP4"
     BadRequestErrorResponse:
       summary: "Exemplo genérico de resposta de erro na requisição do cliente"
       value:
@@ -1399,6 +2081,26 @@ components:
       value:
         code: "APIX_012"
         message: "Processo seletivo informado se encontra fechado para novas candidaturas."
+    StepInvalidErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível cadastrar um processo seletivo pois foram informados identificadores de etapas inválidos"
+      value:
+        code: "APIX_010"
+        message: "Os identificadores fornecidos são inválidos: [STE-bhjb675Ga, STE-Ghkb675Ga]."
+    ExternalStepInvalidErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível cadastrar um processo seletivo pois foram informados tempo limite de execução para etapas externas"
+      value:
+        code: "APIX_011"
+        message: "Os identificadores fornecidos são inválidos: [STE-bhjb675Ga, STE-Ghkb675Ga]."
+    QuestionsInvalidErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível cadastrar uma etapa pois foram informados identificadores de questões inválidos"
+      value:
+        code: "APIX_008"
+        message: "Os identificadores fornecidos são inválidos: [QUE-bhjb675Ga, QUE-Ghkb675Ga]."
+    QuestionsNotSameTypeErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível cadastrar uma etapa pois foram informados identificadores de questões com tipos diferentes. Foram informadas questões discursivas e de múltipla escolha"
+      value:
+        code: "APIX_009"
+        message: "As questões informadas não são do mesmo tipo."
   parameters:
     AuthorizationHeader:
       name: Authorization
