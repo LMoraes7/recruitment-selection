@@ -124,6 +124,15 @@ public final class ConverterHelper {
         );
     }
 
+    public static ReleaseStepForCandidateDto toDtoo(final String stepIdentifier, final String candidacyIdentifier) {
+        return new ReleaseStepForCandidateDto(
+                stepIdentifier,
+                candidacyIdentifier,
+                null,
+                null
+        );
+    }
+
     public static ConsultSpecificStepCandidacyDto toDto(
             final String stepIdentifier,
             final String type,

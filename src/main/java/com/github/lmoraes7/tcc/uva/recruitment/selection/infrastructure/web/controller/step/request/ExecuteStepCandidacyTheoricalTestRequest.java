@@ -13,7 +13,7 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public final class ExecuteStepCandidacyTheoricalTestRequest {
     @NotNull
-    @Size(min = 1)
+    @Size(min = 3, max = 10)
     @Valid
     private List<ExecuteQuestionRequest> questions;
 

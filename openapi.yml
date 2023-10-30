@@ -973,6 +973,236 @@ paths:
                 internalErrorResponse:
                   $ref: '#/components/examples/InternalErrorResponse'
 
+  '/step/{stepIdentifier}/type/{type}/candidacy/{candidacyIdentifier}/selective-process/{selectiveProcessIdentifier}':
+    get:
+      tags:
+        - step
+      summary: Solicitar busca dos dados de uma etapa de uma candidatura
+      description: |-
+        Endpoint responsável por buscar busca dados de uma etapa de uma candidatura.
+        <br /> <br />
+        **Scope:** FUNC_CONSULT_STEP
+      operationId: consultSpecificExecutionStepCandidacy
+      parameters:
+        - $ref: '#/components/parameters/StepIdentifierPath'
+        - $ref: '#/components/parameters/StepTypePath'
+        - $ref: '#/components/parameters/CandidacyIdentifierPath'
+        - $ref: '#/components/parameters/SelectiveProcessIdentifierPath'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Solicitação efetuada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StepCandidacyResponse'
+              examples:
+                externalWithLinkStepCandidacyResponse:
+                  $ref: '#/components/examples/ExternalWithLinkStepCandidacyResponse'
+                externalWithoutLinkStepCandidacyResponse:
+                  $ref: '#/components/examples/ExternalWithoutLinkStepCandidacyResponse'
+                discursiveTheoricalTestStepCandidacyResponse:
+                  $ref: '#/components/examples/DiscursiveTheoricalTestStepCandidacyResponse'
+                multipleChoiceTheoricalTestStepCandidacyResponse:
+                  $ref: '#/components/examples/MultipleChoiceTheoricalTestStepCandidacyResponse'
+                uploadFileStepCandidacyResponse:
+                  $ref: '#/components/examples/UploadFileStepCandidacyResponse'
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
+        '404':
+          description: Recurso não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                stepCandidacyNotFoundErrorResponse:
+                  $ref: '#/components/examples/StepCandidacyNotFoundErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/step/{stepIdentifier}/type/external/candidacy/{candidacyIdentifier}':
+    patch:
+      tags:
+        - step
+      summary: Solicitar liberação de execução de uma etapa externa para um candidato
+      description: |-
+        Endpoint responsável por liberar execução de uma etapa externa para um candidato.
+        <br /> <br />
+        **Scope:** FUNC_RELEASE_STEP
+      operationId: releaseStepExternalForCandidate
+      parameters:
+        - $ref: '#/components/parameters/StepIdentifierPath'
+        - $ref: '#/components/parameters/CandidacyIdentifierPath'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        description: Dados para realizar a criação de uma etapa externa.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReleaseStepExternalRequest'
+            examples:
+              releaseStepExternalRequest:
+                $ref: '#/components/examples/ReleaseStepExternalRequest'
+      responses:
+        '204':
+          description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
+        '404':
+          description: Recurso não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                candidacyStepNotFoundErrorResponse:
+                  $ref: '#/components/examples/CandidacyStepNotFoundErrorResponse'
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                previousStepIncompleteErrorResponse:
+                  $ref: '#/components/examples/PreviousStepIncompleteErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/step/{stepIdentifier}/candidacy/{candidacyIdentifier}':
+    patch:
+      tags:
+        - step
+      summary: Solicitar liberação de execução de uma etapa de teste teórico ou de envio de arquivos para um candidato
+      description: |-
+        Endpoint responsável por liberar execução de uma etapa de teste teórico ou de envio de arquivos para um candidato.
+        <br /> <br />
+        **Scope:** FUNC_RELEASE_STEP
+      operationId: releaseStepForCandidate
+      parameters:
+        - $ref: '#/components/parameters/StepIdentifierPath'
+        - $ref: '#/components/parameters/CandidacyIdentifierPath'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '204':
+          description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
+        '404':
+          description: Recurso não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                candidacyStepNotFoundErrorResponse:
+                  $ref: '#/components/examples/CandidacyStepNotFoundErrorResponse'
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                previousStepIncompleteErrorResponse:
+                  $ref: '#/components/examples/PreviousStepIncompleteErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/step/{stepIdentifier}/type/theorical_test/candidacy/{candidacyIdentifier}/selective-process/{selectiveProcessIdentifier}':
+    post:
+      tags:
+        - step
+      summary: Solicitar envio de execução da etapa de teste teórico
+      description: |-
+        Endpoint responsável por enviar a execução da etapa de teste teórico.
+        <br /> <br />
+        **Scope:** FUNC_EXEC_STEP
+      operationId: executeStepCandidacyTheoricalTest
+      parameters:
+        - $ref: '#/components/parameters/StepIdentifierPath'
+        - $ref: '#/components/parameters/CandidacyIdentifierPath'
+        - $ref: '#/components/parameters/SelectiveProcessIdentifierPath'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        description: Dados para realizar o envio de execução da etapa de teste teórico.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecuteStepTheoricalTestRequest'
+            examples:
+              executeStepTheoricalTestRequest:
+                $ref: '#/components/examples/ExecuteStepTheoricalTestRequest'
+      responses:
+        '200':
+          description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
+        '404':
+          description: Recurso não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                stepCandidacyNotFoundErrorResponse:
+                  $ref: '#/components/examples/StepCandidacyNotFoundErrorResponse'
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                stepIsNotAvailableErrorResponse:
+                  $ref: '#/components/examples/StepIsNotAvailableErrorResponse'
+                stepHasExpiredErrorResponse:
+                  $ref: '#/components/examples/StepHasExpiredErrorResponse'
+                stepQuestionTypeIsInvalidErrorResponse:
+                  $ref: '#/components/examples/StepQuestionTypeIsInvalidErrorResponse'
+                stepQuestionIdentifierInvalidErrorResponse:
+                  $ref: '#/components/examples/StepQuestionIdentifierInvalidErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
 components:
   schemas:
     LoginRequest:
@@ -1749,6 +1979,148 @@ components:
               - PDF
               - MP4
             nullable: false
+    StepCandidacyResponse:
+      type: object
+      description: Informações sobre a etapa de candidatura buscada.
+      required:
+        - candidacy_identifier
+        - candidate_identifier
+        - selective_process_identifier
+      properties:
+        candidacy_identifier:
+          type: string
+          description: Identificador da candidatura.
+          nullable: false
+        candidate_identifier:
+          type: string
+          description: Identificador do candidato.
+          nullable: false
+        selective_process_identifier:
+          type: string
+          description: Identificador do processo seletivo.
+          nullable: false
+        theorical_test_step:
+          $ref: '#/components/schemas/TheoricalTestStepCandidacyResponse'
+        upload_file_step:
+          $ref: '#/components/schemas/UploadFileStepCandidacyResponse'
+        external_step:
+          $ref: '#/components/schemas/ExternalStepCandidacyResponse'
+    TheoricalTestStepCandidacyResponse:
+      type: object
+      description: Informações sobre a etapa de teste teórico.
+      required:
+        - questions
+      properties:
+        questions:
+          $ref: '#/components/schemas/QuestionTheoricalTestStepCandidacyResponse'
+    QuestionTheoricalTestStepCandidacyResponse:
+      type: array
+      description: Informações sobre as questões da etapa de teste teórico.
+      nullable: false
+      items:
+        type: object
+        required:
+          - question_identifier
+          - question_description
+          - question_type
+        properties:
+          question_identifier:
+            type: string
+            description: Identificador da questão.
+            nullable: false
+          question_description:
+            type: string
+            description: Enunciado da questão.
+            nullable: false
+          question_type:
+            type: string
+            description: Tipo da questão. Discursiva (DISCURSIVE) ou Múltipla Escolha (MULTIPLE_CHOICE).
+            nullable: false
+            enum:
+              - THEORETICAL_TEST
+              - UPLOAD_FILES
+              - EXTERNAL
+          answers:
+            $ref: '#/components/schemas/AnswersQuestionTheoricalTestStepCandidacyResponse'
+    AnswersQuestionTheoricalTestStepCandidacyResponse:
+      type: array
+      description: Informações sobre as respostas das questões de múltipla escolha da etapa de teste teórico.
+      nullable: true
+      items:
+        type: object
+        required:
+          - answer_identifier
+          - answer_description
+        properties:
+          answer_identifier:
+            type: string
+            description: Identificador da resposta.
+            nullable: false
+          answer_description:
+            type: string
+            description: Enunciado da resposta.
+            nullable: false
+    UploadFileStepCandidacyResponse:
+      type: object
+      description: Informações sobre a etapa de envio de arquivos.
+      required:
+        - files
+      properties:
+        files:
+          $ref: '#/components/schemas/FilesUploadFilesStepCandidacyResponse'
+    FilesUploadFilesStepCandidacyResponse:
+      type: array
+      description: Informações sobre os arquivos da etapa de envio de arquivos.
+      nullable: false
+      items:
+        type: object
+        required:
+          - description
+          - type_file
+        properties:
+          description:
+            type: string
+            description: Descrição do arquivo a ser enviado.
+            nullable: false
+          type_file:
+            type: string
+            description: Tipo do arquivo a ser enviado.
+            nullable: false
+            enum:
+              - PDF
+              - MP4
+    ExternalStepCandidacyResponse:
+      type: object
+      description: Informações sobre a etapa externa.
+      nullable: true
+      properties:
+        link:
+          type: string
+          description: Link do teste externo a ser realizado em outra plataforma.
+          nullable: false
+        date_time:
+          type: string
+          format: date-time
+          pattern: 'yyyy-MM-dd HH:mm:ss'
+          description: Data e hora do teste a ser realizado.
+          nullable: false
+    ReleaseStepExternalRequest:
+      type: object
+      description: Dados para solicitar a liberação de execução de uma etapa externa para um candidato.
+      required:
+        - link
+        - date_time
+      properties:
+        link:
+          type: string
+          description: Link do teste externo a ser realizado em outra plataforma.
+          nullable: false
+        date_time:
+          type: string
+          format: date-time
+          pattern: 'yyyy-MM-dd HH:mm:ss'
+          description: Data e hora do teste a ser realizado.
+          nullable: false
   examples:
     CandidateLoginRequest:
       summary: "Exemplo de autenticação de um candidato"
@@ -1984,6 +2356,104 @@ components:
             type: "PDF"
           - description: "vídeo de apresentação"
             type: "MP4"
+    ExternalWithLinkStepCandidacyResponse:
+      summary: "Exemplo de resposta para busca de uma etapa externa que foi agendada"
+      value:
+        candidacy_identifier: "APP-KJ89dh3G1"
+        candidate_identifier: "CAN-7Jghj65HJ"
+        selective_process_identifier: "SEL-l1Hp7dJBJ"
+        step_identifier: "STE-KN77hbxs1"
+        external_step:
+          link: "https://meet.google.com/ueu-zzmf-opa"
+          date_time: "2023-11-23 10:30:00"
+    ExternalWithoutLinkStepCandidacyResponse:
+      summary: "Exemplo de resposta para busca de uma etapa externa que ainda não foi agendada"
+      value:
+        candidacy_identifier: "APP-KJ89dh3G1"
+        candidate_identifier: "CAN-7Jghj65HJ"
+        selective_process_identifier: "SEL-l1Hp7dJBJ"
+        step_identifier: "STE-KN77hbxs1"
+    DiscursiveTheoricalTestStepCandidacyResponse:
+      summary: "Exemplo de resposta para busca de uma etapa de teste teórico de questões discursivas"
+      value:
+        candidacy_identifier: "APP-KJ89dh3G1"
+        candidate_identifier: "CAN-7Jghj65HJ"
+        selective_process_identifier: "SEL-l1Hp7dJBJ"
+        step_identifier: "STE-KN77hbxs1"
+        theorical_test_step:
+          questions:
+            - question_identifier: "QUE-kj65deHBH"
+              question_description: "Qual foi o país que descobriu o Brasil no ano de 1500?"
+              question_type: "DISCURSIVE"
+            - question_identifier: "QUE-GV657dgVH"
+              question_description: "Qual é o nome da Galaxia que o Planeta Terra está inserido?"
+              question_type: "DISCURSIVE"
+            - question_identifier: "QUE-Alj768GYn"
+              question_description: "Qual é o maior oceano do Planeta Terra?"
+              question_type: "DISCURSIVE"
+    MultipleChoiceTheoricalTestStepCandidacyResponse:
+      summary: "Exemplo de resposta para busca de uma etapa de teste teórico de questões múltipla escolha"
+      value:
+        candidacy_identifier: "APP-KJ89dh3G1"
+        candidate_identifier: "CAN-7Jghj65HJ"
+        selective_process_identifier: "SEL-l1Hp7dJBJ"
+        step_identifier: "STE-KN77hbxs1"
+        theorical_test_step:
+          questions:
+            - question_identifier: "QUE-kj65deHBH"
+              question_description: "Qual foi o país que descobriu o Brasil no ano de 1500?"
+              question_type: "MULTIPLE_CHOICE"
+              answers:
+                - answer_identifier: "ANS-oijr37G1M"
+                  answer_description: "Espanha"
+                - answer_identifier: "ANS-djf8YUbha"
+                  answer_description: "Portugal"
+                - answer_identifier: "ANS-Kuuy897bh"
+                  answer_description: "Argentina"
+                - answer_identifier: "ANS-LK6dt6dgV"
+                  answer_description: "México"
+            - question_identifier: "QUE-GV657dgVH"
+              question_description: "Qual é o nome da Galaxia que o Planeta Terra está inserido?"
+              question_type: "MULTIPLE_CHOICE"
+              answers:
+                - answer_identifier: "ANS-djfheuJNK"
+                  answer_description: "Triângulo"
+                - answer_identifier: "ANS-LcKuhx77z"
+                  answer_description: "Sistema Solar"
+                - answer_identifier: "ANS-JUHv5xrxw"
+                  answer_description: "Andrômeda"
+                - answer_identifier: "ANS-Jnued7shs"
+                  answer_description: "Via Láctea"
+            - question_identifier: "QUE-Alj768GYn"
+              question_description: "Qual é o maior oceano do Planeta Terra?"
+              question_type: "MULTIPLE_CHOICE"
+              answers:
+                - answer_identifier: "ANS-ekfe8Hdbn"
+                  answer_description: "Pacífico"
+                - answer_identifier: "ANS-NShuy7eds"
+                  answer_description: "Índico"
+                - answer_identifier: "ANS-KNnuhxBHa"
+                  answer_description: "Atlântico"
+                - answer_identifier: "ANS-Mmsxyddwa"
+                  answer_description: "Ártico"
+    UploadFileStepCandidacyResponse:
+      summary: "Exemplo de resposta para busca de uma etapa de envio de arquivos"
+      value:
+        candidacy_identifier: "APP-KJ89dh3G1"
+        candidate_identifier: "CAN-7Jghj65HJ"
+        selective_process_identifier: "SEL-l1Hp7dJBJ"
+        step_identifier: "STE-KN77hbxs1"
+        upload_file_step:
+          files:
+            - description: "Currículo pessoal"
+              type_file: "PDF"
+            - description: "Vídeo de apresentação"
+              type_file: "MP4"
+    ReleaseStepExternalRequest:
+      summary: "Exemplo de resposta para liberar uma etapa externa"
+      value:
+        link: "https://meet.google.com/ueu-zzmf-opa"
+        date_time: "2023-11-23 10:30:00"
     BadRequestErrorResponse:
       summary: "Exemplo genérico de resposta de erro na requisição do cliente"
       value:
@@ -2101,6 +2571,36 @@ components:
       value:
         code: "APIX_009"
         message: "As questões informadas não são do mesmo tipo."
+    StepCandidacyNotFoundErrorResponse:
+      summary: "Exemplo de resposta informando que não existe relação entre a etapa, a candidatura e o processo seletivo informado"
+      value:
+        code: "NOT_FOUND"
+        message: "As entidades de identificadores STE-7Jghj65HJ, APP-KJ89dh3G1 e SEL-l1Hp7dJBJ não possuem relação entre si."
+    PreviousStepIncompleteErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível liberar uma etapa devido a etapa anterior não ter sido completada"
+      value:
+        code: "APIX_018"
+        message: "A etapa informada não pode ser liberada devido a etapa anterior não ter tido o seu ciclo completado."
+    StepIsNotAvailableErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível executar a etapa pois ela ainda não está disponível para ser executada"
+      value:
+        code: "APIX_013"
+        message: "A etapa informada não pode ser executada pois ainda não está disponível."
+    StepHasExpiredErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível executar a etapa pois o prazo de execução expirou"
+      value:
+        code: "APIX_014"
+        message: "A etapa informada não pode ser executada pois seu prazo de execução expirou."
+    StepQuestionIdentifierInvalidErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível executar a etapa pois foram informados identificadores de questões inválidos"
+      value:
+        code: "APIX_008"
+        message: "Os identificadores fornecidos são inválidos: [QUE-bhjb675Ga, QUE-Ghkb675Ga]."
+    StepQuestionTypeIsInvalidErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível processa a solicitação pois a etapa possui questões de tipos diferentes"
+      value:
+        code: "APIX_015"
+        message: "As questões informadas não são do mesmo tipo."
   parameters:
     AuthorizationHeader:
       name: Authorization
@@ -2133,6 +2633,17 @@ components:
       required: true
       schema:
         type: string
+    StepTypePath:
+      name: type
+      in: path
+      description: Tipo de uma etapa.
+      required: true
+      schema:
+        type: string
+        enum:
+          - THEORETICAL_TEST
+          - UPLOAD_FILES
+          - EXTERNAL
     PageSizeParam:
       name: pageSize
       in: query

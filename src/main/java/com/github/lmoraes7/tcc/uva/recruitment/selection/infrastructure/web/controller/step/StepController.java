@@ -49,7 +49,7 @@ public class StepController {
         this.releaseStepForCandidateUseCase = releaseStepForCandidateUseCase;
     }
 
-    @GetMapping("/{stepIdentifier}/type/THEORETICAL_TEST/application/{applicationIdentifier}")
+    @GetMapping("/{stepIdentifier}/type/theorical_test/application/{applicationIdentifier}")
     public ResponseEntity<ResponsesFromAnExecutedStepResponse> consultResponsesFromAnExecutedStepTheorical(
             @PathVariable final String stepIdentifier,
             @PathVariable final String applicationIdentifier
@@ -68,7 +68,7 @@ public class StepController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(value = "/{stepIdentifier}/type/UPLOAD_FILES/application/{applicationIdentifier}", produces = "application/zip")
+    @GetMapping(value = "/{stepIdentifier}/type/upload_files/application/{applicationIdentifier}", produces = "application/zip")
     public void consultResponsesFromAnExecutedStepUpload(
             @PathVariable final String stepIdentifier,
             @PathVariable final String applicationIdentifier,
@@ -145,7 +145,7 @@ public class StepController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/{stepIdentifier}/type/THEORETICAL_TEST/candidacy/{candidacyIdentifier}/selective-process/{selectiveProcessIdentifier}")
+    @PostMapping("/{stepIdentifier}/type/theorical_test/candidacy/{candidacyIdentifier}/selective-process/{selectiveProcessIdentifier}")
     public ResponseEntity<Object> executeStepCandidacyTheoricalTest(
             @PathVariable final String stepIdentifier,
             @PathVariable final String candidacyIdentifier,
@@ -164,7 +164,7 @@ public class StepController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{stepIdentifier}/type/UPLOAD_FILES/candidacy/{candidacyIdentifier}/selective-process/{selectiveProcessIdentifier}")
+    @PostMapping("/{stepIdentifier}/type/upload_files/candidacy/{candidacyIdentifier}/selective-process/{selectiveProcessIdentifier}")
     public ResponseEntity<?> executeStepCandidacyUploadFiles(
             @PathVariable final String stepIdentifier,
             @PathVariable final String candidacyIdentifier,
@@ -185,6 +185,19 @@ public class StepController {
 
     @PatchMapping("/{stepIdentifier}/candidacy/{candidacyIdentifier}")
     public ResponseEntity<?> releaseStepForCandidate(
+            @PathVariable final String stepIdentifier,
+            @PathVariable final String candidacyIdentifier
+    ) {
+        this.releaseStepForCandidateUseCase.execute(
+                SecurityEmployeeContext.getContext(),
+                ConverterHelper.toDtoo(stepIdentifier, candidacyIdentifier)
+        );
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{stepIdentifier}/type/external/candidacy/{candidacyIdentifier}")
+    public ResponseEntity<?> releaseStepExternalForCandidate(
             @PathVariable final String stepIdentifier,
             @PathVariable final String candidacyIdentifier,
             @RequestBody(required = false) @Valid final ReleaseStepForCandidateRequest request
