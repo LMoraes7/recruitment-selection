@@ -49,10 +49,10 @@ public class StepController {
         this.releaseStepForCandidateUseCase = releaseStepForCandidateUseCase;
     }
 
-    @GetMapping("/{stepIdentifier}/type/theorical_test/application/{applicationIdentifier}")
+    @GetMapping("/{stepIdentifier}/type/theorical_test/application/{candidacyIdentifier}")
     public ResponseEntity<ResponsesFromAnExecutedStepResponse> consultResponsesFromAnExecutedStepTheorical(
             @PathVariable final String stepIdentifier,
-            @PathVariable final String applicationIdentifier
+            @PathVariable final String candidacyIdentifier
     ) {
         final ResponsesFromAnExecutedStepResponse response = ConverterHelper.toResponse(
                 this.consultResponsesFromAnExecutedStepUseCase.execute(
@@ -60,7 +60,7 @@ public class StepController {
                         ConverterHelper.toDto(
                                 stepIdentifier,
                                 TypeStep.THEORETICAL_TEST.name(),
-                                applicationIdentifier
+                                candidacyIdentifier
                         )
                 )
         );
@@ -68,15 +68,15 @@ public class StepController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(value = "/{stepIdentifier}/type/upload_files/application/{applicationIdentifier}", produces = "application/zip")
+    @GetMapping(value = "/{stepIdentifier}/type/upload_files/application/{candidacyIdentifier}", produces = "application/zip")
     public void consultResponsesFromAnExecutedStepUpload(
             @PathVariable final String stepIdentifier,
-            @PathVariable final String applicationIdentifier,
+            @PathVariable final String candidacyIdentifier,
             final HttpServletResponse httpServletResponse
     ) throws IOException {
         final ResponsesFromAnExecutedStep result = this.consultResponsesFromAnExecutedStepUseCase.execute(
                 SecurityEmployeeContext.getContext(),
-                ConverterHelper.toDto(stepIdentifier, TypeStep.UPLOAD_FILES.name(), applicationIdentifier)
+                ConverterHelper.toDto(stepIdentifier, TypeStep.UPLOAD_FILES.name(), candidacyIdentifier)
         );
 
         httpServletResponse.setStatus(HttpServletResponse.SC_OK);

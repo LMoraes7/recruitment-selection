@@ -1161,8 +1161,10 @@ paths:
             schema:
               $ref: '#/components/schemas/ExecuteStepTheoricalTestRequest'
             examples:
-              executeStepTheoricalTestRequest:
-                $ref: '#/components/examples/ExecuteStepTheoricalTestRequest'
+              executeStepTheoricalTestMultipleChoiceRequest:
+                $ref: '#/components/examples/ExecuteStepTheoricalTestMultipleChoiceRequest'
+              executeStepTheoricalTestDiscursiveRequest:
+                $ref: '#/components/examples/ExecuteStepTheoricalTestDiscursiveRequest'
       responses:
         '200':
           description: Solicitação efetuada com sucesso.
@@ -1203,6 +1205,155 @@ paths:
               examples:
                 internalErrorResponse:
                   $ref: '#/components/examples/InternalErrorResponse'
+
+  '/step/{stepIdentifier}/type/theorical_test/application/{candidacyIdentifier}':
+    get:
+      tags:
+        - step
+      summary: Solicitar busca de respostas da execução de uma etapa de teste teórico
+      description: |-
+        Endpoint responsável por buscar respostas da execução de uma etapa de teste teórico.
+        <br /> <br />
+        **Scope:** FUNC_CONSULT_STEP_ANSWERS
+      operationId: consultResponsesFromAnExecutedStepTheorical
+      parameters:
+        - $ref: '#/components/parameters/StepIdentifierPath'
+        - $ref: '#/components/parameters/CandidacyIdentifierPath'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Solicitação efetuada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultAnswerStepTheoricalResponse'
+              examples:
+                consultAnswerStepTheoricalMultipleChoiceResponse':
+                  $ref: '#/components/examples/ConsultAnswerStepTheoricalMultipleChoiceResponse'
+                consultAnswerStepTheoricalDiscursiveResponse':
+                  $ref: '#/components/examples/ConsultAnswerStepTheoricalDiscursiveResponse'
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/step/{stepIdentifier}/type/upload_files/candidacy/{candidacyIdentifier}/selective-process/{selectiveProcessIdentifier}':
+    post:
+      tags:
+        - step
+      summary: Solicitar envio de execução da etapa de envio de arquivos
+      description: |-
+        Endpoint responsável por enviar a execução da etapa de envio de arquivos.
+        <br /> <br />
+        **Scope:** FUNC_EXEC_STEP
+      operationId: executeStepCandidacyUploadFiles
+      parameters:
+        - $ref: '#/components/parameters/StepIdentifierPath'
+        - $ref: '#/components/parameters/CandidacyIdentifierPath'
+        - $ref: '#/components/parameters/SelectiveProcessIdentifierPath'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      requestBody:
+        required: true
+        description: Dados para realizar o envio de execução da etapa de envio de arquivos.
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExecuteStepUploadFilesRequest'
+            encoding:
+              files:
+                style: form
+      responses:
+        '200':
+          description: Solicitação efetuada com sucesso.
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
+        '404':
+          description: Recurso não encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                stepCandidacyNotFoundErrorResponse:
+                  $ref: '#/components/examples/StepCandidacyNotFoundErrorResponse'
+        '422':
+          description: A requisição não pode ser processada devido a um erro de negócio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                stepIsNotAvailableErrorResponse:
+                  $ref: '#/components/examples/StepIsNotAvailableErrorResponse'
+                stepHasExpiredErrorResponse:
+                  $ref: '#/components/examples/StepHasExpiredErrorResponse'
+                stepFileTypeIsInvalidErrorResponse:
+                  $ref: '#/components/examples/StepFileTypeIsInvalidErrorResponse'
+                stepNumberFileIsInvalidErrorResponse:
+                  $ref: '#/components/examples/StepNumberFileIsInvalidErrorResponse'
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
+  '/step/{stepIdentifier}/type/upload_files/application/{candidacyIdentifier}':
+    get:
+      tags:
+        - step
+      summary: Solicitar download de respostas da execução de uma etapa de envio de arquivos
+      description: |-
+        Endpoint responsável por fazer o download de respostas da execução de uma etapa de envio de arquivos.
+        <br /> <br />
+        **Scope:** FUNC_CONSULT_STEP_ANSWERS
+      operationId: consultResponsesFromAnExecutedStepUpload
+      parameters:
+        - $ref: '#/components/parameters/StepIdentifierPath'
+        - $ref: '#/components/parameters/CandidacyIdentifierPath'
+        - $ref: '#/components/parameters/AuthorizationHeader'
+      responses:
+        '200':
+          description: Download de um arquivo Zip.
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+                description: Usado apenas com respostas `application/zip`
+                example: attachment; filename="files.zip"
+        '401':
+          description: Solicitação não autorizada devido a falta de autenticação.
+        '403':
+          description: Solicitação não autorizada devido a falta de permissão.
+        '500':
+          description: Ocorreu um erro interno no servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DefaultErrorResponse'
+              examples:
+                internalErrorResponse:
+                  $ref: '#/components/examples/InternalErrorResponse'
+
 components:
   schemas:
     LoginRequest:
@@ -2037,9 +2188,8 @@ components:
             description: Tipo da questão. Discursiva (DISCURSIVE) ou Múltipla Escolha (MULTIPLE_CHOICE).
             nullable: false
             enum:
-              - THEORETICAL_TEST
-              - UPLOAD_FILES
-              - EXTERNAL
+              - DISCURSIVE
+              - MULTIPLE_CHOICE
           answers:
             $ref: '#/components/schemas/AnswersQuestionTheoricalTestStepCandidacyResponse'
     AnswersQuestionTheoricalTestStepCandidacyResponse:
@@ -2121,6 +2271,130 @@ components:
           pattern: 'yyyy-MM-dd HH:mm:ss'
           description: Data e hora do teste a ser realizado.
           nullable: false
+    ExecuteStepTheoricalTestRequest:
+      type: object
+      description: Informações sobre a execução de uma etapa de teste teórico.
+      required:
+        - questions
+      properties:
+        questions:
+          $ref: '#/components/schemas/QuestionExecuteStepTheoricalTestRequest'
+    QuestionExecuteStepTheoricalTestRequest:
+      type: array
+      description: Informações sobre questões respondidas.
+      nullable: false
+      items:
+        type: object
+        minItems: 3
+        maxItems: 10
+        required:
+          - question_identifier
+          - type
+          - answer
+        properties:
+          question_identifier:
+            type: string
+            description: Identificador da questão.
+            nullable: false
+          type:
+            type: string
+            description: Tipo da questão. Discursiva (DISCURSIVE) ou Múltipla Escolha (MULTIPLE_CHOICE).
+            nullable: false
+            enum:
+              - DISCURSIVE
+              - MULTIPLE_CHOICE
+          answer:
+            $ref: '#/components/schemas/AnswerQuestionExecuteStepTheoricalTestRequest'
+    AnswerQuestionExecuteStepTheoricalTestRequest:
+      type: object
+      description: Informações sobre a resposta da questão.
+      required:
+        - answer
+      properties:
+        answer:
+          type: string
+          description: Resposta da questão. Caso a questão seja do tipo de múltipla escolha, deve-se passar o identificador da resposta. Caso a questão seja do tipo discursiva, deve-se passar a resposta do candidato.
+          nullable: false
+    ConsultAnswerStepTheoricalResponse:
+      type: object
+      description: Informações sobre a resposta de uma etapa.
+      required:
+        - candidacy_identifier
+        - step_identifier
+        - type_step
+        - theorical_step_executed
+      properties:
+        candidacy_identifier:
+          type: string
+          description: Identificador da candidatura.
+          nullable: false
+        step_identifier:
+          type: string
+          description: Identificador da etapa.
+          nullable: false
+        type_step:
+          type: string
+          description: Tipo da etapa. Teste Teórico (THEORETICAL_TEST).
+          enum:
+            - THEORETICAL_TEST
+          nullable: false
+        theorical_step_executed:
+          type: object
+          required:
+            - question_executeds
+          properties:
+            question_executeds:
+              type: array
+              description: Informações sobre as questões respondidas.
+              nullable: false
+              items:
+                type: object
+                required:
+                  - question_identifier
+                  - type_question
+                  - question_description
+                properties:
+                  question_identifier:
+                    type: string
+                    description: Identificador da questão.
+                    nullable: false
+                  answer_identifier:
+                    type: string
+                    description: Identificador da resposta de múltipla escolha.
+                    nullable: false
+                  type_question:
+                    type: string
+                    description: Tipo da questão. Discursiva (DISCURSIVE) ou Múltipla Escolha (MULTIPLE_CHOICE).
+                    nullable: false
+                    enum:
+                      - DISCURSIVE
+                      - MULTIPLE_CHOICE
+                  question_description:
+                    type: string
+                    description: Enunciado da questão.
+                    nullable: false
+                  answer_description:
+                    type: string
+                    description: Enunciado da resposta de múltipla escolha.
+                    nullable: false
+                  discursive_answer:
+                    type: string
+                    description: Resposta discursiva do candidato.
+                    nullable: false
+                  answer_correct:
+                    type: boolean
+                    description: Informação se a resposta de múltipla escolha é a correta ou não para a questão.
+                    nullable: false
+    ExecuteStepUploadFilesRequest:
+      type: object
+      required:
+        - files
+      properties:
+        files:
+          type: array
+          items:
+            type: string
+            format: binary
   examples:
     CandidateLoginRequest:
       summary: "Exemplo de autenticação de um candidato"
@@ -2454,6 +2728,84 @@ components:
       value:
         link: "https://meet.google.com/ueu-zzmf-opa"
         date_time: "2023-11-23 10:30:00"
+    ExecuteStepTheoricalTestMultipleChoiceRequest:
+      summary: "Exemplo de solicitação para executar uma etapa de teste teórico de questão de múltipla escolha"
+      value:
+        questions:
+          - question_identifier: "QUE-Nkjhfr7yB"
+            type: "MULTIPLE_CHOICE"
+            answer:
+              answer: "ANS-47Rhydejh"
+          - question_identifier: "QUE-KLJ7YIUHq"
+            type: "MULTIPLE_CHOICE"
+            answer:
+              answer: "ANS-Kih7SGD8S"
+          - question_identifier: "QUE-kn7gbuyUH"
+            type: "MULTIPLE_CHOICE"
+            answer:
+              answer: "ANS-ksfd7ehKA"
+    ExecuteStepTheoricalTestDiscursiveRequest:
+      summary: "Exemplo de solicitação para executar uma etapa de teste teórico de questão discursiva"
+      value:
+        questions:
+          - question_identifier: "QUE-Nkjhfr7yB"
+            type: "DISCURSIVE"
+            answer:
+              answer: "O País que descobriu o Brasil foi Portugal."
+          - question_identifier: "QUE-KLJ7YIUHq"
+            type: "DISCURSIVE"
+            answer:
+              answer: "O maior planeta do Sistema Solar é Júpiter."
+          - question_identifier: "QUE-kn7gbuyUH"
+            type: "DISCURSIVE"
+            answer:
+              answer: "O maior oceano do planeta Terra é o Pacífico."
+    ConsultAnswerStepTheoricalMultipleChoiceResponse:
+      summary: "Exemplo de resposta para busca de respostas de uma etapa de teste teórico de questão de múltipla escolha"
+      value:
+        candidacy_identifier: "APP-jkb7Gu67R"
+        step_identifier: "STE-JKnhd7dlA"
+        type_step: "THEORETICAL_TEST"
+        theorical_step_executed:
+          questions_executeds:
+            - question_identifier: "QUE-Nkjhfr7yB"
+              answer_identifier: "ANS-8dysHJVH1"
+              type_question: "MULTIPLE_CHOICE"
+              question_description: "Qual foi o País que descobriu o Brasil em 1500?"
+              answer_description: "Espanha"
+              answer_correct: false
+            - question_identifier: "QUE-KLJ7YIUHq"
+              answer_identifier: "ANS-kKJN7yJKH"
+              type_question: "MULTIPLE_CHOICE"
+              question_description: "Qual é o maior planeta do Sistema Solar?"
+              answer_description: "Júpiter"
+              answer_correct: true
+            - question_identifier: "QUE-kn7gbuyUH"
+              answer_identifier: "ANS-89IUHhbjh"
+              type_question: "MULTIPLE_CHOICE"
+              question_description: "Qual é o maior oceano da face da Terra?"
+              answer_description: "Pacífico"
+              answer_correct: true
+    ConsultAnswerStepTheoricalDiscursiveResponse:
+      summary: "Exemplo de resposta para busca de respostas de uma etapa de teste teórico de questão discursiva"
+      value:
+        candidacy_identifier: "APP-jkb7Gu67R"
+        step_identifier: "STE-JKnhd7dlA"
+        type_step: "THEORETICAL_TEST"
+        theorical_step_executed:
+          questions_executeds:
+            - question_identifier: "QUE-Nkjhfr7yB"
+              type_question: "DISCURSIVE"
+              question_description: "Qual foi o País que descobriu o Brasil em 1500?"
+              discursive_answer: "O País que descobriu o Brasil foi Portugal."
+            - question_identifier: "QUE-KLJ7YIUHq"
+              type_question: "DISCURSIVE"
+              question_description: "Qual é o maior planeta do Sistema Solar?"
+              discursive_answer: "O maior planeta do Sistema Solar é Júpiter."
+            - question_identifier: "QUE-kn7gbuyUH"
+              type_question: "DISCURSIVE"
+              question_description: "Qual é o maior oceano da face da Terra?"
+              discursive_answer: "O maior oceano é o Pacífico."
     BadRequestErrorResponse:
       summary: "Exemplo genérico de resposta de erro na requisição do cliente"
       value:
@@ -2597,10 +2949,20 @@ components:
         code: "APIX_008"
         message: "Os identificadores fornecidos são inválidos: [QUE-bhjb675Ga, QUE-Ghkb675Ga]."
     StepQuestionTypeIsInvalidErrorResponse:
-      summary: "Exemplo de resposta informando que não é possível processa a solicitação pois a etapa possui questões de tipos diferentes"
+      summary: "Exemplo de resposta informando que não é possível processar a solicitação pois a etapa possui questões de tipos diferentes"
       value:
         code: "APIX_015"
         message: "As questões informadas não são do mesmo tipo."
+    StepFileTypeIsInvalidErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível processar a solicitação pois a etapa possui arquivos de tipos diferentes requeridos"
+      value:
+        code: "APIX_017"
+        message: "Os tipos de arquivos informados não correspondem aos solicitados na etapa."
+    StepNumberFileIsInvalidErrorResponse:
+      summary: "Exemplo de resposta informando que não é possível processar a solicitação pois foram informado uma quantidade diferente de arquivos"
+      value:
+        code: "APIX_016"
+        message: "A quantidade de arquivos enviados não corresponde a quantidade de arquivos definidos na etapa."
   parameters:
     AuthorizationHeader:
       name: Authorization
